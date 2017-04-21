@@ -41,12 +41,16 @@ if [ ! -d ~/.vim_runtime ]; then
     git clone https://github.com/amix/vimrc.git ~/.vim_runtime
     bash ~/.vim_runtime/install_awesome_vimrc.sh
     cp configs/my_configs.vim ~/.vim_runtime/
-    sed -e '1i\'$'\n''# hanxiao v${version}' ~/.vimrc > tmp
+    sed -e '1i\'$'\n''\" hanxiao v${version}' ~/.vimrc > tmp
     mv tmp ~/.vimrc
 elif [ ${v_flag} -eq 0 ]; then
     cp configs/my_configs.vim ~/.vim_runtime/
     sed -e '1i\'$'\n''\" hanxiao v${version}' ~/.vimrc > tmp
     mv tmp ~/.vimrc
+fi
+
+if [ -d ~/.vim_runtime/sources_forked/vim-peepopen ]; then
+    rm -rf ~/.vim_runtime/sources_forked/vim-peepopen
 fi
 
 echo "done"

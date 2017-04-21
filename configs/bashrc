@@ -86,7 +86,6 @@ if [ -x /usr/bin/dircolors ]; then
   alias vdir='vdir --color=auto'
 
   alias grep='grep --color=always'
-  alias grep='GREP_COLOR="1;37;41" LANG=C grep --color=auto'
   alias fgrep='fgrep --color=auto'
   alias egrep='egrep --color=auto'
 else
@@ -121,3 +120,14 @@ fi
 set completion-ignore-case on
 set show-all-if-ambiguous on
 # TAB: menu-complete
+
+function nn {
+  if [ -z "$1" ]
+  then
+    title=${PWD##*/} # current directory
+  else
+    title=$1 # first param
+  fi
+  echo -n -e "\033]0;$title\007"
+}
+
