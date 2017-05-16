@@ -1,6 +1,7 @@
 #!/bin/bash
 version="v1.0"
 
+if [ -f ]
 if [ -f ~/.bashrc ]; then
     v_curr=`head -1 ~/.bashrc | awk '{print $3}'`
     if [ ${v_curr} != ${version} ]; then

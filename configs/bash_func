@@ -1,0 +1,94 @@
+#!/bin/bash
+
+# about VPN connecting
+function vpnconnect {
+    randomIP4VPN
+    /usr/bin/env osascript <<-EOF
+    tell application "System Events"
+            tell current location of network preferences
+                    set VPN to service "VPN (L2TP)"
+                    if exists VPN then connect VPN
+                    repeat while (current configuration of VPN is not connected)
+                        delay 1
+                    end repeat
+            end tell
+    end tell
+EOF
+}
+
+function vpndisconnect {
+    /usr/bin/env osascript <<-EOF
+    tell application "System Events"
+            tell current location of network preferences
+                    set VPN to service "VPN (L2TP)"
+                    if exists VPN then disconnect VPN
+            end tell
+    end tell
+    return
+EOF
+}
+
+function randomIP4VPN {
+    vpnfile="vpnList_20170314"
+    common="/Users/Hans/.vpnSetting/"
+    gshuf ${common}/${vpnfile} | head -1 > ${common}/.listtmp
+
+    ## backup the first version of preference list
+    if [ ! -f ${common}/preferences.plist ]; then
+        cp /Library/Preferences/SystemConfiguration/preferences.plist ${common}/
+    fi
+
+    shuf_vpn_server=`cat ${common}/.listtmp`
+    sudo sed -i "62s@g>.\{0,100\}<@g>${shuf_vpn_server}<@" /Library/Preferences/SystemConfiguration/preferences.plist
+
+    rm ${common}/.listtmp
+}
+
+# change name for shell tab
+function nn {
+  if [ -z "$1" ]
+  then
+    title=${PWD##*/} # current directory
+  else
+    title=$1 # first param
+  fi
+  echo -n -e "\033]0;$title\007"
+}
+
+# generate a backup
+function backup
+{
+    if [ ! -z "$1" ] && [ "$1" == "-clean" ]; then
+        if [ -f ~/.backup.logs ]; then
+            rm ~/.backup.logs
+        fi
+    elif [ ! -z "$1" ] && [ -e "$1" ]; then
+        current_time=`date +%Y%m%d`_`date +%T`
+        file_name=$(basename  `realpath $1`)
+        file_path=$(dirname  `realpath $1`)
+        touch ${file_path}/.tmp > /dev/null
+        if [ -f ${file_path}/.tmp ]; then
+            rm ${file_path}/.tmp
+            cp -r $1 ${file_path}/${file_name}_${current_time}
+            chmod a-w ${file_path}/${file_name}_${current_time}
+            if [ -f "$1" ]; then
+                md5=$(echo `md5sum $1` | awk '{print $1}')
+            else
+                md5="Direction"
+            fi
+            if [ ! -z "$2" ]; then
+                exp=`echo $2`
+            else
+                exp="No explain. "
+            fi
+            echo "${file_name}\t${current_time}\t${file_path}\t${md5}\t${exp}" >> ~/.backup.logs
+            echo "------" >> ~/.backup.logs
+            echo "${green}[FINISHED]${endcolor} ${file_path}/${file_name}_${current_time}"
+        else
+            echo "${red}[ERROR]${endcolor} permission denied! "
+        fi
+    else
+        echo "${red}[ERROR]${endcolor} file not exists! "
+    fi
+}
+

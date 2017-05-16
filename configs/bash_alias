@@ -1,0 +1,51 @@
+# ~/.bash_aliases
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+  alias ls='ls --color=auto'
+  alias dir='dir --color=auto'
+  alias vdir='vdir --color=auto'
+
+  alias grep='grep --color=always'
+  alias fgrep='fgrep --color=auto'
+  alias egrep='egrep --color=auto'
+else
+  alias grep='GREP_COLOR="1;37;41" LANG=C grep --color=auto'
+fi
+
+# some more ls aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# Add an "alert" alias for long running commands. Use like so:
+# sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+# Color define
+red=$'\e[35;01m'
+green=$'\e[32;01m'
+orange=$'\e[33;01m'
+white=$'\e[1;00m'
+endcolor=$'\e[m'
+alias echo='echo -e'
+
+# Define Server
+alias aliyun='ssh -Y root@106.14.156.89'
+
+# Define os specific alias
+if [ "$(uname)" == "Darwin" ]; then
+    alias shuf="gshuf"
+    alias realpath="grealpath"
+    alias md5sum="gmd5sum"
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    echo ""
+    # Do something under GNU/Linux platform
+elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then
+    echo ""
+    # Do something under 32 bits Windows NT platform
+elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ]; then
+    echo ""
+    # Do something under 64 bits Windows NT platform
+fi
