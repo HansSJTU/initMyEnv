@@ -1,7 +1,8 @@
 #!/bin/bash
 version="v1.0"
 
-
+source ./configs/bash_alias
+source ./configs/bash_func
 # Define OS specific downloads
 if [ "$(uname)" == "Darwin" ]; then
     echo "${green}[Operation System Detect]${endcolor} Mac OSX "
@@ -11,6 +12,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     echo "${green}[Operation System Detect]${endcolor} Linux "
     plugin_file="./configs/install.linux"
     os_name="Linux"
+    sudo apt-get update
 else
     echo "${red}[Error]${endcolor} Unkown Operation System! "
     echo "This init script only support Mac OSX and Linux! "
@@ -34,6 +36,16 @@ while read line; do
     install_plugins ${os_name} ${line}
 done < ${plugin_file}
 echo "${grenn}[FINISHED]${endcolor} done installing! "
+
+if [ -f ~/.bash_alias ]; then
+    backup ~/.bash_alias
+fi
+cp ./configs/bash_alias ~/.bash_alias
+
+if [ -f ~/.bash_func ]; then
+    backup ~/.bash_func
+fi
+cp ./configs/bash_func ~/.bash_func
 
 if [ -f ~/.bashrc ]; then
     v_curr=`head -1 ~/.bashrc | awk '{print $3}'`
