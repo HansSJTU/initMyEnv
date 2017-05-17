@@ -1,7 +1,40 @@
 #!/bin/bash
 version="v1.0"
 
-if [ -f ]
+
+# Define OS specific downloads
+if [ "$(uname)" == "Darwin" ]; then
+    echo "${green}[Operation System Detect]${endcolor} Mac OSX "
+    plugin_file="./configs/install.mac"
+    os_name="OSX"
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    echo "${green}[Operation System Detect]${endcolor} Linux "
+    plugin_file="./configs/install.linux"
+    os_name="Linux"
+else
+    echo "${red}[Error]${endcolor} Unkown Operation System! "
+    echo "This init script only support Mac OSX and Linux! "
+EOF
+fi
+
+function install_plugins
+{
+    if [ $1 == "OSX" ]; then
+        brew install "$2"
+    elif [ $1 == "Linux" ]; then
+        sudo apt-get install "$2"
+    fi
+}
+
+total_plugin_num=`cat ${plugin_file} | wc -l`
+current_plugin_num=1
+while read line; do
+    echo "${green}[${current_plugin_num} / ${total_plugin_num}] ${endcolor} : ${line}..."
+    ((current_plugin_num++))
+    install_plugins ${os_name} ${line}
+done < ${plugin_file}
+echo "${grenn}[FINISHED]${endcolor} done installing! "
+
 if [ -f ~/.bashrc ]; then
     v_curr=`head -1 ~/.bashrc | awk '{print $3}'`
     if [ ${v_curr} != ${version} ]; then
