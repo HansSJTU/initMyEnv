@@ -88,7 +88,7 @@ if [ -f ~/.bash_alias ]; then
 fi
 
 if [ -f ~/.bash_func ]; then
-    source ~/.bash_alias
+    source ~/.bash_func
 fi
 
 # enable programmable completion features (you don't need to enable
