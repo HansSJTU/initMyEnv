@@ -64,7 +64,6 @@ fi
 if [ -f ~/.vimrc ]; then
     backup ~/.vimrc
     mv ${backup_file_dir} ~/.setting_backup/
-    rm ~/.vimrc
 fi
 
 if [ ! -d ~/.vim_runtime ]; then
