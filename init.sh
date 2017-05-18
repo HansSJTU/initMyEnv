@@ -37,66 +37,53 @@ while read line; do
 done < ${plugin_file}
 echo "${grenn}[FINISHED]${endcolor} done installing! "
 
+if [ ! -d ~/.setting_backup ]; then
+    mkdir ~/.setting_backup
+fi
+
 if [ -f ~/.bash_alias ]; then
     backup ~/.bash_alias
+    mv ${backup_file_dir} ~/.setting_backup/
 fi
-cp ./configs/bash_alias ~/.bash_alias
 
 if [ -f ~/.bash_func ]; then
     backup ~/.bash_func
+    mv ${backup_file_dir} ~/.setting_backup/
 fi
-cp ./configs/bash_func ~/.bash_func
 
 if [ -f ~/.bashrc ]; then
-    v_curr=`head -1 ~/.bashrc | awk '{print $3}'`
-    if [ ${v_curr} != ${version} ]; then
-        mv ~/.bashrc ~/.bashrc.old
-        cp configs/bashrc ~/.bashrc
-    fi
-else
-    cp configs/bashrc ~/.bashrc
+    backup ~/.bashrc
+    mv ${backup_file_dir} ~/.setting_backup/
 fi
 
 if [ -f ~/.tmux.conf ]; then
-    v_curr=`head -1 ~/.tmux.conf | awk '{print $3}'`
-    if [ ${v_curr} != ${version} ]; then
-        mv ~/.tmux.conf ~/.tmux.conf.old
-        cp configs/tmux.conf ~/.tmux.conf
-    fi
-else
-    cp configs/tmux.conf ~/.tmux.conf
+    backup ~/.tmux.conf
+    mv ${backup_file_dir} ~/.setting_backup/
 fi
 
-v_flag=0;
 if [ -f ~/.vimrc ]; then
-    v_cur_num=`head -1 ~/.vimrc | awk '{print NF}'`
-    if [ ${v_cur_num} -lt 3 ]; then
-        mv ~/.vimrc ~/.vimrc.old
-    else
-        v_curr=`head -1 ~/.vimrc | awk '{print $3}'`
-        echo ${v_curr}
-        if [ ${v_curr} != ${version} ]; then
-            mv ~/.vimrc ~/.vimrc.old
-        else
-            v_flag=1
-        fi
-    fi
+    backup ~/.vimrc
+    mv ${backup_file_dir} ~/.setting_backup/
+    rm ~/.vimrc
 fi
 
 if [ ! -d ~/.vim_runtime ]; then
     git clone https://github.com/amix/vimrc.git ~/.vim_runtime
     bash ~/.vim_runtime/install_awesome_vimrc.sh
-    cp configs/my_configs.vim ~/.vim_runtime/
-    sed -e '1i\'$'\n''\" hanxiao v${version}' ~/.vimrc > tmp
-    mv tmp ~/.vimrc
-elif [ ${v_flag} -eq 0 ]; then
-    cp configs/my_configs.vim ~/.vim_runtime/
-    sed -e '1i\'$'\n''\" hanxiao v${version}' ~/.vimrc > tmp
-    mv tmp ~/.vimrc
 fi
 
 if [ -d ~/.vim_runtime/sources_forked/vim-peepopen ]; then
     rm -rf ~/.vim_runtime/sources_forked/vim-peepopen
+fi
+
+cp ./configs/bash_alias ~/.bash_alias
+cp ./configs/bash_func ~/.bash_func
+cp ./configs/bashrc ~/.bashrc
+cp ./configs/tmux.conf ~/.tmux.conf
+cp ./configs/my_configs.vim ~/.vim_runtime/
+
+if [ "$(uname)" == "Darwin" ]; then
+    sed -i "s@#MAC @@" ~/.tmux.conf
 fi
 
 echo "done"
