@@ -93,3 +93,11 @@ function backup
     fi
 }
 
+# redifine use subl
+if [ "$(uname)" == "Darwin" ]; then
+    function subl
+    {
+        /Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl $1
+    }
+fi
+
