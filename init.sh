@@ -82,6 +82,10 @@ if [ -d ~/.vim_runtime/sources_forked/vim-peepopen ]; then
     rm -rf ~/.vim_runtime/sources_forked/vim-peepopen
 fi
 
+if [ -f /Users/Hans/.vim_runtime/vimrcs/basic.vim ]; then
+    sed -i "s@set cmdheight=2@set cmdheight=1@" /Users/Hans/.vim_runtime/vimrcs/basic.vim
+fi
+
 cp ./configs/bash_alias ~/.bash_alias
 cp ./configs/bash_func ~/.bash_func
 cp ./configs/bashrc ~/.bashrc
