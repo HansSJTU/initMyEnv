@@ -93,7 +93,7 @@ function backup
     fi
 }
 
-# redifine use subl
+# redefine use subl
 if [ "$(uname)" == "Darwin" ]; then
     function subl
     {
@@ -101,3 +101,12 @@ if [ "$(uname)" == "Darwin" ]; then
     }
 fi
 
+# redefine pushd and popd
+function pushdd
+{
+    pushd $1 > /dev/null
+}
+function popdd
+{
+    popd > /dev/null
+}
