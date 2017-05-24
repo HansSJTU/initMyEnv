@@ -25,6 +25,8 @@ function install_plugins
         brew install "$2"
     elif [ $1 == "Linux" ]; then
         sudo apt-get install "$2"
+        wait
+        sleep 1
     fi
 }
 
@@ -35,7 +37,7 @@ while read line; do
     ((current_plugin_num++))
     install_plugins ${os_name} ${line}
 done < ${plugin_file}
-echo "${grenn}[FINISHED]${endcolor} done installing! "
+echo "${green}[FINISHED]${endcolor} done installing! "
 
 if [ ! -d ~/.setting_backup ]; then
     mkdir ~/.setting_backup
