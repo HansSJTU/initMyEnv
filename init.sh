@@ -12,7 +12,10 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     echo "${green}[Operation System Detect]${endcolor} Linux "
     plugin_file="./configs/install.linux"
     os_name="Linux"
+    echo "${orange}Start to Update apt-get...${endcolor}"
     sudo apt-get update
+    echo "${orange}Start to Setup Color Theme...${endcolor}"
+    wget -O xt  http://git.io/v3D8e && chmod +x xt && ./xt && rm xt
 else
     echo "${red}[Error]${endcolor} Unkown Operation System! "
     echo "This init script only support Mac OSX and Linux! "
@@ -30,6 +33,7 @@ function install_plugins
     fi
 }
 
+echo "${orange}Start to Install Plugins...${endcolor}"
 total_plugin_num=`cat ${plugin_file} | wc -l`
 current_plugin_num=1
 while read line; do
@@ -69,6 +73,7 @@ if [ -f ~/.vimrc ]; then
 fi
 
 if [ ! -d ~/.vim_runtime ]; then
+    echo "${orange}Start to Setting Up Vim...${endcolor}"
     git clone https://github.com/amix/vimrc.git ~/.vim_runtime
     bash ~/.vim_runtime/install_awesome_vimrc.sh
 fi
@@ -87,5 +92,5 @@ if [ "$(uname)" == "Darwin" ]; then
     sed -i "s@#MAC @@" ~/.tmux.conf
 fi
 
-echo "done"
+echo "${orange}done${endcolor}"
 
