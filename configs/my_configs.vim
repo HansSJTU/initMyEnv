@@ -1,7 +1,7 @@
 set nu
 let mapleader = "\<Space>"
 set cursorline
-highlight Cursorline cterm=bold ctermbg=8 
+highlight Cursorline cterm=bold ctermbg=16
 set cmdheight=1
 
 vmap<leader>y y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
