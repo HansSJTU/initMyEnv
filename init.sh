@@ -29,18 +29,19 @@ function install_plugins
     elif [ $1 == "Linux" ]; then
         sudo apt-get install "$2"
         wait
-        sleep 1
     fi
 }
 
 echo "${orange}Start to Install Plugins...${endcolor}"
 total_plugin_num=`cat ${plugin_file} | wc -l`
 current_plugin_num=1
-while read line; do
-    echo "${green}[${current_plugin_num} / ${total_plugin_num}] ${endcolor} : ${line}..."
+all_plugin=""
+for plugin in `cat ${plugin_file}`; do
+    echo "${green}[${current_plugin_num} / ${total_plugin_num}] ${endcolor} : ${plugin}..."
     ((current_plugin_num++))
-    install_plugins ${os_name} ${line}
-done < ${plugin_file}
+    install_plugins ${os_name} ${plugin}
+done
+
 echo "${green}[FINISHED]${endcolor} done installing! "
 
 if [ ! -d ~/.setting_backup ]; then
