@@ -1,7 +1,7 @@
 #!/bin/bash
 version="v1.0"
 user_name="Hanxiao"
-user_mail="hah114@ucsd.edu"
+user_mail="hah114\@ucsd.edu"
 
 source ./configs/bash_alias
 source ./configs/bash_func
@@ -79,7 +79,7 @@ if [ ! -d ~/.vim_runtime ]; then
     echo "${orange}Start to Setting Up Vim...${endcolor}"
     git clone https://github.com/amix/vimrc.git ~/.vim_runtime
     bash ~/.vim_runtime/install_awesome_vimrc.sh
-    sed -i "s@map <space> /@\" map <space> /@" ~/.vim_runtime/vimrcs/basic.vim  
+    sed -i "s@map <space> /@\" map <space> /@" ~/.vim_runtime/vimrcs/basic.vim
 fi
 
 if [ -d ~/.vim_runtime/sources_forked/vim-peepopen ]; then
@@ -91,16 +91,14 @@ if [ -d ~/.vim_runtime/sources_forked/vim-peepopen ]; then
 fi
 
 if [ ! -d ~/.vim_runtime/sources_forked/ctrlp.vim ]; then
-    mv /.vim_runtime/sources_non_forked/ctrlp.vim ~/.vim_runtime/sources_forked/
+    mv ~/.vim_runtime/sources_non_forked/ctrlp.vim ~/.vim_runtime/sources_forked/
 fi
 
 if [ ! -d ~/.vim_runtime/sources_forked/vim-template ]; then
     git clone git://github.com/aperezdc/vim-template.git ~/.vim_runtime/sources_forked/vim-template
     # change the formatting of the template
     pushdd ~/.vim_runtime/sources_forked/vim-template/templates
-    sed -i "s@%YEAR%@%DATE%@g" *
-    sed -i "s@%MAIL%@${user_mail}@" *
-    sed -i "s@%USER%@${user_name}@" *
+    sed -ie "s@%YEAR%@%DATE%@g;s@%MAIL%@${user_mail}@g;s@%USER%@${user_name}@g" *
     popdd
 fi
 
