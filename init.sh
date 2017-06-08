@@ -3,7 +3,7 @@ version="v1.0"
 user_name="Hanxiao"
 user_mail="hah114@ucsd.edu"
 git_name="HansSJTU"
-git_email="Hanshosjtu@gmail.com"
+git_email="Hanshosjtu@gmail.com" #make sure "?" does not exists in all names and mails
 
 source ./configs/bash_alias
 source ./configs/bash_func
@@ -90,7 +90,7 @@ if [ ! -d ~/.vim_runtime/sources_forked/vim-template ]; then
     git clone git://github.com/aperezdc/vim-template.git ~/.vim_runtime/sources_forked/vim-template
     # change the formatting of the template
     pushdd ~/.vim_runtime/sources_forked/vim-template/templates
-    sed -ie "s@%YEAR%@%DATE%@g;s@%MAIL%@${user_mail}@g;s@%USER%@${user_name}@g" *
+    sed -ie "s@%YEAR%@%DATE%@g;s?%MAIL%?${user_mail}?g;s?%USER%?${user_name}?g" *
     popdd
 fi
 
@@ -99,7 +99,7 @@ cp ./configs/bash_func ~/.bash_func
 cp ./configs/bashrc ~/.bashrc
 cp ./configs/tmux.conf ~/.tmux.conf
 cp ./configs/my_configs.vim ~/.vim_runtime/
-cp ./configs/gitconfig ~/.gitconfig; sed -ie "s@#NAME#@${git_name}@g;s@#MAIL@${git_email}@g" ~/.gitconfig
+cp ./configs/gitconfig ~/.gitconfig; sed -ie "s@?NAME#?${git_name}?g;s?#MAIL?${git_email}?g" ~/.gitconfig
 
 if [ "$(uname)" == "Darwin" ]; then
     sed -i "s@#MAC @@" ~/.tmux.conf
