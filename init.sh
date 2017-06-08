@@ -1,5 +1,6 @@
 #!/bin/bash
 version="v1.0"
+
 user_name="Hanxiao"
 user_mail="hah114@ucsd.edu"
 git_name="HansSJTU"
@@ -60,7 +61,7 @@ function backup_and_copy
     fi
 }
 
-backup_and_copy ~/.bash_alias 
+backup_and_copy ~/.bash_alias
 backup_and_copy ~/.bashrc
 backup_and_copy ~/.tmux.conf
 backup_and_copy ~/.vimrc
@@ -71,7 +72,7 @@ if [ ! -d ~/.vim_runtime ]; then
     git clone https://github.com/amix/vimrc.git ~/.vim_runtime
     bash ~/.vim_runtime/install_awesome_vimrc.sh
     # ignore this map in old basic.vim
-    sed -i "s@map <space> /@\" map <space> /@" ~/.vim_runtime/vimrcs/basic.vim  
+    sed -i "s@map <space> /@\" map <space> /@" ~/.vim_runtime/vimrcs/basic.vim
 fi
 
 if [ -d ~/.vim_runtime/sources_forked/vim-peepopen ]; then
@@ -90,7 +91,7 @@ if [ ! -d ~/.vim_runtime/sources_forked/vim-template ]; then
     git clone git://github.com/aperezdc/vim-template.git ~/.vim_runtime/sources_forked/vim-template
     # change the formatting of the template
     pushdd ~/.vim_runtime/sources_forked/vim-template/templates
-    sed -ie "s@%YEAR%@%DATE%@g;s?%MAIL%?${user_mail}?g;s?%USER%?${user_name}?g" *
+    sed -ie "s?%YEAR%?%DATE%?g;s?%MAIL%?${user_mail}?g;s?%USER%?${user_name}?g" *
     popdd
 fi
 
@@ -99,7 +100,7 @@ cp ./configs/bash_func ~/.bash_func
 cp ./configs/bashrc ~/.bashrc
 cp ./configs/tmux.conf ~/.tmux.conf
 cp ./configs/my_configs.vim ~/.vim_runtime/
-cp ./configs/gitconfig ~/.gitconfig; sed -ie "s@?NAME#?${git_name}?g;s?#MAIL?${git_email}?g" ~/.gitconfig
+cp ./configs/gitconfig ~/.gitconfig; sed -ie "s?#NAME#?${git_name}?g;s?#MAIL#?${git_email}?g" ~/.gitconfig
 
 if [ "$(uname)" == "Darwin" ]; then
     sed -i "s@#MAC @@" ~/.tmux.conf
