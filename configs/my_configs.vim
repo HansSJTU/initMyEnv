@@ -9,3 +9,9 @@ nmap<leader>y yiw:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pb
 nmap<leader>p :r! cat ~/.vbuf<cr>
 nmap<leader>d diwi
 nmap<leader><leader>d diwdiwdiwdiw
+
+" vimdiff mergetool keys
+map <silent> <leader>1 :diffget 1<CR>:diffupdate<CR>
+map <silent> <leader>2 :diffget 2<CR>:diffupdate<CR>
+map <silent> <leader>3 :diffget 3<CR>:diffupdate<CR>
+map <silent> <leader>4 :diffget 4<CR>:diffupdate<CR>

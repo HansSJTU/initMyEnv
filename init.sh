@@ -2,6 +2,8 @@
 version="v1.0"
 user_name="Hanxiao"
 user_mail="hah114@ucsd.edu"
+git_name="HansSJTU"
+git_email="Hanshosjtu@gmail.com"
 
 source ./configs/bash_alias
 source ./configs/bash_func
@@ -49,35 +51,25 @@ if [ ! -d ~/.setting_backup ]; then
     mkdir ~/.setting_backup
 fi
 
-if [ -f ~/.bash_alias ]; then
-    backup ~/.bash_alias
-    mv ${backup_file_dir} ~/.setting_backup/
-fi
+function backup_and_copy
+{
+    if [ -f "$1" ]; then
+        backup "$1"
+        mv ${backup_file_dir} ~/.setting_backup/
+    fi
+}
 
-if [ -f ~/.bash_func ]; then
-    backup ~/.bash_func
-    mv ${backup_file_dir} ~/.setting_backup/
-fi
-
-if [ -f ~/.bashrc ]; then
-    backup ~/.bashrc
-    mv ${backup_file_dir} ~/.setting_backup/
-fi
-
-if [ -f ~/.tmux.conf ]; then
-    backup ~/.tmux.conf
-    mv ${backup_file_dir} ~/.setting_backup/
-fi
-
-if [ -f ~/.vimrc ]; then
-    backup ~/.vimrc
-    mv ${backup_file_dir} ~/.setting_backup/
-fi
+backup_and_copy ~/.bash_alias 
+backup_and_copy ~/.bashrc
+backup_and_copy ~/.tmux.conf
+backup_and_copy ~/.vimrc
+backup_and_copy ~/.gitconfig
 
 if [ ! -d ~/.vim_runtime ]; then
     echo "${orange}Start to Setting Up Vim...${endcolor}"
     git clone https://github.com/amix/vimrc.git ~/.vim_runtime
     bash ~/.vim_runtime/install_awesome_vimrc.sh
+    # ignore this map in old basic.vim
     sed -i "s@map <space> /@\" map <space> /@" ~/.vim_runtime/vimrcs/basic.vim  
 fi
 
@@ -108,6 +100,7 @@ cp ./configs/bash_func ~/.bash_func
 cp ./configs/bashrc ~/.bashrc
 cp ./configs/tmux.conf ~/.tmux.conf
 cp ./configs/my_configs.vim ~/.vim_runtime/
+cp ./configs/gitconfig ~/.gitconfig; sed -ie "s@#NAME#@${git_name}@g;s@#MAIL@${git_email}@g" ~/.gitconfig
 
 if [ "$(uname)" == "Darwin" ]; then
     sed -i "s@#MAC @@" ~/.tmux.conf
