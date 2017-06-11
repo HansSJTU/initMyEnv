@@ -9,3 +9,4 @@ libgflags-dev
 libgoogle-glog-dev 
 libopencv-dev
 libboost-all-dev 
+tree
