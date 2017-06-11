@@ -1,3 +1,6 @@
+cmake
 tmux
 coreutils
 gnu-sed
+gflags
+glog

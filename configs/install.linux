@@ -4,3 +4,8 @@ htop
 tmux
 ag
 git
+cmake
+libgflags-dev
+libgoogle-glog-dev 
+libopencv-dev
+libboost-all-dev 
