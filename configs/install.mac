@@ -4,4 +4,6 @@ coreutils
 gnu-sed
 gflags
 glog
+boost
+jsoncpp
 tree
