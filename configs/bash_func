@@ -110,3 +110,17 @@ function popdd
 {
     popd > /dev/null
 }
+
+# git regenerate origin
+function gitregenerate
+{
+    if [ ! -f .git/FETCH_HEAD ]; then
+        echo "No git repo exists.."
+        return
+    else
+        repo_web=`awk '{print $NF}' .git/FETCH_HEAD`
+        git remote rm origin
+        new_web=`echo ${repo_web} | sed "s@https://@https://HansSJTU:19950522Hans\@@"`
+        git remote add origin ${new_web}
+    fi
+}
