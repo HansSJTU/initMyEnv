@@ -100,16 +100,16 @@ if [ ! -d ~/.vim_runtime/sources_forked/vim-template ]; then
     git clone git://github.com/aperezdc/vim-template.git ~/.vim_runtime/sources_forked/vim-template
     # change the formatting of the template
     pushdd ~/.vim_runtime/sources_forked/vim-template/templates
-    sed -ie "s?%YEAR%?%DATE%?g;s?%MAIL%?${user_mail}?g;s?%USER%?${user_name}?g" *
+    sed -i "s?%YEAR%?%DATE%?g;s?%MAIL%?${user_mail}?g;s?%USER%?${user_name}?g" *
     popdd
 fi
 
 cp ./configs/bash_alias ~/.bash_alias
-cp ./configs/bash_func ~/.bash_func; sed -ie "s?#GITNAME#?${git_name}?g;s?#GITPASSWD#?${git_passwd}?g" ~/.bash_func
+cp ./configs/bash_func ~/.bash_func; sed -i "s?#GITNAME#?${git_name}?g;s?#GITPASSWD#?${git_passwd}?g" ~/.bash_func
 cp ./configs/bashrc ~/.bashrc
 cp ./configs/tmux.conf ~/.tmux.conf
 cp ./configs/my_configs.vim ~/.vim_runtime/
-cp ./configs/gitconfig ~/.gitconfig; sed -ie "s?#NAME#?${git_name}?g;s?#MAIL#?${git_email}?g" ~/.gitconfig
+cp ./configs/gitconfig ~/.gitconfig; sed -i "s?#NAME#?${git_name}?g;s?#MAIL#?${git_email}?g" ~/.gitconfig
 
 if [ "$(uname)" == "Darwin" ]; then
     sed -i "s@#MAC @@" ~/.tmux.conf
