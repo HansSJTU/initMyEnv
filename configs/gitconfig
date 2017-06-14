@@ -8,7 +8,7 @@
 [diff]
 	tool = vimdiff
 [difftool]
-	prompt = false
+	prompt = true
 [merge]
 	tool = vimdiff
 [mergetool]
