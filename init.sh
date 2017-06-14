@@ -79,7 +79,7 @@ backup_and_copy ~/.gitconfig
 
 if [ ! -d ~/.vim_runtime ]; then
     echo "${orange}Start to Setting Up Vim...${endcolor}"
-    git clone https://github.com/amix/vimrc.git ~/.vim_runtime
+    git clone --depth=1 https://github.com/amix/vimrc.git ~/.vim_runtime
     bash ~/.vim_runtime/install_awesome_vimrc.sh
     # ignore this map in old basic.vim
     sed -i "s@map <space> /@\" map <space> /@" ~/.vim_runtime/vimrcs/basic.vim
@@ -97,7 +97,7 @@ if [ ! -d ~/.vim_runtime/sources_forked/ctrlp.vim ]; then
 fi
 
 if [ ! -d ~/.vim_runtime/sources_forked/vim-template ]; then
-    git clone git://github.com/aperezdc/vim-template.git ~/.vim_runtime/sources_forked/vim-template
+    git clone --depth=1 git://github.com/aperezdc/vim-template.git ~/.vim_runtime/sources_forked/vim-template
     # change the formatting of the template
     pushdd ~/.vim_runtime/sources_forked/vim-template/templates
     sed -i "s?%YEAR%?%DATE%?g;s?%MAIL%?${user_mail}?g;s?%USER%?${user_name}?g" *
@@ -110,6 +110,7 @@ cp ./configs/bashrc ~/.bashrc
 cp ./configs/tmux.conf ~/.tmux.conf
 cp ./configs/my_configs.vim ~/.vim_runtime/
 cp ./configs/gitconfig ~/.gitconfig; sed -i "s?#NAME#?${git_name}?g;s?#MAIL#?${git_email}?g" ~/.gitconfig
+cp ./configs/git-completion.bash ~/.git-completion.bash
 
 if [ "$(uname)" == "Darwin" ]; then
     sed -i "s@#MAC @@" ~/.tmux.conf
