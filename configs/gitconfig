@@ -15,3 +15,5 @@
 	prompt = false
 [color]
 	ui = true
+[core]
+	editor = /usr/bin/vim
