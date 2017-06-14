@@ -1,10 +1,19 @@
 #!/bin/bash
 version="v1.0"
 
-user_name="Hanxiao"
-user_mail="hah114@ucsd.edu"
-git_name="HansSJTU"
-git_email="Hanshosjtu@gmail.com" #make sure "?" does not exists in all names and mails
+if [[ ! $1 = "-a" ]]; then
+    read -p "Your Name: " user_name
+    read -p "Your Mail(Errors when \"?\" in your mail): " user_mail
+    read -p "Your Git Name: " git_name
+    read -p "Your Git Mail: " git_email
+else
+    user_name="Hanxiao"
+    user_mail="hah114@ucsd.edu"
+    git_name="HansSJTU"
+    git_email="Hanshosjtu@gmail.com"
+fi
+read -sp "Your Git Password: " git_passwd
+echo -ne "\n"
 
 source ./configs/bash_alias
 source ./configs/bash_func
@@ -13,6 +22,7 @@ if [ "$(uname)" == "Darwin" ]; then
     echo "${green}[Operation System Detect]${endcolor} Mac OSX "
     plugin_file="./configs/install.mac"
     os_name="OSX"
+    sudo easy_install pip
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     echo "${green}[Operation System Detect]${endcolor} Linux "
     plugin_file="./configs/install.linux"
@@ -69,18 +79,17 @@ backup_and_copy ~/.gitconfig
 
 if [ ! -d ~/.vim_runtime ]; then
     echo "${orange}Start to Setting Up Vim...${endcolor}"
-    git clone https://github.com/amix/vimrc.git ~/.vim_runtime
+    git clone --depth=1 https://github.com/amix/vimrc.git ~/.vim_runtime
     bash ~/.vim_runtime/install_awesome_vimrc.sh
     # ignore this map in old basic.vim
     sed -i "s@map <space> /@\" map <space> /@" ~/.vim_runtime/vimrcs/basic.vim
 fi
 
 if [ -d ~/.vim_runtime/sources_forked/vim-peepopen ]; then
-    if [ -d ~/.vim_runtime/sources_non_forked/vim-peepopen ]; then
-        rm -rf ~/.vim_runtime/sources_forked/vim-peepopen
-    else
-        mv ~/.vim_runtime/sources_forked/vim-peepopen ~/.vim_runtime/sources_non_forked/
-    fi
+    rm -rf ~/.vim_runtime/sources_forked/vim-peepopen
+fi
+if [ -d ~/.vim_runtime/sources_non_forked/vim-peepopen ]; then
+    rm -rf ~/.vim_runtime/sources_non_forked/vim-peepopen
 fi
 
 if [ ! -d ~/.vim_runtime/sources_forked/ctrlp.vim ]; then
@@ -88,19 +97,20 @@ if [ ! -d ~/.vim_runtime/sources_forked/ctrlp.vim ]; then
 fi
 
 if [ ! -d ~/.vim_runtime/sources_forked/vim-template ]; then
-    git clone git://github.com/aperezdc/vim-template.git ~/.vim_runtime/sources_forked/vim-template
+    git clone --depth=1 git://github.com/aperezdc/vim-template.git ~/.vim_runtime/sources_forked/vim-template
     # change the formatting of the template
     pushdd ~/.vim_runtime/sources_forked/vim-template/templates
-    sed -ie "s?%YEAR%?%DATE%?g;s?%MAIL%?${user_mail}?g;s?%USER%?${user_name}?g" *
+    sed -i "s?%YEAR%?%DATE%?g;s?%MAIL%?${user_mail}?g;s?%USER%?${user_name}?g" *
     popdd
 fi
 
 cp ./configs/bash_alias ~/.bash_alias
-cp ./configs/bash_func ~/.bash_func
+cp ./configs/bash_func ~/.bash_func; sed -i "s?#GITNAME#?${git_name}?g;s?#GITPASSWD#?${git_passwd}?g" ~/.bash_func
 cp ./configs/bashrc ~/.bashrc
 cp ./configs/tmux.conf ~/.tmux.conf
 cp ./configs/my_configs.vim ~/.vim_runtime/
-cp ./configs/gitconfig ~/.gitconfig; sed -ie "s?#NAME#?${git_name}?g;s?#MAIL#?${git_email}?g" ~/.gitconfig
+cp ./configs/gitconfig ~/.gitconfig; sed -i "s?#NAME#?${git_name}?g;s?#MAIL#?${git_email}?g" ~/.gitconfig
+cp ./configs/git-completion.bash ~/.git-completion.bash
 
 if [ "$(uname)" == "Darwin" ]; then
     # reconfig the tmux
@@ -120,4 +130,3 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 fi
 
 echo "${orange}done${endcolor}"
-

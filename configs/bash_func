@@ -110,3 +110,30 @@ function popdd
 {
     popd > /dev/null
 }
+
+# git regenerate origin
+function gitregenerate
+{
+    if [ ! -d .git ]; then
+        echo "No git repo found.."
+        return
+    fi
+    if [ ! -f .git/FETCH_HEAD ]; then
+        echo "Please fetch or pull first.."
+        return
+    fi
+
+    if [[ $1 = "-a" ]]; then
+        git_rege_name=${2:-"#GITNAME#"}
+        git_rege_password=${3:-"#GITPASSWD#"}
+    else
+        read -p "git name: " git_rege_name
+        read -sp "git passwd: " git_rege_password
+        echo -ne "\n"
+    fi
+
+    repo_web=`awk '{print $NF}' .git/FETCH_HEAD`
+    git remote rm origin
+    new_web=`echo ${repo_web} | sed "s@https://@https://${git_rege_name}:${git_rege_password}\@@"`
+    git remote add origin ${new_web}
+}
