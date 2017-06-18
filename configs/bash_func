@@ -39,7 +39,7 @@ function randomIP4VPN {
     fi
 
     shuf_vpn_server=`cat ${common}/.listtmp`
-    sudo sed -i "62s@g>.\{0,100\}<@g>${shuf_vpn_server}<@" /Library/Preferences/SystemConfiguration/preferences.plist
+    sudo sed -i "213s@g>.\{0,100\}<@g>${shuf_vpn_server}<@" /Library/Preferences/SystemConfiguration/preferences.plist
 
     rm ${common}/.listtmp
 }

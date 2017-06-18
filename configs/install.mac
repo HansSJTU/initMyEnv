@@ -7,3 +7,4 @@ glog
 boost
 jsoncpp
 tree
+reattach-to-user-namespace
