@@ -15,8 +15,10 @@ fi
 read -sp "Your Git Password: " git_passwd
 echo -ne "\n"
 
+shopt -s expand_aliases
 source ./configs/bash_alias
 source ./configs/bash_func
+
 # Define OS specific downloads
 if [ "$(uname)" == "Darwin" ]; then
     echo "${green}[Operation System Detect]${endcolor} Mac OSX "
