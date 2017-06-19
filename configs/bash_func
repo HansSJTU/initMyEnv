@@ -64,8 +64,9 @@ function backup
         fi
     elif [ ! -z "$1" ] && [ -e "$1" ]; then
         current_time=`date +%Y%m%d`_`date +%T`
-        file_name=$(basename  `realpath $1`)
-        file_path=$(dirname  `realpath $1`)
+        absolute_path=`realpath $1`
+        file_name=$(basename "${absolute_path}")
+        file_path=$(dirname "${absolute_path}")
         touch ${file_path}/.tmp > /dev/null
         if [ -f ${file_path}/.tmp ]; then
             rm ${file_path}/.tmp
