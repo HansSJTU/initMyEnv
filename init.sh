@@ -79,6 +79,7 @@ backup_and_copy ~/.tmux.conf
 backup_and_copy ~/.vimrc
 backup_and_copy ~/.gitconfig
 backup_and_copy ~/.bash_profile
+backup_and_copy ~/.inputrc
 backup_and_copy ~/Library/Preferences/com.apple.Terminal.plist #terminal theme binary config
 
 if [ ! -d ~/.vim_runtime ]; then
@@ -111,6 +112,7 @@ fi
 cp ./configs/bash_alias ~/.bash_alias
 cp ./configs/bash_func ~/.bash_func; sed -i "s?#GITNAME#?${git_name}?g;s?#GITPASSWD#?${git_passwd}?g" ~/.bash_func
 cp ./configs/bashrc ~/.bashrc
+cp ./configs/inputrc ~/.inputrc
 cp ./configs/tmux.conf ~/.tmux.conf
 cp ./configs/my_configs.vim ~/.vim_runtime/
 cp ./configs/gitconfig ~/.gitconfig; sed -i "s?#NAME#?${git_name}?g;s?#MAIL#?${git_email}?g" ~/.gitconfig

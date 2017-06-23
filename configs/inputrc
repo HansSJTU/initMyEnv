@@ -1,0 +1,7 @@
+# auto complete ignoring case
+set show-all-if-ambiguous on
+set completion-ignore-case on
+
+# search forward and backward
+"\e[A": history-search-backward
+"\e[B": history-search-forward
