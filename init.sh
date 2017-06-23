@@ -15,8 +15,10 @@ fi
 read -sp "Your Git Password: " git_passwd
 echo -ne "\n"
 
+shopt -s expand_aliases
 source ./configs/bash_alias
 source ./configs/bash_func
+
 # Define OS specific downloads
 if [ "$(uname)" == "Darwin" ]; then
     echo "${green}[Operation System Detect]${endcolor} Mac OSX "
@@ -76,6 +78,9 @@ backup_and_copy ~/.bashrc
 backup_and_copy ~/.tmux.conf
 backup_and_copy ~/.vimrc
 backup_and_copy ~/.gitconfig
+backup_and_copy ~/.bash_profile
+backup_and_copy ~/.inputrc
+backup_and_copy ~/Library/Preferences/com.apple.Terminal.plist #terminal theme binary config
 
 if [ ! -d ~/.vim_runtime ]; then
     echo "${orange}Start to Setting Up Vim...${endcolor}"
@@ -107,6 +112,7 @@ fi
 cp ./configs/bash_alias ~/.bash_alias
 cp ./configs/bash_func ~/.bash_func; sed -i "s?#GITNAME#?${git_name}?g;s?#GITPASSWD#?${git_passwd}?g" ~/.bash_func
 cp ./configs/bashrc ~/.bashrc
+cp ./configs/inputrc ~/.inputrc
 cp ./configs/tmux.conf ~/.tmux.conf
 cp ./configs/my_configs.vim ~/.vim_runtime/
 cp ./configs/gitconfig ~/.gitconfig; sed -i "s?#NAME#?${git_name}?g;s?#MAIL#?${git_email}?g" ~/.gitconfig
@@ -115,6 +121,10 @@ cp ./configs/git-completion.bash ~/.git-completion.bash
 if [ "$(uname)" == "Darwin" ]; then
     # reconfig the tmux
     sed -i "s@#MAC @@" ~/.tmux.conf
+    # cp bash_profile
+    cp ./configs/bash_profile ~/.bash_profile
+    # cp termianl theme
+    cp ./configs/macTerminalTheme/com.apple.Terminal.plist ~/Library/Preferences/com.apple.Terminal.plist
     # change the jsoncpp include dir to make the same as in Linux
     if [ -d /usr/local/include/json ]; then
         rm -r /usr/local/include/json
@@ -123,7 +133,7 @@ if [ "$(uname)" == "Darwin" ]; then
         ln -s ../../Cellar/jsoncpp/*/include/json/ .
         popdd
     fi
-
+    echo "${orange}[Tips]${endcolor} If terminal theme dose not change, use ./configs/macTerminalTheme/Xcode_style.terminal to manually change!"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     # linux copy function is different than mac
     sed -i "s@pbcopy@xsel -bi@g" ~/.vim_runtime/my_configs.vim

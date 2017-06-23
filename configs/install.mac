@@ -4,6 +4,8 @@ coreutils
 gnu-sed
 gflags
 glog
+gperftools
 boost
 jsoncpp
 tree
+reattach-to-user-namespace
