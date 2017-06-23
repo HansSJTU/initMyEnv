@@ -114,8 +114,12 @@ function popdd
 # git regenerate origin
 function gitregenerate
 {
-    if [ ! -f .git/FETCH_HEAD ]; then
+    if [ ! -d .git ]; then
         echo "No git repo found.."
+        return
+    fi
+    if [ ! -f .git/FETCH_HEAD ]; then
+        echo "Please fetch or pull first.."
         return
     fi
 

@@ -113,7 +113,17 @@ cp ./configs/gitconfig ~/.gitconfig; sed -i "s?#NAME#?${git_name}?g;s?#MAIL#?${g
 cp ./configs/git-completion.bash ~/.git-completion.bash
 
 if [ "$(uname)" == "Darwin" ]; then
+    # reconfig the tmux
     sed -i "s@#MAC @@" ~/.tmux.conf
+    # change the jsoncpp include dir to make the same as in Linux
+    if [ -d /usr/local/include/json ]; then
+        rm -r /usr/local/include/json
+        mkdir /usr/local/include/jsoncpp
+        pushdd /usr/local/include/jsoncpp
+        ln -s ../../Cellar/jsoncpp/*/include/json/ .
+        popdd
+    fi
+
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     # linux copy function is different than mac
     sed -i "s@pbcopy@xsel -bi@g" ~/.vim_runtime/my_configs.vim
