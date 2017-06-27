@@ -118,6 +118,19 @@ cp ./configs/my_configs.vim ~/.vim_runtime/
 cp ./configs/gitconfig ~/.gitconfig; sed -i "s?#NAME#?${git_name}?g;s?#MAIL#?${git_email}?g" ~/.gitconfig
 cp ./configs/git-completion.bash ~/.git-completion.bash
 
+# set go path
+gp="~/.mygo"
+if [ ! -d ~/.mygo ]; then
+    mkdir -p ~/.mygo
+fi
+gp_real=`realpath ~/.mygo`
+export GOPATH=${gp_real}
+# set new pprop
+if [ ! -f ${gp_real}/bin/pprof ]; then
+    go get github.com/google/pprof
+    ln -s ${gp_real}/bin/pprof usr/local/bin/pprof-new
+fi
+
 if [ "$(uname)" == "Darwin" ]; then
     # reconfig the tmux
     sed -i "s@#MAC @@" ~/.tmux.conf

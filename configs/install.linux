@@ -14,3 +14,5 @@ libboost-all-dev
 libjsoncpp-dev
 tree
 dstat
+task
+golang
