@@ -1,0 +1,5 @@
+1. Using x11 on mac to enable the linux gui 
+    ref: https://uisapp2.iu.edu/confluence-prd/pages/viewpage.action?pageId=280461906
+    on mac you should add -X option after ssh comand (The typo on the ref page)
+
+2. Terminal theme on mac can be set by *.terminal. And use the terminal preference to set it as default.
