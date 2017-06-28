@@ -150,6 +150,7 @@ if [ "$(uname)" == "Darwin" ]; then
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     # linux copy function is different than mac
     sed -i "s@pbcopy@xsel -bi@g" ~/.vim_runtime/my_configs.vim
+    sed -i "s@pbcopy@xsel -bi@g" ~/.bash_func
 fi
 
 echo "${orange}done${endcolor}"

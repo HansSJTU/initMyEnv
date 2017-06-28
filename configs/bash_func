@@ -1,5 +1,25 @@
 #!/bin/bash
 
+# double click x11
+function dcc {
+    /usr/bin/env osascript <<-EOF
+    tell application "XQuartz"
+        reopen
+        activate
+    end tell
+
+    tell application "System Events" to keystroke "," using {command down}
+    tell application "System Events" to keystroke "  "
+    tell application "System Events" to keystroke "w" using {command down}
+
+    delay 0.3
+    tell application "Terminal"
+        reopen
+        activate
+    end tell
+EOF
+}
+
 # about VPN connecting
 function vpnconnect {
     randomIP4VPN
@@ -29,7 +49,7 @@ EOF
 }
 
 function randomIP4VPN {
-    vpnfile="vpnList_20170314"
+    vpnfile="vpn.list"
     common="/Users/Hans/.vpnSetting/"
     gshuf ${common}/${vpnfile} | head -1 > ${common}/.listtmp
 
@@ -67,11 +87,11 @@ function backup
         absolute_path=`realpath $1`
         file_name=$(basename "${absolute_path}")
         file_path=$(dirname "${absolute_path}")
-        touch ${file_path}/.tmp > /dev/null
-        if [ -f ${file_path}/.tmp ]; then
-            rm ${file_path}/.tmp
-            cp -r $1 ${file_path}/${file_name}_${current_time}
-            chmod a-w ${file_path}/${file_name}_${current_time}
+        touch "${file_path}/.tmp" > /dev/null
+        if [ -f "${file_path}/.tmp" ]; then
+            rm "${file_path}/.tmp"
+            cp -r $1 "${file_path}/${file_name}_${current_time}"
+            chmod a-w "${file_path}/${file_name}_${current_time}"
             if [ -f "$1" ]; then
                 md5=$(echo `md5sum $1` | awk '{print $1}')
             else
@@ -83,18 +103,18 @@ function backup
                 exp="No explain. "
             fi
             echo -e "${file_name}\t${current_time}\t${file_path}\t${md5}\t${exp}" >> ~/.backup.logs
-            backup_file_dir=${file_path}/${file_name}_${current_time}
-            echo -e "------" >> ~/.backup.logs
-            echo "${green}[FINISHED]${endcolor} ${file_path}/${file_name}_${current_time}"
+            backup_file_dir="${file_path}/${file_name}_${current_time}"
+            echo "------" >> ~/.backup.logs
+            echo -e "${green}[FINISHED]${endcolor} ${file_path}/${file_name}_${current_time}"
         else
-            echo "${red}[ERROR]${endcolor} permission denied! "
+            echo -e "${red}[ERROR]${endcolor} permission denied! "
         fi
     else
-        echo "${red}[ERROR]${endcolor} file not exists! "
+        echo -e "${red}[ERROR]${endcolor} file not exists! "
     fi
 }
 
-# redefine use subl
+# redifine use subl
 if [ "$(uname)" == "Darwin" ]; then
     function subl
     {
@@ -137,4 +157,21 @@ function gitregenerate
     git remote rm origin
     new_web=`echo ${repo_web} | sed "s@https://@https://${git_rege_name}:${git_rege_password}\@@"`
     git remote add origin ${new_web}
+}
+
+# sedding
+function sedding
+{
+    while read data; do
+        echo "${data}" | sed "s@ @\\\ @g;s@\\\$@\\\\\$@g;s@'@\\\\\'@g;s@\"@\\\\\"@g;s@(@\\\(@g;s@)@\\\)@"
+    done
+}
+
+# delete enter
+function de
+{
+    while read data; do
+        tmp=$(echo -n ${data} | sed "s@\\\$@\\\\\$@g;s@\"@\\\\\"@g")
+        echo -n "\"${tmp}\"" | pbcopy
+    done
 }
