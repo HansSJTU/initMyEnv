@@ -128,7 +128,7 @@ export GOPATH=${gp_real}
 # set new pprop
 if [ ! -f ${gp_real}/bin/pprof ]; then
     go get github.com/google/pprof
-    ln -s ${gp_real}/bin/pprof usr/local/bin/pprof-new
+    ln -s ${gp_real}/bin/pprof /usr/local/bin/pprof-new
 fi
 
 if [ "$(uname)" == "Darwin" ]; then
