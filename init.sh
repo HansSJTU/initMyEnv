@@ -147,7 +147,10 @@ if [ "$(uname)" == "Darwin" ]; then
         popdd
     fi
     echo "${orange}[Tips]${endcolor} If terminal theme dose not change, use ./configs/macTerminalTheme/Xcode_style.terminal to manually change!"
+
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    # reconfig the tmux
+    sed -i "s@#LINUX @@" ~/.tmux.conf
     # linux copy function is different than mac
     sed -i "s@pbcopy@xsel -bi@g" ~/.vim_runtime/my_configs.vim
     sed -i "s@pbcopy@xsel -bi@g" ~/.bash_func
