@@ -6,6 +6,7 @@ if [ "$(uname)" == "Darwin" ]; then
     alias shuf="gshuf"
     alias realpath="grealpath"
     alias md5sum="gmd5sum"
+    alias sed="gsed"
     alias rm="grm"
     alias ls="gls --color"
     alias dir="gdir --color"

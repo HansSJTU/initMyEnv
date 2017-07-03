@@ -1,4 +1,5 @@
 cmake
+htop
 tmux
 coreutils
 gnu-sed
