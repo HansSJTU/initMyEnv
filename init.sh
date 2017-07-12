@@ -106,6 +106,7 @@ if [ ! -d ~/.vim_runtime/sources_forked/vim-template ]; then
     # change the formatting of the template
     pushdd ~/.vim_runtime/sources_forked/vim-template/templates
     sed -i "s?%YEAR%?%DATE%?g;s?%MAIL%?${user_mail}?g;s?%USER%?${user_name}?g" *
+    sed -i "s@bin/sh@bin/bash@g" *.sh   #change the interpreter
     popdd
 fi
 
