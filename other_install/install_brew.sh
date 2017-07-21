@@ -11,4 +11,4 @@
 curl -LsSf http://github.com/mxcl/homebrew/tarball/master | sudo tar xvz -C/usr/local --strip 1
 sudo chown -R $(whoami) /usr/local
 rm -rf /usr/local/share/doc/homebrew
-brew update
+brew update -v

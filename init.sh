@@ -24,6 +24,7 @@ if [ "$(uname)" == "Darwin" ]; then
     echo "${green}[Operation System Detect]${endcolor} Mac OSX "
     plugin_file="./configs/install.mac"
     os_name="OSX"
+    command -v brew >/dev/null 2>&1 || { ./other_install/install_brew.sh; }
     sudo easy_install pip
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     echo "${green}[Operation System Detect]${endcolor} Linux "
