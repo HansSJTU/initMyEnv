@@ -19,3 +19,11 @@ nmap<leader><leader>d diwdiwdiwdiw
 map <silent> <leader>1 :diffget 1<CR>:diffupdate<CR>
 map <silent> <leader>2 :diffget 2<CR>:diffupdate<CR>
 map <silent> <leader>3 :diffget 3<CR>:diffupdate<CR>
+
+set autochdir
+set tags=tags;
+map <silent><Leader>] <C-w><C-]><C-w>T
+map <silent><leader>\ :vsp <CR>:exec("tag ".expand("<cword>"))<CR>
+map <silent><leader>[ <C-w>}
+map <silent><leader>t <C-t>
+map <silent><leader>n :NERDTree<CR>
