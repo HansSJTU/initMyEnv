@@ -12,3 +12,4 @@ tree
 reattach-to-user-namespace
 go
 task
+ctags

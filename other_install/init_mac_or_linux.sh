@@ -103,6 +103,10 @@ if [ ! -d ~/.vim_runtime/sources_forked/ctrlp.vim ]; then
     mv ~/.vim_runtime/sources_non_forked/ctrlp.vim ~/.vim_runtime/sources_forked/
 fi
 
+if [ ! -d ~/.vim_runtime/sources_forked/nerdtree ] && [ -d ~/.vim_runtime/sources_non_forked/nerdtree ]; then
+    mv ~/.vim_runtime/sources_non_forked/nerdtree ~/.vim_runtime/sources_forked/
+fi
+
 if [ ! -d ~/.vim_runtime/sources_forked/vim-template ]; then
     git clone --depth=1 git://github.com/aperezdc/vim-template.git ~/.vim_runtime/sources_forked/vim-template
     # change the formatting of the template

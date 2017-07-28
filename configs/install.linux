@@ -7,6 +7,10 @@ htop
 tmux
 git
 cmake
+exuberant-ctags
+tree
+dstat
+task
 libgflags-dev
 libgoogle-glog-dev 
 google-perftools
@@ -14,7 +18,4 @@ libgoogle-perftools-dev
 libopencv-dev
 libboost-all-dev 
 libjsoncpp-dev
-tree
-dstat
-task
 golang
