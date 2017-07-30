@@ -9,6 +9,7 @@ nmap<leader>y yiw:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pb
 nmap<leader>yy yy:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pggdd:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
 nmap<leader>p :r! cat ~/.vbuf<cr>
 nmap<leader>o :only<cr>
+nmap<leader>/ :noh<cr>
 nmap<leader>w <C-w>
 nmap<leader>q :q<cr>
 nmap<leader><leader>w :w<cr>
@@ -46,9 +47,11 @@ function! GoToTagWithNewSplit()
     endif
 endfunction
 
-
 map <silent><Leader>] :call GoToTagWithNewTab()<CR>
 map <silent><leader>\ :call GoToTagWithNewSplit()<CR>
 map <silent><leader>[ <C-w>}
+map <silent><leader>g mtgd
+map <silent><leader>h :noh<cr>`t
 map <silent><leader>t <C-w>T
+
 map <silent><leader>n :NERDTree<CR>

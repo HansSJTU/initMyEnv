@@ -60,4 +60,8 @@ alias aliyun='ssh -Y root@106.14.156.89'
 # Alias for tree
 alias tree='tree -ACN'
 
+# Alias for git
+alias git log all='git log --oneline --graph --all '
 
+# Alias for ctags
+alias ctags-with-variable-for-c++='ctags --c++-kinds=+l '
