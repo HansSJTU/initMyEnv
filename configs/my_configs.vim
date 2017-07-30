@@ -3,6 +3,8 @@ let mapleader = "\<Space>"
 set cursorline
 highlight Cursorline cterm=bold ctermbg=16 
 set cmdheight=1
+set foldmethod=indent "set default foldmethod
+set foldlevel=1
 
 vmap<leader>y y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
 nmap<leader>y yiw:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
@@ -33,6 +35,9 @@ function! GoToTagWithNewTab()
     if tagFilename == ''
         :tabclose
         :tabprevious
+    else
+        :silent! normal jzok
+        :call HighLightCursor()
     endif
 endfunction
 
@@ -44,14 +49,36 @@ function! GoToTagWithNewSplit()
     let tagFilename = expand('%:t')
     if tagFilename == ''
         :q
+    else
+        :silent! normal jzok
+        :call HighLightCursor()
     endif
+endfunction
+
+function! HighLightCursor()
+    :highlight Cursorline cterm=bold ctermbg=13
+    redraw
+    sleep 100m
+    :highlight Cursorline cterm=bold ctermbg=16
+    redraw
+    sleep 100m
+    :highlight Cursorline cterm=bold ctermbg=13
+    redraw
+    sleep 100m
+    :highlight Cursorline cterm=bold ctermbg=16
+    redraw
 endfunction
 
 map <silent><Leader>] :call GoToTagWithNewTab()<CR>
 map <silent><leader>\ :call GoToTagWithNewSplit()<CR>
 map <silent><leader>[ <C-w>}
-map <silent><leader>g mtgd
-map <silent><leader>h :noh<cr>`t
 map <silent><leader>t <C-w>T
-
 map <silent><leader>n :NERDTree<CR>
+
+map <silent><leader>f mtgd
+map <silent><leader><leader>f mt<s-#>
+map <silent><leader>g :noh<cr>`t :call HighLightCursor()<cr>
+map <silent><leader>j :call HighLightCursor()<cr>
+
+" run when start
+autocmd VimEnter * call HighLightCursor()
