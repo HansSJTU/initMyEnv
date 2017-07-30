@@ -21,9 +21,34 @@ map <silent> <leader>2 :diffget 2<CR>:diffupdate<CR>
 map <silent> <leader>3 :diffget 3<CR>:diffupdate<CR>
 
 set autochdir
-set tags=tags;
-map <silent><Leader>] <C-w><C-]><C-w>T
-map <silent><leader>\ :vsp <CR>:exec("tag ".expand("<cword>"))<CR>
+set tags=./tags;,tags;
+
+function! GoToTagWithNewTab()
+    let tagWord = expand("<cword>")
+    :tabe
+    execute "tj ".expand(tagWord)
+
+    let tagFilename = expand('%:t')
+    if tagFilename == ''
+        :tabclose
+        :tabprevious
+    endif
+endfunction
+
+function! GoToTagWithNewSplit()
+    let tagWord = expand("<cword>")
+    :vnew
+    execute "tj ".expand(tagWord)
+
+    let tagFilename = expand('%:t')
+    if tagFilename == ''
+        :q
+    endif
+endfunction
+
+
+map <silent><Leader>] :call GoToTagWithNewTab()<CR>
+map <silent><leader>\ :call GoToTagWithNewSplit()<CR>
 map <silent><leader>[ <C-w>}
-map <silent><leader>t <C-t>
+map <silent><leader>t <C-w>T
 map <silent><leader>n :NERDTree<CR>
