@@ -34,7 +34,9 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     echo "${orange}Start to Update apt-get...${endcolor}"
     sudo apt-get update
     echo "${orange}Start to Setup Color Theme...${endcolor}"
-    wget -O xt  http://git.io/v3D8e && chmod +x xt && ./xt && rm xt
+    pushd set_linux_theme/themes > /dev/null
+    ./Xcode
+    popd > /dev/null
 else
     echo "${red}[Error]${endcolor} Unkown Operation System!" 1>&2
     echo "This init script only support Mac OSX and Linux!" 1>&2
