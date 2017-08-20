@@ -5,6 +5,7 @@ highlight Cursorline cterm=bold ctermbg=16
 set cmdheight=1
 set foldmethod=indent "set default foldmethod
 set foldlevel=1
+set pastetoggle=<leader><leader>p
 
 vmap<leader>y y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
 nmap<leader>y yiw:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
