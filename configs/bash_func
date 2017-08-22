@@ -58,16 +58,15 @@ function randomIP4VPN {
         cp /Library/Preferences/SystemConfiguration/preferences.plist ${common}/
     fi
 
-    shuf_vpn_server=`cat ${common}/.listtmp`
-    sudo sed -i "213s@g>.\{0,100\}<@g>${shuf_vpn_server}<@" /Library/Preferences/SystemConfiguration/preferences.plist
+    shuf_vpn_server=$(cat ${common}/.listtmp)
+    sudo sed -i "214s@g>.\{0,100\}<@g>${shuf_vpn_server}<@" /Library/Preferences/SystemConfiguration/preferences.plist
 
     rm ${common}/.listtmp
 }
 
 # change name for shell tab
 function nn {
-  if [ -z "$1" ]
-  then
+  if [ -z "$1" ]; then
     title=${PWD##*/} # current directory
   else
     title=$1 # first param
@@ -83,22 +82,22 @@ function backup
             rm ~/.backup.logs
         fi
     elif [ ! -z "$1" ] && [ -e "$1" ]; then
-        current_time=`date +%Y%m%d`_`date +%T`
-        absolute_path=`realpath $1`
+        current_time=$(date +%Y%m%d)_$(date +%T)
+        absolute_path=$(realpath "$1")
         file_name=$(basename "${absolute_path}")
         file_path=$(dirname "${absolute_path}")
         touch "${file_path}/.tmp" > /dev/null
         if [ -f "${file_path}/.tmp" ]; then
             rm "${file_path}/.tmp"
-            cp -r $1 "${file_path}/${file_name}_${current_time}"
+            cp -r "$1" "${file_path}/${file_name}_${current_time}"
             chmod a-w "${file_path}/${file_name}_${current_time}"
             if [ -f "$1" ]; then
-                md5=$(echo `md5sum $1` | awk '{print $1}')
+                md5=$(md5sum "$1" | awk '{print $1}')
             else
                 md5="Direction"
             fi
             if [ ! -z "$2" ]; then
-                exp=`echo $2`
+                exp="$2"
             else
                 exp="No explain. "
             fi
@@ -118,14 +117,14 @@ function backup
 if [ "$(uname)" == "Darwin" ]; then
     function subl
     {
-        /Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl $1
+        /Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl "$1"
     }
 fi
 
 # redefine pushd and popd
 function pushdd
 {
-    pushd $1 > /dev/null
+    pushd "$1" > /dev/null
 }
 function popdd
 {
@@ -145,18 +144,19 @@ function gitregenerate
     fi
 
     if [[ $1 = "-a" ]]; then
-        git_rege_name=${2:-"#GITNAME#"}
-        git_rege_password=${3:-"#GITPASSWD#"}
+        git_rege_name=${2:-"HansSJTU"}
+        git_rege_password=${3:-"19950522Hans"}
     else
-        read -p "git name: " git_rege_name
-        read -sp "git passwd: " git_rege_password
+        read -rp "git name: " git_rege_name
+        read -rsp "git passwd: " git_rege_password
         echo -ne "\n"
     fi
 
-    repo_web=`awk '{print $NF}' .git/FETCH_HEAD`
+    repo_web=$(awk '{print $NF}' .git/FETCH_HEAD)
     git remote rm origin
-    new_web=`echo ${repo_web} | sed "s@https://@https://${git_rege_name}:${git_rege_password}\@@"`
-    git remote add origin ${new_web}
+    new_web=$(echo "${repo_web}" | sed "s@https://@https://${git_rege_name}:${git_rege_password}\@@")
+    echo "${new_web}"
+    git remote add origin "${new_web}"
 }
 
 # sedding
@@ -171,7 +171,124 @@ function sedding
 function de
 {
     while read data; do
-        tmp=$(echo -n ${data} | sed "s@\\\$@\\\\\$@g;s@\"@\\\\\"@g")
+        tmp=$(echo -n "${data}" | sed "s@\\\$@\\\\\$@g;s@\"@\\\\\"@g")
         echo -n "\"${tmp}\"" | pbcopy
     done
 }
+
+# sync
+function websync
+{
+    web="106.14.7.228"
+    ip="106.14.7.228"
+    public="public"
+    private="publi"
+    root_dir="/var/www/html"
+
+    if [ "$1" = "-d" ]; then
+        if [ ! -e "$2" ]; then
+            echo "file not exists!" 1>&2
+        else
+            realname=$(basename "$2")
+            echo "${web}/${public}/${realname}" | pbcopy
+            ssh root@${ip} "ln -s \"../${public}/${realname}\" ${root_dir}/${private} 2>/dev/null"
+            scp -r "$realname" root@${ip}:${root_dir}/${public}
+            echo "${web}/${public}/${realname}"
+        fi
+
+    elif [ "$1" = "-c" ]; then
+        ssh root@${ip} "cd ${root_dir}/${public}; ./hrm.sh -s"
+        read -rp "Are you sure to delete? [y/n] " answer
+        if [[ ${answer} = "y" ]] || [[ ${answer} = "Y" ]]; then
+            ssh root@${ip} "cd ${root_dir}/${public}; ./hrm.sh -a"
+        else
+            :
+        fi
+
+    elif [ "$1" = "-a" ]; then
+        for ((i = 2; i <= $#; i++)); do
+            parse_add=$(eval echo \$$i)
+            file_name=$(basename "${parse_add}")
+            echo "add ${green}${file_name}${endcolor}"
+            ssh root@${ip} "echo ${file_name} >> ${root_dir}/${public}/not_delete.list"
+        done
+
+    elif [ "$1" = "ls" ]; then
+        ssh root@${ip} "cd ${root_dir}/${private}/; ls -al"
+
+    else
+        if [ ! -e "$1" ]; then
+            echo "file not exists!" 1>&2
+        elif [ -f "$1" ]; then
+            realname=$(basename "$1")
+            echo "${web}/${public}/$1" | pbcopy
+            ssh root@${ip} "ln -s \"../${public}/${realname}\" ${root_dir}/${private} 2>/dev/null"
+            scp -r "${realname}" root@${ip}:${root_dir}/${public}
+            echo "${web}/${public}/${realname}"
+        elif [ -d "$1" ]; then
+            realname=$(basename "$1")
+            echo "${web}/${public}/${realname}.zip" | pbcopy
+            file_name=$(realpath "$1")
+            pushd "$(dirname "${file_name}")" > /dev/null
+            if [ ! -d ~/.tmp_zip ]; then
+                mkdir -p ~/.tmp_zip
+            fi
+            if [ -e ~/.tmp_zip/"${realname}".zip ]; then
+                rm ~/.tmp_zip/"${realname}".zip
+            fi
+            zip -r ~/.tmp_zip/"${realname}".zip "${realname}"
+            popd > /dev/null
+            ssh root@${ip} "ln -s \"../${public}/${realname}.zip\" ${root_dir}/${private} 2>/dev/null"
+            scp -r ~/.tmp_zip/"${realname}".zip root@${ip}:${root_dir}/${public}
+            echo "${web}/${public}/${realname}.zip"
+            rm -r ~/.tmp_zip
+        fi
+    fi    
+}
+
+# offline download
+function offline-download
+{
+    ip="106.14.7.228"
+    user="root"
+    torrent_dir="/root/02_Downloads/00_torrent/"
+    tool_dir="/root/02_Downloads/02_tools/"
+    download_torrent="$1"
+    download_torrent_name=$(basename "${download_torrent}")
+    simplified_torrent_name=$(echo "${download_torrent_name}" | strings | tr -d "\n" | tr -d " " | tr -d "\t")
+
+    if [ ! -f "${download_torrent}" ]; then
+        echo "no file"
+    else
+        scp -r "${download_torrent}" ${user}@${ip}:"${torrent_dir}/${simplified_torrent_name}"
+        ssh -f -n ${user}@${ip} "${tool_dir}/start_download.sh ${torrent_dir}${simplified_torrent_name} &"
+        rm "${download_torrent}"
+    fi
+}
+
+# Decrypt
+function decrypt
+{
+    decrypt_file="$1"
+    decrypt_file_name=$(basename "${decrypt_file}")
+    decrypt_file_path=$(dirname "${decrypt_file}")
+    extension="${decrypt_file_name##*.}"
+    decrypt_file_name_without_extension="${decrypt_file_name%.*}"
+    decrypt_real_name="${decrypt_file_name_without_extension%.*}"
+
+    if [[ ! ${extension} = "gpg" ]]; then
+        echo "not exact file!"
+    else
+        gpg "${decrypt_file}"
+        pushd "${decrypt_file_path}" > /dev/null
+        unzip "${decrypt_file_name_without_extension}"
+        popd >/dev/null
+        rm "${decrypt_file_name_without_extension}"
+        read -rp "delete download gpg file? [y/n] " answer
+        if [[ ${answer} = "y" ]] || [[ ${answer} = "Y" ]]; then
+            rm "${decrypt_file}"
+        fi
+        echo -e "\n${decrypt_file_path}/${decrypt_real_name}"
+    fi
+}
+
