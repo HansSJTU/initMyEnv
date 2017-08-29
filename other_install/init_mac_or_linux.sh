@@ -1,7 +1,7 @@
 #!/bin/bash
 version="v1.0"
 
-base_dir=`realpath ../`
+base_dir=$(dirname $(pwd))
 if [[ ! $1 = "-a" ]]; then
     read -p "Your Name: " user_name
     read -p "Your Mail(Errors when \"?\" in your mail): " user_mail
