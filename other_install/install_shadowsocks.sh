@@ -14,7 +14,7 @@ function install_pip
     pip -V
 }
 
-command -v pip >/dev/null 2>&1 || { echo "install pip first"; install_pip; } 
+command -v pip >/dev/null 2>&1 || { echo "install pip first"; install_pip; }
 sudo pip install git+https://github.com/shadowsocks/shadowsocks.git@master
 read -p "Please set password for the shadowsocks: " password
 read -p "Please set the port count for the shadowsocks: " port_count
@@ -22,9 +22,9 @@ read -p "Please set the port count for the shadowsocks: " port_count
 config_path="/etc/shadowsocks.json"
 sudo cp ../configs/shadowsocks.json ${config_path}
 
-sudo sed -i "5a \\\t\t\"9000\":${password}" ${config_path}
+sudo sed -i "5a \\\t\t\"9000\":\"${password}\"" ${config_path}
 for ((i=9001; i < $((9000 + ${port_count})); i++)); do
-    sudo sed -i "5a \\\t\t\"${i}\":${password}," ${config_path}
+    sudo sed -i "5a \\\t\t\"${i}\":\"${password}\"," ${config_path}
 done
 
 sudo ssserver -c ${config_path} -d start
