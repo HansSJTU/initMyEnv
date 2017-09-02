@@ -257,12 +257,12 @@ function offline-download
     download_torrent_name=$(basename "${download_torrent}")
     simplified_torrent_name=$(echo "${download_torrent_name}" | strings | tr -d "\n" | tr -d " " | tr -d "\t")
 
-    if [ ! -f "${download_torrent}" ]; then
-        echo "no file"
-    else
+    if [ -f "${download_torrent}" ]; then
         scp -r "${download_torrent}" ${user}@${ip}:"${torrent_dir}/${simplified_torrent_name}"
-        ssh -f -n ${user}@${ip} "${tool_dir}/start_download.sh ${torrent_dir}${simplified_torrent_name} &"
+        ssh -f -n ${user}@${ip} "${tool_dir}/start_download_torrent.sh ${torrent_dir}${simplified_torrent_name} &"
         rm "${download_torrent}"
+    else
+        ssh -f -n ${user}@${ip} "${tool_dir}/start_download_link.sh ${download_torrent} &"
     fi
 }
 

@@ -17,7 +17,7 @@ nmap<leader>w <C-w>
 nmap<leader>q :q<cr>
 nmap<leader><leader>w :w<cr>
 nmap<leader><leader>wq :wq<cr>
-nmap<leader>d diwi
+nmap<leader>d diw
 nmap<leader><leader>d diwdiwdiwdiw
 
 map <silent> <leader>1 :diffget 1<CR>:diffupdate<CR>
@@ -80,6 +80,10 @@ map <silent><leader>f mtgd
 map <silent><leader><leader>f mt<s-#>
 map <silent><leader>g :noh<cr>`t :call HighLightCursor()<cr>
 map <silent><leader>j :call HighLightCursor()<cr>
+
+" bookmark
+map <silent><leader>a ma
+map <silent><leader><leader>a `a :call HighLightCursor()<cr>
 
 " run when start
 autocmd VimEnter * call HighLightCursor()

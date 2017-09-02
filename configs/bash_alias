@@ -6,7 +6,6 @@ if [ "$(uname)" == "Darwin" ]; then
     alias shuf="gshuf"
     alias realpath="grealpath"
     alias md5sum="gmd5sum"
-    alias sed="gsed"
     alias rm="grm"
     alias ls="gls --color"
     alias dir="gdir --color"
@@ -55,7 +54,9 @@ endcolor=$'\e[m'
 alias echo='echo -e'
 
 # Define Server
-alias aliyun='ssh -Y root@106.14.156.89'
+alias aliyun='ssh -X root@106.14.7.228'
+alias amazon='ssh -i "/Users/Hans/.ssh/HanxiaoAmazonServer1.pem" ubuntu@52.14.136.27'
+alias vultr='ssh -X root@108.61.247.112'
 
 # Alias for tree
 alias tree='tree -ACN'
@@ -65,3 +66,6 @@ alias gitlogauto='git log --oneline --graph --all '
 
 # Alias for ctags
 alias ctags-with-variable-for-c++='ctags --c++-kinds=+l '
+
+# Alias for dropbox
+alias db='dropbox_uploader.sh '
