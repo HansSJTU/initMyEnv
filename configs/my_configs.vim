@@ -20,9 +20,22 @@ nmap<leader><leader>wq :wq<cr>
 nmap<leader>d diw
 nmap<leader><leader>d diwdiwdiwdiw
 
-map <silent> <leader>1 :diffget 1<CR>:diffupdate<CR>
-map <silent> <leader>2 :diffget 2<CR>:diffupdate<CR>
-map <silent> <leader>3 :diffget 3<CR>:diffupdate<CR>
+" if in diff mode, set as diff shortcut, else set as other
+if &diff
+    map <silent> <leader>1 :diffget 1<CR>:diffupdate<CR>
+    map <silent> <leader>2 :diffget 2<CR>:diffupdate<CR>
+    map <silent> <leader>3 :diffget 3<CR>:diffupdate<CR>
+else
+    map <silent><leader>1 1gt
+    map <silent><leader>2 2gt
+    map <silent><leader>3 3gt
+    map <silent><leader>4 4gt
+    map <silent><leader>5 5gt
+    map <silent><leader>6 6gt
+    map <silent><leader>7 7gt
+    map <silent><leader>8 8gt
+    map <silent><leader>9 9gt
+endif
 
 set autochdir
 set tags=./tags;,tags;
@@ -79,11 +92,11 @@ map <silent><leader>n :NERDTree<CR>
 map <silent><leader>f mtgd
 map <silent><leader><leader>f mt<s-#>
 map <silent><leader>g :noh<cr>`t :call HighLightCursor()<cr>
-map <silent><leader>j :call HighLightCursor()<cr>
+map <silent><leader>h :call HighLightCursor()<cr>
 
 " bookmark
 map <silent><leader>a ma
-map <silent><leader><leader>a `a :call HighLightCursor()<cr>
+map <silent><leader><leader>a `azz :call HighLightCursor()<cr>
 
 " run when start
 autocmd VimEnter * call HighLightCursor()
