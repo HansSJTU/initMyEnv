@@ -140,6 +140,14 @@ if [ ! -f ${gp_real}/bin/pprof ]; then
     sudo ln -s ${gp_real}/bin/pprof /usr/local/bin/pprof-new
 fi
 
+# config the tmux with different version
+tmux_version=$(tmux -V | awk '{print $2}')
+if [[ $(echo "${tmux_version} >= 2.3" | bc) -eq 1 ]]; then
+    sed -i "s@#HV2.3 @@" ~/.tmux.conf
+else
+    sed -i "s@#LV2.3 @@" ~/.tmux.conf
+fi
+
 if [ "$(uname)" == "Darwin" ]; then
     # reconfig the tmux
     sed -i "s@#MAC @@" ~/.tmux.conf
