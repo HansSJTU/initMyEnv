@@ -179,8 +179,10 @@ function de
 # sync
 function websync
 {
-    web="106.14.7.228"
-    ip="106.14.7.228"
+    #web="hanxiao.xin"
+    #ip="106.14.7.228"
+    web="108.61.247.112"
+    ip="108.61.247.112"
     public="public"
     private="publi"
     root_dir="/var/www/html"
@@ -249,10 +251,14 @@ function websync
 # offline download
 function offline-download
 {
-    ip="106.14.7.228"
+    #ip="106.14.7.228"
+    #base_dir="/root/02_Downloads"
+    ip="108.61.247.112"
+    base_dir="/root/01_Project/03_offline-download"
     user="root"
-    torrent_dir="/root/02_Downloads/00_torrent/"
-    tool_dir="/root/02_Downloads/02_tools/"
+
+    torrent_dir="${base_dir}/00_torrent/"
+    tool_dir="${base_dir}/02_tools/"
     download_torrent="$1"
     download_torrent_name=$(basename "${download_torrent}")
     simplified_torrent_name=$(echo "${download_torrent_name}" | strings | tr -d "\n" | tr -d " " | tr -d "\t")
