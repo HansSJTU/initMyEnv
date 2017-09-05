@@ -86,37 +86,7 @@ backup_and_copy ~/.bash_profile
 backup_and_copy ~/.inputrc
 backup_and_copy ~/Library/Preferences/com.apple.Terminal.plist #terminal theme binary config
 
-if [ ! -d ~/.vim_runtime ]; then
-    echo "${orange}Start to Setting Up Vim...${endcolor}"
-    git clone --depth=1 https://github.com/amix/vimrc.git ~/.vim_runtime
-    bash ~/.vim_runtime/install_awesome_vimrc.sh
-    # ignore this map in old basic.vim
-    sed -i "s@map <space> /@\" map <space> /@" ~/.vim_runtime/vimrcs/basic.vim
-fi
-
-if [ -d ~/.vim_runtime/sources_forked/vim-peepopen ]; then
-    rm -rf ~/.vim_runtime/sources_forked/vim-peepopen
-fi
-if [ -d ~/.vim_runtime/sources_non_forked/vim-peepopen ]; then
-    rm -rf ~/.vim_runtime/sources_non_forked/vim-peepopen
-fi
-
-if [ ! -d ~/.vim_runtime/sources_forked/ctrlp.vim ]; then
-    mv ~/.vim_runtime/sources_non_forked/ctrlp.vim ~/.vim_runtime/sources_forked/
-fi
-
-if [ ! -d ~/.vim_runtime/sources_forked/nerdtree ] && [ -d ~/.vim_runtime/sources_non_forked/nerdtree ]; then
-    mv ~/.vim_runtime/sources_non_forked/nerdtree ~/.vim_runtime/sources_forked/
-fi
-
-if [ ! -d ~/.vim_runtime/sources_forked/vim-template ]; then
-    git clone --depth=1 git://github.com/aperezdc/vim-template.git ~/.vim_runtime/sources_forked/vim-template
-    # change the formatting of the template
-    pushdd ~/.vim_runtime/sources_forked/vim-template/templates
-    sed -i "s?%YEAR%?%DATE%?g;s?%MAIL%?${user_mail}?g;s?%USER%?${user_name}?g" *
-    sed -i "s@bin/sh@bin/bash@g" *.sh   #change the interpreter
-    popdd
-fi
+${base_dir}/other_install/install_vim.sh ${user_mail} ${user_name}
 
 cp ${base_dir}/configs/bash_alias ~/.bash_alias
 cp ${base_dir}/configs/bash_func ~/.bash_func; sed -i "s?#GITNAME#?${git_name}?g;s?#GITPASSWD#?${git_passwd}?g" ~/.bash_func
