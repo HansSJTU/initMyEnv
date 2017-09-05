@@ -6,8 +6,8 @@
 # Distributed under terms of the MIT license.
 #
 
-user_mail="$1"
-user_name="$2"
+user_name="$1"
+user_mail="$2"
 
 if [ ! -d ~/.vim_runtime ]; then
     echo "Start to Setting Up Vim..."
