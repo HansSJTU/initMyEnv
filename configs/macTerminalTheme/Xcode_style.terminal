@@ -616,6 +616,8 @@
 	<true/>
 	<key>VisualBell</key>
 	<false/>
+	<key>keyMapBoundKeys</key>
+	<dict/>
 	<key>name</key>
 	<string>Pro</string>
 	<key>rowCount</key>
@@ -624,5 +626,7 @@
 	<integer>2</integer>
 	<key>type</key>
 	<string>Window Settings</string>
+	<key>useOptionAsMetaKey</key>
+	<true/>
 </dict>
 </plist>
