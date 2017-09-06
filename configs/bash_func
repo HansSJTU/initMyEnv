@@ -144,8 +144,8 @@ function gitregenerate
     fi
 
     if [[ $1 = "-a" ]]; then
-        git_rege_name=${2:-"HansSJTU"}
-        git_rege_password=${3:-"19950522Hans"}
+        git_rege_name=${2:-"#GITNAME#"}
+        git_rege_password=${3:-"#GITPASSWD#"}
     else
         read -rp "git name: " git_rege_name
         read -rsp "git passwd: " git_rege_password
