@@ -193,8 +193,8 @@ function websync
         else
             realname=$(basename "$2")
             echo "${web}/${public}/${realname}" | pbcopy
-            ssh root@${ip} "ln -s \"../${public}/${realname}\" ${root_dir}/${private} 2>/dev/null"
-            scp -r "$realname" root@${ip}:${root_dir}/${public}
+            ssh root@${ip} "ln -s \"../${private}/${realname}\" ${root_dir}/${public} 2>/dev/null"
+            scp -r "$realname" root@${ip}:${root_dir}/${private}
             echo "${web}/${public}/${realname}"
         fi
 
@@ -224,8 +224,8 @@ function websync
         elif [ -f "$1" ]; then
             realname=$(basename "$1")
             echo "${web}/${public}/$1" | pbcopy
-            ssh root@${ip} "ln -s \"../${public}/${realname}\" ${root_dir}/${private} 2>/dev/null"
-            scp -r "${realname}" root@${ip}:${root_dir}/${public}
+            ssh root@${ip} "ln -s \"../${private}/${realname}\" ${root_dir}/${public} 2>/dev/null"
+            scp -r "${realname}" root@${ip}:${root_dir}/${private}
             echo "${web}/${public}/${realname}"
         elif [ -d "$1" ]; then
             realname=$(basename "$1")
@@ -240,8 +240,8 @@ function websync
             fi
             zip -r ~/.tmp_zip/"${realname}".zip "${realname}"
             popd > /dev/null
-            ssh root@${ip} "ln -s \"../${public}/${realname}.zip\" ${root_dir}/${private} 2>/dev/null"
-            scp -r ~/.tmp_zip/"${realname}".zip root@${ip}:${root_dir}/${public}
+            ssh root@${ip} "ln -s \"../${private}/${realname}.zip\" ${root_dir}/${public} 2>/dev/null"
+            scp -r ~/.tmp_zip/"${realname}".zip root@${ip}:${root_dir}/${private}
             echo "${web}/${public}/${realname}.zip"
             rm -r ~/.tmp_zip
         fi
@@ -260,10 +260,14 @@ function offline-download
     torrent_dir="${base_dir}/00_torrent/"
     tool_dir="${base_dir}/02_tools/"
     download_torrent="$1"
-    download_torrent_name=$(basename "${download_torrent}")
-    simplified_torrent_name=$(echo "${download_torrent_name}" | strings | tr -d "\n" | tr -d " " | tr -d "\t")
+    if [ ! ${download_torrent} = "-s" ]; then
+        download_torrent_name=$(basename "${download_torrent}")
+        simplified_torrent_name=$(echo "${download_torrent_name}" | strings | tr -d "\n" | tr -d " " | tr -d "\t")
+    fi
 
-    if [ -f "${download_torrent}" ]; then
+    if [ ${download_torrent} = "-s" ]; then
+        ssh ${user}@${ip} "${tool_dir}/show_status.sh ${tool_dir}"
+    elif [ -f "${download_torrent}" ]; then
         scp -r "${download_torrent}" ${user}@${ip}:"${torrent_dir}/${simplified_torrent_name}"
         ssh -f -n ${user}@${ip} "${tool_dir}/start_download_torrent.sh ${torrent_dir}${simplified_torrent_name} &"
         rm "${download_torrent}"
