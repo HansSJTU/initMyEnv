@@ -194,8 +194,17 @@ function websync
     file_dir="${root_dir}/01_files"
     public="public"
 
+    if [ -z "$1" ]; then
+        echo -e "${green}[HELP MENU]${endcolor}:\n \
+            <file>:      upload file to server, if direction, then compress first\n \
+            [-a] <file>: add file to not delete list, thus will not be deleted by [-c]\n \
+            [-c]:        clean all the upload file\n \
+            [-d] <file>: upload the directions dircetly\n \
+            [-m] <file>: modify or regenerate the expire time for the file\n \
+            [ls]:        show all files in web\n \
+            [-expire]:   show all expire files, and their expire time"
     # cp dir directly
-    if [ "$1" = "-d" ]; then
+    elif [ "$1" = "-d" ]; then
         if [ ! -e "$2" ]; then
             echo "file not exists!" 1>&2
         else
@@ -229,6 +238,13 @@ function websync
 
     elif [ "$1" = "-expire" ]; then
         ssh ${user}@${ip} "${tool_dir}/websync.sh -expire" 
+
+    elif [ "$1" = "-m" ]; then
+        realname=$(basename "$2")
+        read -rp "Set Valid Time: " valid_time
+        ssh ${user}@${ip} "${tool_dir}/websync.sh -m \"${realname}\" \"${valid_time}\""
+        get_pub_name "${web}/${public}/${realname}" | pbcopy
+        get_pub_name "${web}/${public}/${realname}"
 
     else
         if [ ! -e "$1" ]; then
@@ -273,20 +289,25 @@ function offline-download
 
     torrent_dir="${base_dir}/00_torrent/"
     tool_dir="${base_dir}/02_tools/"
-    download_torrent="$1"
-    if [ ! ${download_torrent} = "-s" ]; then
+    
+    if [ -z "$1" ]; then
+        echo -e "${green}[HELP MENU]${endcolor}:\n \
+            <file> download torrent file\n \
+            <link> download link\n \
+            [-s] states of downloading torrents"
+    elif [ "$1" = "-s" ]; then
+        ssh ${user}@${ip} "${tool_dir}/show_status.sh ${tool_dir}"
+    else
+        download_torrent="$1"
         download_torrent_name=$(basename "${download_torrent}")
         simplified_torrent_name=$(echo "${download_torrent_name}" | strings | tr -d "\n" | tr -d " " | tr -d "\t")
-    fi
-
-    if [ ${download_torrent} = "-s" ]; then
-        ssh ${user}@${ip} "${tool_dir}/show_status.sh ${tool_dir}"
-    elif [ -f "${download_torrent}" ]; then
-        scp -r "${download_torrent}" ${user}@${ip}:"${torrent_dir}/${simplified_torrent_name}"
-        ssh -f -n ${user}@${ip} "${tool_dir}/start_download_torrent.sh ${torrent_dir}${simplified_torrent_name} &"
-        rm "${download_torrent}"
-    else
-        ssh -f -n ${user}@${ip} "${tool_dir}/start_download_link.sh ${download_torrent} &"
+        if [ -f "${download_torrent}" ]; then
+            scp -r "${download_torrent}" ${user}@${ip}:"${torrent_dir}/${simplified_torrent_name}"
+            ssh -f -n ${user}@${ip} "${tool_dir}/start_download_torrent.sh ${torrent_dir}${simplified_torrent_name} &"
+            rm "${download_torrent}"
+        else
+            ssh -f -n ${user}@${ip} "${tool_dir}/start_download_link.sh ${download_torrent} &"
+        fi
     fi
 }
 
