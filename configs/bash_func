@@ -177,34 +177,43 @@ function de
 }
 
 # sync
+function get_pub_name
+{
+    echo "$1" | sed "s@ @\%20@g"
+}
+
 function websync
 {
     #web="hanxiao.xin"
     #ip="106.14.7.228"
     web="108.61.247.112"
     ip="108.61.247.112"
+    user="root"
+    root_dir="/root/01_Project/03_offline-download"
+    tool_dir="${root_dir}/02_tools"
+    file_dir="${root_dir}/01_files"
     public="public"
-    private="publi"
-    root_dir="/var/www/html"
 
+    # cp dir directly
     if [ "$1" = "-d" ]; then
         if [ ! -e "$2" ]; then
             echo "file not exists!" 1>&2
         else
             realname=$(basename "$2")
-            echo "${web}/${public}/${realname}" | pbcopy
-            ssh root@${ip} "ln -s \"../${private}/${realname}\" ${root_dir}/${public} 2>/dev/null"
-            scp -r "$realname" root@${ip}:${root_dir}/${private}
-            echo "${web}/${public}/${realname}"
+            get_pub_name "${web}/${public}/${realname}" | pbcopy
+            read -rp "Set Valid Time: " valid_time
+            scp -r "${realname}" ${user}@${ip}:${file_dir}
+            ssh ${user}@${ip} "${tool_dir}/websync.sh \"${realname}\" \"${valid_time}\""
+            get_pub_name "${web}/${public}/${realname}"
         fi
 
     elif [ "$1" = "-c" ]; then
-        ssh root@${ip} "cd ${root_dir}/${public}; ./hrm.sh -s"
+        ssh ${user}@${ip} "${tool_dir}/websync.sh -c1"
         read -rp "Are you sure to delete? [y/n] " answer
         if [[ ${answer} = "y" ]] || [[ ${answer} = "Y" ]]; then
-            ssh root@${ip} "cd ${root_dir}/${public}; ./hrm.sh -a"
+            ssh ${user}@${ip} "${tool_dir}/websync.sh -c2"
         else
-            :
+            :;
         fi
 
     elif [ "$1" = "-a" ]; then
@@ -212,24 +221,28 @@ function websync
             parse_add=$(eval echo \$$i)
             file_name=$(basename "${parse_add}")
             echo "add ${green}${file_name}${endcolor}"
-            ssh root@${ip} "echo ${file_name} >> ${root_dir}/${public}/not_delete.list"
+            ssh ${user}@${ip} "${tool_dir}/websync.sh -a \"${file_name}\"" 
         done
 
     elif [ "$1" = "ls" ]; then
-        ssh root@${ip} "cd ${root_dir}/${private}/; ls -al"
+        ssh ${user}@${ip} "${tool_dir}/websync.sh -ls" 
+
+    elif [ "$1" = "-expire" ]; then
+        ssh ${user}@${ip} "${tool_dir}/websync.sh -expire" 
 
     else
         if [ ! -e "$1" ]; then
             echo "file not exists!" 1>&2
         elif [ -f "$1" ]; then
             realname=$(basename "$1")
-            echo "${web}/${public}/$1" | pbcopy
-            ssh root@${ip} "ln -s \"../${private}/${realname}\" ${root_dir}/${public} 2>/dev/null"
-            scp -r "${realname}" root@${ip}:${root_dir}/${private}
-            echo "${web}/${public}/${realname}"
+            get_pub_name "${web}/${public}/${realname}" | pbcopy
+            read -rp "Set Valid Time: " valid_time
+            scp -r "${realname}" ${user}@${ip}:${file_dir}
+            ssh ${user}@${ip} "${tool_dir}/websync.sh \"${realname}\" \"${valid_time}\""
+            get_pub_name "${web}/${public}/${realname}"
         elif [ -d "$1" ]; then
             realname=$(basename "$1")
-            echo "${web}/${public}/${realname}.zip" | pbcopy
+            get_pub_name "${web}/${public}/${realname}.zip" | pbcopy
             file_name=$(realpath "$1")
             pushd "$(dirname "${file_name}")" > /dev/null
             if [ ! -d ~/.tmp_zip ]; then
@@ -240,9 +253,10 @@ function websync
             fi
             zip -r ~/.tmp_zip/"${realname}".zip "${realname}"
             popd > /dev/null
-            ssh root@${ip} "ln -s \"../${private}/${realname}.zip\" ${root_dir}/${public} 2>/dev/null"
-            scp -r ~/.tmp_zip/"${realname}".zip root@${ip}:${root_dir}/${private}
-            echo "${web}/${public}/${realname}.zip"
+            read -rp "Set Valid Time: " valid_time
+            scp -r ~/.tmp_zip/"${realname}".zip ${user}@${ip}:${file_dir}
+            ssh ${user}@${ip} "${tool_dir}/websync.sh \"${realname}.zip\" \"${valid_time}\""
+            get_pub_name "${web}/${public}/${realname}.zip"
             rm -r ~/.tmp_zip
         fi
     fi    
