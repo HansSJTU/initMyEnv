@@ -321,7 +321,7 @@ function decrypt
 {
     p1=$(sed -n "3p" ${HOME}/.ssh/offline-code)
     decrypt_file="$1"
-    decrypt_file_name=$(basename "${decrypt_file}")
+    decrypt_file_name=$(basename "${decrypt_file}" | sed "s@.gpg@@")
     decrypt_file_path=$(dirname "${decrypt_file}")
     decrypt_encry_name=$(echo "${decrypt_file_name}" | tr "${p1}" "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" | gbase64 -d)
     mv ${decrypt_file} ${decrypt_file_path}/${decrypt_encry_name}
