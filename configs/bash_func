@@ -302,9 +302,14 @@ function offline-download
         download_torrent_name=$(basename "${download_torrent}")
         simplified_torrent_name=$(echo "${download_torrent_name}" | strings | tr -d "\n" | tr -d " " | tr -d "\t")
         if [ -f "${download_torrent}" ]; then
-            scp -r "${download_torrent}" ${user}@${ip}:"${torrent_dir}/${simplified_torrent_name}"
-            ssh -f -n ${user}@${ip} "${tool_dir}/start_download_torrent.sh ${torrent_dir}${simplified_torrent_name} &"
+            p1=$(sed -n "1p" ${HOME}/.ssh/offline-code)
+            p2=$(sed -n "2p" ${HOME}/.ssh/offline-code)
+            encry_name=$(echo "${simplified_torrent_name}" | base64 | tr "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" ${p1})
+            gbase64 "${download_torrent}" | tr "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" "${p2}" > "${HOME}/${encry_name}"
+            scp -r "${HOME}/${encry_name}" ${user}@${ip}:"${torrent_dir}/${encry_name}"
+            ssh -f -n ${user}@${ip} "${tool_dir}/start_download_torrent.sh ${torrent_dir}${encry_name} &"
             rm "${download_torrent}"
+            rm "${HOME}/${encry_name}"
         else
             ssh -f -n ${user}@${ip} "${tool_dir}/start_download_link.sh ${download_torrent} &"
         fi
@@ -314,9 +319,15 @@ function offline-download
 # Decrypt
 function decrypt
 {
+    p1=$(sed -n "3p" ${HOME}/.ssh/offline-code)
     decrypt_file="$1"
     decrypt_file_name=$(basename "${decrypt_file}")
     decrypt_file_path=$(dirname "${decrypt_file}")
+    decrypt_encry_name=$(echo "${decrypt_file_name}" | tr "${p1}" "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" | gbase64 -d)
+    mv ${decrypt_file} ${decrypt_file_path}/${decrypt_encry_name}
+
+    decrypt_file="${decrypt_file_path}/${decrypt_encry_name}"
+    decrypt_file_name=$(basename "${decrypt_file}")
     extension="${decrypt_file_name##*.}"
     decrypt_file_name_without_extension="${decrypt_file_name%.*}"
     decrypt_real_name="${decrypt_file_name_without_extension%.*}"
