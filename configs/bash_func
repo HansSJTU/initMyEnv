@@ -297,6 +297,12 @@ function offline-download
             [-s] states of downloading torrents"
     elif [ "$1" = "-s" ]; then
         ssh ${user}@${ip} "${tool_dir}/show_status.sh ${tool_dir}"
+    elif [ "$1" = "-c" ]; then
+        ssh ${user}@${ip} "${tool_dir}/clean.sh -a"
+        read -p "Continue? [y/n]" answer
+        if [[ ${answer} = "y" ]]  && [[ ${answer} = "Y" ]]; then
+            ssh ${user}@${ip} "${tool_dir}/clean.sh -c"
+        fi
     else
         download_torrent="$1"
         download_torrent_name=$(basename "${download_torrent}")
