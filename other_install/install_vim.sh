@@ -20,6 +20,6 @@ if [[ -z ${user_name} || -z ${user_mail} ]]; then
     :;
 else
     pushd ~/.vim_runtime/sources_forked/vim-template/templates > /dev/null
-    sed -i "s?%DATE%?%DATE%?g;s?Hanxiao?${user_mail}?g;s?hah114@ucsd.edu?${user_name}?g" *
+    sed -i "s?%DATE%?%DATE%?g;s?%MAIL%?${user_mail}?g;s?%USER%?${user_name}?g" *
     popd > /dev/null
 fi
