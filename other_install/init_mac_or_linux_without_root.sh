@@ -18,7 +18,6 @@ echo -ne "\n"
 
 shopt -s expand_aliases
 source "${base_dir}/configs/bash_alias"
-source "${base_dir}/configs/bash_func"
 
 # Define OS specific downloads
 if [ "$(uname)" == "Darwin" ]; then
@@ -49,31 +48,9 @@ function install_plugins
 
 echo "${green}[FINISHED]${endcolor} done installing! "
 
-if [ ! -d ~/.setting_backup ]; then
-    mkdir ~/.setting_backup
-fi
-
-function backup_and_copy
-{
-    if [ -f "$1" ]; then
-        backup "$1"
-        mv ${backup_file_dir} ~/.setting_backup/
-    fi
-}
-
-backup_and_copy ~/.bash_alias
-backup_and_copy ~/.bashrc
-backup_and_copy ~/.tmux.conf
-backup_and_copy ~/.vimrc
-backup_and_copy ~/.gitconfig
-backup_and_copy ~/.bash_profile
-backup_and_copy ~/.inputrc
-backup_and_copy ~/Library/Preferences/com.apple.Terminal.plist #terminal theme binary config
-
 ${base_dir}/other_install/install_vim.sh ${user_mail} ${user_name}
 
 cp ${base_dir}/configs/bash_alias ~/.bash_alias
-cp ${base_dir}/configs/bash_func ~/.bash_func; sed -i "s?#GITNAME#?${git_name}?g;s?#GITPASSWD#?${git_passwd}?g" ~/.bash_func
 cp ${base_dir}/configs/bashrc ~/.bashrc
 cp ${base_dir}/configs/inputrc ~/.inputrc
 cp ${base_dir}/configs/tmux.conf ~/.tmux.conf
@@ -82,12 +59,7 @@ cp ${base_dir}/configs/gitconfig ~/.gitconfig; sed -i "s?#NAME#?${git_name}?g;s?
 cp ${base_dir}/configs/git-completion.bash ~/.git-completion.bash
 
 # config the tmux with different version
-tmux_version=$(tmux -V | awk '{print $2}')
-if [[ $(echo "${tmux_version} >= 2.3" | bc) -eq 1 ]]; then
-    sed -i "s@#HV2.3 @@" ~/.tmux.conf
-else
-    sed -i "s@#LV2.3 @@" ~/.tmux.conf
-fi
+sed -i "s@#HV2.3 @@" ~/.tmux.conf
 
 if [ "$(uname)" == "Darwin" ]; then
     # reconfig the tmux
@@ -111,7 +83,6 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     sed -i "s@#LINUX @@" ~/.tmux.conf
     # linux copy function is different than mac
     sed -i "s@pbcopy@xsel -bi@g" ~/.vim_runtime/my_configs.vim
-    sed -i "s@pbcopy@xsel -bi@g" ~/.bash_func
     cp ${base_dir}/configs/bash_profile ~/.bash_profile
 fi
 
