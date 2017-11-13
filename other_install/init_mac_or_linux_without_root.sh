@@ -48,7 +48,7 @@ function install_plugins
 
 echo "${green}[FINISHED]${endcolor} done installing! "
 
-${base_dir}/other_install/install_vim.sh ${user_mail} ${user_name}
+${base_dir}/other_install/install_vim.sh ${user_name} ${user_mail}
 
 cp ${base_dir}/configs/bash_alias ~/.bash_alias
 cp ${base_dir}/configs/bashrc ~/.bashrc

@@ -86,7 +86,7 @@ backup_and_copy ~/.bash_profile
 backup_and_copy ~/.inputrc
 backup_and_copy ~/Library/Preferences/com.apple.Terminal.plist #terminal theme binary config
 
-${base_dir}/other_install/install_vim.sh ${user_mail} ${user_name}
+${base_dir}/other_install/install_vim.sh ${user_name} ${user_mail}
 
 cp ${base_dir}/configs/bash_alias ~/.bash_alias
 cp ${base_dir}/configs/bash_func ~/.bash_func; sed -i "s?#GITNAME#?${git_name}?g;s?#GITPASSWD#?${git_passwd}?g" ~/.bash_func
