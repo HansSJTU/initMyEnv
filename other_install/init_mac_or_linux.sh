@@ -139,8 +139,8 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     # reconfig the tmux
     sed -i "s@#LINUX @@" ~/.tmux.conf
     # linux copy function is different than mac
-    sed -i "s@pbcopy@xsel -bi@g" ~/.vim_runtime/my_configs.vim
-    sed -i "s@pbcopy@xsel -bi@g" ~/.bash_func
+    sed -i "s@pbcopy@xsel@g" ~/.vim_runtime/my_configs.vim
+    sed -i "s@pbcopy@xsel@g" ~/.bash_func
 fi
 
 echo "${orange}done${endcolor}"
