@@ -102,6 +102,10 @@ if [[ "$(uname)" == "Darwin" ]] && [[ -e /usr/local/opt/gnu-sed/libexec/gnubin ]
     export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
 fi
 
+if [[ -e "${HOME}/local/bin" ]]; then
+    export PATH="${HOME}/local/bin:${PATH}"
+fi
+
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).

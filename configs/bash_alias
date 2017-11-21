@@ -54,9 +54,13 @@ endcolor=$'\e[m'
 alias echo='echo -e'
 
 # Define Server
-alias aliyun='ssh -X root@106.14.7.228'
-alias amazon='ssh -i "/Users/Hans/.ssh/HanxiaoAmazonServer1.pem" ubuntu@52.14.136.27'
-alias vultr='ssh -X root@108.61.247.112'
+vultr_ip="108.61.247.112"
+amazon_ip="52.14.136.27"
+aliyun_ip="106.14.7.228"
+
+alias aliyun='ssh -X root@${aliyun_ip}'
+alias amazon='ssh -i "/Users/Hans/.ssh/HanxiaoAmazonServer1.pem" ubuntu@${amazon_ip}'
+alias vultr='ssh -X root@${vultr_ip}'
 
 # Alias for tree
 alias tree='tree -ACN'
