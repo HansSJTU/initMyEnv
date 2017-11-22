@@ -90,7 +90,7 @@ function backup
         if [ -f "${file_path}/.tmp" ]; then
             rm "${file_path}/.tmp"
             cp -r "$1" "${file_path}/${file_name}_${current_time}"
-            chmod a-w "${file_path}/${file_name}_${current_time}"
+            #chmod a-w "${file_path}/${file_name}_${current_time}"
             if [ -f "$1" ]; then
                 md5=$(md5sum "$1" | awk '{print $1}')
             else

@@ -96,6 +96,7 @@ cp ${base_dir}/configs/tmux.conf ~/.tmux.conf
 cp ${base_dir}/configs/my_configs.vim ~/.vim_runtime/
 cp ${base_dir}/configs/gitconfig ~/.gitconfig; sed -i "s?#NAME#?${git_name}?g;s?#MAIL#?${git_email}?g" ~/.gitconfig
 cp ${base_dir}/configs/git-completion.bash ~/.git-completion.bash
+cp ${base_dir}/configs/bash_profile ~/.bash_profile
 
 # set go path
 gp="~/.mygo"
@@ -112,7 +113,7 @@ fi
 
 # config the tmux with different version
 tmux_version=$(tmux -V | awk '{print $2}')
-if [[ $(echo "${tmux_version} >= 2.3" | bc) -eq 1 ]]; then
+if [ $(echo "2.3 ${tmux_version}" | awk '{if($1>$2) {print 0} else {print 1}}') -eq 1 ]; then
     sed -i "s@#HV2.3 @@" ~/.tmux.conf
 else
     sed -i "s@#LV2.3 @@" ~/.tmux.conf
@@ -121,8 +122,6 @@ fi
 if [ "$(uname)" == "Darwin" ]; then
     # reconfig the tmux
     sed -i "s@#MAC @@" ~/.tmux.conf
-    # cp bash_profile
-    cp ${base_dir}/configs/bash_profile ~/.bash_profile
     # cp termianl theme
     cp ${base_dir}/configs/macTerminalTheme/com.apple.Terminal.plist ~/Library/Preferences/com.apple.Terminal.plist
     # change the jsoncpp include dir to make the same as in Linux

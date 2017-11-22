@@ -1,11 +1,10 @@
 set nu
 let mapleader = "\<Space>"
-set cursorline
-highlight Cursorline cterm=bold ctermbg=16 
 set cmdheight=1
 set foldmethod=indent "set default foldmethod
-set foldlevel=1
 set pastetoggle=<leader><leader>p
+set cursorline
+highlight Cursorline cterm=bold ctermbg=16 
 
 vmap<leader>y y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
 nmap<leader>y yiw:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
@@ -41,6 +40,7 @@ set autochdir
 set tags=./tags;,tags;
 
 function! GoToTagWithNewTab()
+    :set noignorecase
     let tagWord = expand("<cword>")
     :tabe
     execute "tj ".expand(tagWord)
@@ -53,9 +53,11 @@ function! GoToTagWithNewTab()
         :silent! normal jzok
         :call HighLightCursor()
     endif
+    :set ignorecase
 endfunction
 
 function! GoToTagWithNewSplit()
+    :set noignorecase
     let tagWord = expand("<cword>")
     :vnew
     execute "tj ".expand(tagWord)
@@ -67,6 +69,7 @@ function! GoToTagWithNewSplit()
         :silent! normal jzok
         :call HighLightCursor()
     endif
+    :set ignorecase
 endfunction
 
 function! HighLightCursor()

@@ -59,7 +59,13 @@ cp ${base_dir}/configs/gitconfig ~/.gitconfig; sed -i "s?#NAME#?${git_name}?g;s?
 cp ${base_dir}/configs/git-completion.bash ~/.git-completion.bash
 
 # config the tmux with different version
-sed -i "s@#HV2.3 @@" ~/.tmux.conf
+./${base_dir}/other_install/install_tmux_without_root.sh
+tmux_version=$(tmux -V | awk '{print $2}')
+if [ $(echo "2.3 ${tmux_version}" | awk '{if($1>$2) {print 0} else {print 1}}') -eq 1 ]; then
+    sed -i "s@#HV2.3 @@" ~/.tmux.conf
+else
+    sed -i "s@#LV2.3 @@" ~/.tmux.conf
+fi
 
 if [ "$(uname)" == "Darwin" ]; then
     # reconfig the tmux
