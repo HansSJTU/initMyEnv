@@ -6,5 +6,5 @@
 # Distributed under terms of the MIT license.
 #
 
-
+pip install tensorflow-gpu
 
