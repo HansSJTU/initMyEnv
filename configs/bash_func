@@ -154,7 +154,7 @@ function gitregenerate
 
     repo_web=$(awk '{print $NF}' .git/FETCH_HEAD)
     git remote rm origin
-    new_web=$(echo "${repo_web}" | sed "s@https://@https://${git_rege_name}:${git_rege_password}\@@")
+    new_web=$(echo "${repo_web}" | sed "s@http\(s\)\?://@https://${git_rege_name}:${git_rege_password}\@@")
     echo "${new_web}"
     git remote add origin "${new_web}"
 }
