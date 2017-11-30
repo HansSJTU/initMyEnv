@@ -18,6 +18,8 @@ sudo apt-get update
 sudo apt-get install cuda
 sudo dpkg -i "cuda-repo-ubuntu1404-8-0-local-cublas-performance-update_8.0.61-1_amd64.deb"
 sudo dpkg -i "libcudnn6_6.0.21-1+cuda8.0_amd64.deb"
+sudo apt-get install libcupti-dev
+sudo apt-get install linux-headers-$(uname -r)
 popd > /dev/null
 echo "export LD_LIBRARY_PATH=/usr/local/cuda-8.0/lib64/:/usr/local/cuda/lib64:\$LD_LIBRARY_PATH" >> ~/.bashrc
 echo "export PATH=/usr/local/cuda-8.0/bin:/usr/local/cuda/bin:\$PATH" >> ~/.bashrc
