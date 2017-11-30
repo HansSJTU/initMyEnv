@@ -14,7 +14,10 @@
 [mergetool]
 	prompt = false
 	keepBackup = false
+[help]
+	autocorrect = 1
 [color]
 	ui = true
 [core]
 	editor = /usr/bin/vim
+	ignorecase = false
