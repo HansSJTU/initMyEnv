@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# open safari
+function safari {
+    /usr/bin/env osascript <<-EOF
+    tell application "Safari"
+        reopen
+        activate
+    end tell
+EOF
+}
+
 # double click x11
 function dcc {
     /usr/bin/env osascript <<-EOF
@@ -351,6 +361,18 @@ function decrypt
             rm "${decrypt_file}"
         fi
         echo -e "\n${decrypt_file_path}/${decrypt_real_name}"
+    fi
+}
+
+# use cd with autojump
+function cd
+{
+    if [[ -e "$@" || "$@" == "-" ]]; then
+        command cd "$@"
+    elif [[ $(command -v j) ]]; then
+        j "$@"
+    else
+        command cd "$@"
     fi
 }
 

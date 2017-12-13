@@ -48,7 +48,7 @@ function install_plugins
     if [ $1 == "OSX" ]; then
         brew install "$2"
     elif [ $1 == "Linux" ]; then
-        sudo apt-get install "$2"
+        sudo apt-get install "$2" -y
         wait
     fi
 }

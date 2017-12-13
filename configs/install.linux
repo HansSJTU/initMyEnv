@@ -7,6 +7,7 @@ htop
 tmux
 git
 cmake
+autojump
 exuberant-ctags
 tree
 dstat

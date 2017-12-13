@@ -99,6 +99,13 @@ if [ -f ~/.git-completion.bash ]; then
     source ~/.git-completion.bash
 fi
 
+# auto jump config
+if [ -f /usr/share/autojump/autojump.sh ]; then
+    source /usr/share/autojump/autojump.sh #Ubuntu
+elif [ -f /usr/local/etc/autojump.sh ]; then
+    source /usr/local/etc/autojump.sh #Mac
+fi
+
 # for mac gnu sed
 if [[ "$(uname)" == "Darwin" ]] && [[ -e /usr/local/opt/gnu-sed/libexec/gnubin ]]; then
     export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
@@ -114,7 +121,7 @@ fi
 # sources /etc/bash.bashrc).
 if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
   . /etc/bash_completion
-fi
+fi 
 
 # bind crtl-f to source ~/.bashrc, which can be used as "clear" as well
 bind -x '"\C-f": source ~/.bashrc'
