@@ -15,8 +15,6 @@ if [ "$(uname)" == "Darwin" ]; then
     # grep
     alias grep='GREP_COLOR="1;37;41" LANG=C grep --color=auto'
 
-    open_method="open"
-
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     # ls
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
@@ -31,8 +29,6 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     alias tmux="tmux -2"   
     alias pprof="google-pprof"
     alias dstatio="dstat -d -n --top-io --disk-util"
-    
-    open_method="xdg-open"
 
 elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then
     :;
@@ -90,9 +86,3 @@ alias db='dropbox_uploader.sh '
 # Alias for look the file size
 alias hdu='du -sk -- * | sort -n | perl -pe '\''@SI=qw(K M G T P); s:^(\d+?)((\d\d\d)*)\s:$1." ".$SI[((length $2)/3)]."\t":e'\'''
 
-# Alias website
-alias disk="${open_method} \"http://108.61.247.112/public/\""
-alias google="${open_method} \"http://google.com\""
-alias baidu="${open_method} \"http://baidu.com\""
-alias yd="${open_method} \"http://dict.youdao.com/?cookie=new\""
-alias github="${open_method} \"https://github.com\""

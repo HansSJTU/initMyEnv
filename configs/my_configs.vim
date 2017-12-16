@@ -13,7 +13,7 @@ nmap<leader>p :r! cat ~/.vbuf<cr>
 nmap<leader>o :only<cr>
 nmap<leader>/ :noh<cr>
 nmap<leader>w <C-w>
-nmap<leader>q :qa<cr>
+nmap<leader>q :q<cr>
 nmap<leader><leader>w :w<cr>
 nmap<leader><leader>wq :wq<cr>
 nmap<leader>d diw

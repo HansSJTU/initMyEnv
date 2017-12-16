@@ -364,15 +364,123 @@ function decrypt
     fi
 }
 
-# use cd with autojump
-function cd
+# Use autojump as a part of cd command
+if [[ $(command -v j) ]]; then
+    function cd
+    {
+        if [[ -e "$@" || "$@" == "-" ]]; then
+            command cd "$@"
+        else
+            j "$@"
+        fi
+    }
+    function cdc
+    {
+        if [[ -e "$@" || "$@" == "-" ]]; then
+            command cd "$@"
+        else
+            jc "$@"
+        fi
+    }
+    function cdo
+    {
+        if [[ -e "$@" || "$@" == "-" ]]; then
+            if [ "$(uname)" == "Darwin" ]; then
+                pushd "$@" > /dev/null
+                open . 
+                popd >/dev/null
+            elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+                pushd "$@" > /dev/null
+                xdg-open .
+                popd >/dev/null
+            else
+                jo "$@"
+            fi
+        else
+            jo "$@"
+        fi
+    }
+fi
+
+# du better use
+function du-auto
 {
-    if [[ -e "$@" || "$@" == "-" ]]; then
-        command cd "$@"
-    elif [[ $(command -v j) ]]; then
-        j "$@"
-    else
-        command cd "$@"
-    fi
+    width=${1:-34}
+    du -sk -- * | sort -n | python3 -c "
+import sys, os
+width = int(sys.argv[-1])
+width = width if width < 120 else 120
+unit = ['KB', 'MB', 'GB', 'TB']
+unit_split = [0, 0, 0, 0]
+name_type = ['', '\033[1;34m', '\033[1;36m', '\033[1;32m']
+end_type = ['', '\033[0m', '\033[0m', '\033[0m']
+sys.stdout.write('+' + '-' * width + '-' * 19 + '+' + '\n')
+sys.stdout.write('|  ' + '   Size  ' + '  |  ' + '%16s'%('File') + ' '*(width - 13) + '|\n')
+for line in sys.stdin:
+    unit_count = 0;
+    content = line.rstrip().split('\t')
+    size = float(content[0])
+    while True:
+        if (size / 1024.0 <= 1):
+            break
+        size /= 1024.0
+        unit_count += 1
+    show_size = \"%6.1f %s\"%(size, unit[unit_count])
+    name = '\t'.join(content[1:])
+
+    file_type = 0;
+    if os.path.islink(name):
+        file_type = 2
+    elif os.path.isdir(name):
+        file_type = 1
+    elif os.path.isfile(name) and os.access(name, os.X_OK):
+        file_type = 3
+
+    if unit_split[unit_count] == 0:
+        sys.stdout.write('|' + '-' * width + '-' * 19 + '|\n')
+        unit_split[unit_count] = 1
+    chinese_character = 0;
+    for item in name:
+        if item <= '\u9fa5' and item >= '\u4e00':
+            chinese_character += 1
+    if len(name) + chinese_character > width + 1:
+        ext = os.path.splitext(name)
+        if chinese_character:
+            name = name[:int(width / 2) - len(ext[-1]) - 1] + '.. ' + ext[-1]
+        else:
+            name = name[:width - len(ext[-1]) - 1] + '.. ' + ext[-1]
+    chinese_character = 0;
+    for item in name:
+        if item <= '\u9fa5' and item >= '\u4e00':
+            chinese_character += 1
+    sys.stdout.write('|  ' + show_size + '  |  ' + name_type[file_type] + '%0*s'%(-width - 3 + chinese_character, name) + end_type[file_type] + '|' + '\n')
+sys.stdout.write('+' + '-' * width + '-' * 19 + '+' + '\n')
+" ${width}
 }
 
+# use function to open web
+_web_complete()
+{
+    local HOST cur
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+    HOST="$(grep -v ^\# ~/.web_list | awk -F '|' '{print $1}')"
+    COMPREPLY=( $( compgen -W "$HOST" -- "$cur" ) )
+}
+function web
+{
+    for item in "${@}"; do
+        website_addr=$(grep -v ^\# ~/.web_list | grep "^${item}|" | awk -F '|' '{print $2}')
+        if [[ -z ${website_addr} ]]; then
+            echo "[ERR] ${red}${item}${endcolor} not exists in ~/.web_list" 1>&2
+        else
+            echo "[SUC] ${green}${item}${endcolor}: ${website_addr}" 
+            if [ "$(uname)" == "Darwin" ]; then
+                open "${website_addr}"
+            elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+                xdg-open "${website_addr}"
+            fi
+        fi
+    done
+}
+complete -F _web_complete web 

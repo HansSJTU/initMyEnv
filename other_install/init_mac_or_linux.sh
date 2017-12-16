@@ -78,8 +78,10 @@ function backup_and_copy
 }
 
 backup_and_copy ~/.bash_alias
+backup_and_copy ~/.bash_func
 backup_and_copy ~/.bashrc
 backup_and_copy ~/.tmux.conf
+backup_and_copy ~/.vim_runtime/my_configs.vim
 backup_and_copy ~/.vimrc
 backup_and_copy ~/.gitconfig
 backup_and_copy ~/.bash_profile
@@ -97,6 +99,9 @@ cp ${base_dir}/configs/my_configs.vim ~/.vim_runtime/
 cp ${base_dir}/configs/gitconfig ~/.gitconfig; sed -i "s?#NAME#?${git_name}?g;s?#MAIL#?${git_email}?g" ~/.gitconfig
 cp ${base_dir}/configs/git-completion.bash ~/.git-completion.bash
 cp ${base_dir}/configs/bash_profile ~/.bash_profile
+if [ ! -e ~/.web_list ]; then
+    cp ${base_dir}/configs/web_list ~/.web_list
+fi
 
 # set go path
 gp="~/.mygo"
