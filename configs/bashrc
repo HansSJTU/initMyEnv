@@ -90,6 +90,13 @@ if [ -f ~/.bash_alias ]; then
     source ~/.bash_alias
 fi
 
+# auto jump config
+if [ -f /usr/share/autojump/autojump.sh ]; then
+    source /usr/share/autojump/autojump.sh #Ubuntu
+elif [ -f /usr/local/etc/autojump.sh ]; then
+    source /usr/local/etc/autojump.sh #Mac
+fi
+
 if [ -f ~/.bash_func ]; then
     source ~/.bash_func
 fi
@@ -97,13 +104,6 @@ fi
 # git command completion
 if [ -f ~/.git-completion.bash ]; then
     source ~/.git-completion.bash
-fi
-
-# auto jump config
-if [ -f /usr/share/autojump/autojump.sh ]; then
-    source /usr/share/autojump/autojump.sh #Ubuntu
-elif [ -f /usr/local/etc/autojump.sh ]; then
-    source /usr/local/etc/autojump.sh #Mac
 fi
 
 # for mac gnu sed
