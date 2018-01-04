@@ -5,6 +5,8 @@ coreutils
 reattach-to-user-namespace
 gnu-sed
 autojump
+ranger
+ncdu
 tree
 task
 ctags

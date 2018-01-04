@@ -8,6 +8,7 @@ tmux
 git
 cmake
 autojump
+ncdu
 exuberant-ctags
 tree
 dstat

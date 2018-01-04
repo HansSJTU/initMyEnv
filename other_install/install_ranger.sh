@@ -7,9 +7,9 @@
 #
 
 if [ "$(uname)" == "Darwin" ]; then
-    brew install rancher
+    brew install ranger
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    sudo apt-get install rancher
+    sudo apt-get install ranger
 fi
 
 ranger --copy-config=scope
