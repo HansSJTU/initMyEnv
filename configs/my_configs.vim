@@ -2,7 +2,6 @@ set nu
 let mapleader = "\<Space>"
 set cmdheight=1
 set foldmethod=indent "set default foldmethod
-set pastetoggle=<leader><leader>p
 set cursorline
 highlight Cursorline cterm=bold ctermbg=16 
 
@@ -18,6 +17,10 @@ nmap<leader><leader>w :w<cr>
 nmap<leader><leader>wq :wq<cr>
 nmap<leader>d diw
 nmap<leader><leader>d diwdiwdiwdiw
+nmap<C-a> 0
+nmap<C-e> $
+imap<C-e> <End>
+imap<C-a> <Esc>0a<Esc>i
 
 " if in diff mode, set as diff shortcut, else set as other
 if &diff
@@ -103,3 +106,15 @@ map <silent><leader><leader>a `azz :call HighLightCursor()<cr>
 
 " run when start
 autocmd VimEnter * call HighLightCursor()
+
+" automatically paste without format
+let &t_SI .= "\<Esc>[?2004h"
+let &t_EI .= "\<Esc>[?2004l"
+
+inoremap <special> <expr> <Esc>[200~ XTermPasteBegin()
+
+function! XTermPasteBegin()
+    set pastetoggle=<Esc>[201~
+    set paste
+    return ""
+endfunction
