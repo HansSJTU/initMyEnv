@@ -9,8 +9,8 @@ set scrolloff=1
 vmap<leader>y y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
 nmap<leader>y yiw:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
 nmap<leader>yy yy:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pggdd:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
-nmap<leader>yya mbvG$y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pggdd:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>`b
-nmap<leader>yyaa mbggvG$y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pggdd:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>`b
+nmap<leader>yya mbvG$y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>`b
+nmap<leader>yyaa mbggvG$y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>`b
 nmap<leader>p :r! cat ~/.vbuf<cr>
 nmap<leader>o :only<cr>
 nmap<leader>/ :noh<cr>
