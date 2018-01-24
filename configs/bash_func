@@ -365,13 +365,19 @@ function decrypt
 }
 
 # Use autojump as a part of cd command
+function relpath()
+{ 
+    python -c "import os.path; print os.path.relpath('$1','${2:-$PWD}')"
+}
 if [[ $(command -v j) ]]; then
     function cd
     {
         if [[ -e "$@" || "$@" == "-" ]]; then
             command cd "$@"
         else
+            p1="${PWD}"
             j "$@"
+            relpath "${PWD}" "${p1}"
         fi
     }
     function cdc

@@ -6,12 +6,15 @@ set cursorline
 highlight Cursorline cterm=bold ctermbg=16 
 set scrolloff=1
 
+" copy and paste
 vmap<leader>y y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
 nmap<leader>y yiw:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
 nmap<leader>yy yy:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pggdd:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
 nmap<leader>yya mbvG$y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>`b
 nmap<leader>yyaa mbggvG$y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>`b
 nmap<leader>p :r! cat ~/.vbuf<cr>
+
+" auxiliary
 nmap<leader>o :only<cr>
 nmap<leader>/ :noh<cr>
 nmap<leader>w <C-w>
@@ -26,6 +29,8 @@ vmap<C-a> 0
 vmap<C-e> $
 imap<C-e> <End>
 imap<C-a> <Esc>0a<Esc>i
+noremap <silent><leader>k <C-o>zz:call HighLightCursor()<cr>
+noremap <silent><leader>j <C-i>zz:call HighLightCursor()<cr>
 
 " if in diff mode, set as diff shortcut, else set as other
 if &diff
@@ -133,3 +138,11 @@ autocmd FileType mail             let b:comment_leader = '> '
 autocmd FileType vim              let b:comment_leader = '" '
 noremap <silent><leader>. mb:<C-B>silent <C-E>s/^/<C-R>=escape(b:comment_leader,'\/')<CR>/<CR>:nohlsearch<CR>`blll
 noremap <silent><leader>, mb:<C-B>silent <C-E>s/^\V<C-R>=escape(b:comment_leader,'\/')<CR>//e<CR>:nohlsearch<CR>`b
+
+" For smooth motion
+let g:comfortable_motion_scroll_down_key = "j"
+let g:comfortable_motion_scroll_up_key = "k"
+let g:comfortable_motion_no_default_key_mappings = 1
+let g:comfortable_motion_impulse_multiplier = 1  " Feel free to increase/decrease this value.
+nnoremap <silent> <C-d> :call comfortable_motion#flick(g:comfortable_motion_impulse_multiplier * winheight(0) * 2)<CR>
+nnoremap <silent> <C-u> :call comfortable_motion#flick(g:comfortable_motion_impulse_multiplier * winheight(0) * -2)<CR>
