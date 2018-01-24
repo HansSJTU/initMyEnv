@@ -4,10 +4,13 @@ set cmdheight=1
 set foldmethod=indent "set default foldmethod
 set cursorline
 highlight Cursorline cterm=bold ctermbg=16 
+set scrolloff=1
 
 vmap<leader>y y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
 nmap<leader>y yiw:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
 nmap<leader>yy yy:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pggdd:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
+nmap<leader>yya mbvG$y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pggdd:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>`b
+nmap<leader>yyaa mbggvG$y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pggdd:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>`b
 nmap<leader>p :r! cat ~/.vbuf<cr>
 nmap<leader>o :only<cr>
 nmap<leader>/ :noh<cr>
@@ -19,6 +22,8 @@ nmap<leader>d diw
 nmap<leader><leader>d diwdiwdiwdiw
 nmap<C-a> 0
 nmap<C-e> $
+vmap<C-a> 0
+vmap<C-e> $
 imap<C-e> <End>
 imap<C-a> <Esc>0a<Esc>i
 
@@ -126,5 +131,5 @@ autocmd FileType conf,fstab       let b:comment_leader = '# '
 autocmd FileType tex              let b:comment_leader = '% '
 autocmd FileType mail             let b:comment_leader = '> '
 autocmd FileType vim              let b:comment_leader = '" '
-noremap <silent><leader>. :<C-B>silent <C-E>s/^/<C-R>=escape(b:comment_leader,'\/')<CR>/<CR>:nohlsearch<CR>
-noremap <silent><leader>, :<C-B>silent <C-E>s/^\V<C-R>=escape(b:comment_leader,'\/')<CR>//e<CR>:nohlsearch<CR>
+noremap <silent><leader>. mb:<C-B>silent <C-E>s/^/<C-R>=escape(b:comment_leader,'\/')<CR>/<CR>:nohlsearch<CR>`blll
+noremap <silent><leader>, mb:<C-B>silent <C-E>s/^\V<C-R>=escape(b:comment_leader,'\/')<CR>//e<CR>:nohlsearch<CR>`b
