@@ -67,8 +67,8 @@ alias aliyun='ssh -X root@${aliyun_ip}'
 alias amazon='ssh -i "/Users/Hans/.ssh/HanxiaoAmazonServer1.pem" ubuntu@${amazon_ip}'
 alias amazon1='ssh -i "/Users/Hans/Downloads/Hanxiao.pem.txt" ubuntu@${amazon1_ip}'
 alias vultr='ssh -X root@${vultr_ip}'
-alias bang='ssh -X hah114@${bang_ip}'
-alias sorken='ssh -X hah114@${sorken_ip}'
+alias bang='ssh -X xutao@${bang_ip}'
+alias sorken='ssh -X xutao@${sorken_ip}'
 alias google1="gcloud compute ssh instance-1"
 
 # Alias for tree
