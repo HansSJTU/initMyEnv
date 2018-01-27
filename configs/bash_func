@@ -223,9 +223,9 @@ function _backup_reverse_op
 function _backup_complete
 {
     local cur prev  
-	COMP_WORDBREAKS=${COMP_WORDBREAKS//[:=]}
+    COMP_WORDBREAKS=${COMP_WORDBREAKS//[:=]}
     COMPREPLY=()
-	prev=${COMP_WORDS[COMP_CWORD-1]}
+    prev=${COMP_WORDS[COMP_CWORD-1]}
     _get_comp_words_by_ref cur
 
     if [[ ${prev} == "-r" || ${prev} == "-rf" ]]; then
