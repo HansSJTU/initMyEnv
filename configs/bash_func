@@ -1,78 +1,92 @@
-#!/bin/bash
+#! /bin/bash
+#
+# .bash_func
+# Copyright (C) 2017 Hanxiao <hah114@ucsd.edu>
+#
+# Distributed under terms of the MIT license.
+#
 
-# open safari
-function safari {
-    /usr/bin/env osascript <<-EOF
-    tell application "Safari"
-        reopen
-        activate
-    end tell
+if [ "$(uname)" == "Darwin" ]; then
+    # open safari
+    function safari {
+        /usr/bin/env osascript <<-EOF
+        tell application "Safari"
+            reopen
+            activate
+        end tell
 EOF
-}
+    }
 
-# double click x11
-function dcc {
-    /usr/bin/env osascript <<-EOF
-    tell application "XQuartz"
-        reopen
-        activate
-    end tell
+    # double click x11
+    function dcc {
+        /usr/bin/env osascript <<-EOF
+        tell application "XQuartz"
+            reopen
+            activate
+        end tell
 
-    tell application "System Events" to keystroke "," using {command down}
-    tell application "System Events" to keystroke "  "
-    tell application "System Events" to keystroke "w" using {command down}
+        tell application "System Events" to keystroke "," using {command down}
+        tell application "System Events" to keystroke "  "
+        tell application "System Events" to keystroke "w" using {command down}
 
-    delay 0.3
-    tell application "Terminal"
-        reopen
-        activate
-    end tell
+        delay 0.3
+        tell application "Terminal"
+            reopen
+            activate
+        end tell
 EOF
-}
+    }
 
-# about VPN connecting
-function vpnconnect {
-    randomIP4VPN
-    /usr/bin/env osascript <<-EOF
-    tell application "System Events"
-            tell current location of network preferences
-                    set VPN to service "VPN (L2TP)"
-                    if exists VPN then connect VPN
-                    repeat while (current configuration of VPN is not connected)
-                        delay 1
-                    end repeat
-            end tell
-    end tell
+    # about VPN connecting
+    function vpnconnect {
+        randomIP4VPN
+        /usr/bin/env osascript <<-EOF
+        tell application "System Events"
+                tell current location of network preferences
+                        set VPN to service "VPN (L2TP)"
+                        if exists VPN then connect VPN
+                        repeat while (current configuration of VPN is not connected)
+                            delay 1
+                        end repeat
+                end tell
+        end tell
 EOF
-}
+    }
 
-function vpndisconnect {
-    /usr/bin/env osascript <<-EOF
-    tell application "System Events"
-            tell current location of network preferences
-                    set VPN to service "VPN (L2TP)"
-                    if exists VPN then disconnect VPN
-            end tell
-    end tell
-    return
+    function vpndisconnect {
+        /usr/bin/env osascript <<-EOF
+        tell application "System Events"
+                tell current location of network preferences
+                        set VPN to service "VPN (L2TP)"
+                        if exists VPN then disconnect VPN
+                end tell
+        end tell
+        return
 EOF
-}
+    }
 
-function randomIP4VPN {
-    vpnfile="vpn.list"
-    common="/Users/Hans/.vpnSetting/"
-    gshuf ${common}/${vpnfile} | head -1 > ${common}/.listtmp
+    function randomIP4VPN {
+        vpnfile="vpn.list"
+        common="/Users/Hans/.vpnSetting/"
+        gshuf ${common}/${vpnfile} | head -1 > ${common}/.listtmp
 
-    ## backup the first version of preference list
-    if [ ! -f ${common}/preferences.plist ]; then
-        cp /Library/Preferences/SystemConfiguration/preferences.plist ${common}/
-    fi
+        ## backup the first version of preference list
+        if [ ! -f ${common}/preferences.plist ]; then
+            cp /Library/Preferences/SystemConfiguration/preferences.plist ${common}/
+        fi
 
-    shuf_vpn_server=$(cat ${common}/.listtmp)
-    sudo sed -i "214s@g>.\{0,100\}<@g>${shuf_vpn_server}<@" /Library/Preferences/SystemConfiguration/preferences.plist
+        shuf_vpn_server=$(cat ${common}/.listtmp)
+        sudo sed -i "214s@g>.\{0,100\}<@g>${shuf_vpn_server}<@" /Library/Preferences/SystemConfiguration/preferences.plist
 
-    rm ${common}/.listtmp
-}
+        rm ${common}/.listtmp
+    }
+
+    # redifine use subl
+    function subl
+    {
+        /Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl "$1"
+    }
+fi
 
 # change name for shell tab
 function nn {
@@ -85,51 +99,204 @@ function nn {
 }
 
 # generate a backup
-function backup
+function _backup_realpath
 {
-    if [ ! -z "$1" ] && [ "$1" == "-clean" ]; then
-        if [ -f ~/.backup.logs ]; then
-            rm ~/.backup.logs
-        fi
-    elif [ ! -z "$1" ] && [ -e "$1" ]; then
-        current_time=$(date +%Y%m%d)_$(date +%T)
-        absolute_path=$(realpath "$1")
-        file_name=$(basename "${absolute_path}")
-        file_path=$(dirname "${absolute_path}")
-        touch "${file_path}/.tmp" > /dev/null
-        if [ -f "${file_path}/.tmp" ]; then
-            rm "${file_path}/.tmp"
-            cp -r "$1" "${file_path}/${file_name}_${current_time}"
-            #chmod a-w "${file_path}/${file_name}_${current_time}"
-            if [ -f "$1" ]; then
-                md5=$(md5sum "$1" | awk '{print $1}')
-            else
-                md5="Direction"
-            fi
-            if [ ! -z "$2" ]; then
-                exp="$2"
-            else
-                exp="No explain. "
-            fi
-            echo -e "${file_name}\t${current_time}\t${file_path}\t${md5}\t${exp}" >> ~/.backup.logs
-            backup_file_dir="${file_path}/${file_name}_${current_time}"
-            echo "------" >> ~/.backup.logs
-            echo -e "${green}[FINISHED]${endcolor} ${file_path}/${file_name}_${current_time}"
+    pushd "$(dirname "$1")" > /dev/null
+        echo "${PWD}/$(basename "$1")"
+	popd > /dev/null
+}
+function _backup_helper
+{
+    echo -e "${green}[HELP MENU]${endcolor}:\n \
+        <file1> [file2 ..] [explanation] backup file with explanation\n \
+        [-r] <file> reverse backup\n \
+        [-f] force reverse without notification when there is the same copy in direction\n \
+        [-h] show help info\n \
+        [-e] add explanation\n \
+        [-s] show logs\n \
+        [-c] clean the log file (${HOME}/.backup.logs)"
+}
+function _backup_remove_log
+{
+    if [[ -f "${HOME}/.backup.logs" ]]; then
+        rm "${HOME}/.backup.logs"
+    fi
+    echo "${green}[FINISHED]${endcolor} Log File Cleaned"
+}
+function _backup_show_log
+{
+    vim "${HOME}/.backup.logs"
+}
+function _backup_op
+{
+    if [[ ! -e "$1" ]]; then
+        echo "[ERROR] ${red}${1}${endcolor} does not exist, exiting.." 1>&2
+        return
+    fi
+    if [[ -L "$1" ]]; then
+        echo "[ERROR] ${red}${1}${endcolor} is a link file, exiting.." 1>&2
+        return
+    fi
+    current_time="$(date +%Y%m%d)_$(date +%T)"
+    absolute_path="$(_backup_realpath "$1")"
+    file_name="$(basename "${absolute_path}")"
+    file_path="$(dirname "${absolute_path}")"
+    dst_file_name="${file_name}"
+    avaliable_check="$(echo "${file_name}" | grep -o "_[0-9]\{8\}_[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}\$" | wc -l)"
+    if [[ ${avaliable_check} -eq 1 ]]; then
+        dst_file_name="${file_name:0:$((${#file_name} - 18))}"
+        echo "[INFO] Backing up ${orange}${file_name}${endcolor} with name showing ${orange}${dst_file_name}${endcolor}"
+    fi
+
+    # permission check
+    touch "${file_path}/.tmp_backup_219dsak" > /dev/null
+    if [ -f "${file_path}/.tmp_backup_219dsak" ]; then
+        rm "${file_path}/.tmp_backup_219dsak"
+        backup_file_dir="${file_path}/${dst_file_name}_${current_time}"
+        cp -r "$1" "${backup_file_dir}"
+
+        # get md5
+        if [ -f "$1" ]; then
+            command -v md5sum >/dev/null 2>&1 || md5="md5sum disabled"
+            command -v md5sum >/dev/null 2>&1 && md5=$(md5sum "$1" | awk '{print $1}')
         else
-            echo -e "${red}[ERROR]${endcolor} permission denied! "
+            md5="Direction"
         fi
+
+        # get explanation
+        if [ ! -z "$2" ]; then
+            exp="$2"
+        else
+            exp="No explain. "
+        fi
+
+        echo -e "${file_name}\t${current_time}\t${file_path}\t${md5}\t${exp}\n------" >> ~/.backup.logs
+        echo -e "${green}[FINISHED]${endcolor} ${file_path}/${dst_file_name}_${current_time}"
     else
-        echo -e "${red}[ERROR]${endcolor} file not exists! "
+        echo -e "[ERROR] ${red}Permission Denied${endcolor}" 1>&2
     fi
 }
+function _backup_reverse_op
+{
+    if [[ ! -e "$1" ]]; then
+        echo "[ERROR] ${red}${1}${endcolor} does not exist, exiting.." 1>&2
+        return
+    fi
+    absolute_path="$(_backup_realpath "$1")"
+    file_name="$(basename "${absolute_path}")"
+    file_path="$(dirname "${absolute_path}")"
+    force_option=$2
 
-# redifine use subl
-if [ "$(uname)" == "Darwin" ]; then
-    function subl
-    {
-        /Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl "$1"
-    }
-fi
+    avaliable_check="$(echo "${file_name}" | grep -o "_[0-9]\{8\}_[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}\$" | wc -l)"
+    if [[ ${avaliable_check} -eq 0 ]]; then
+        echo "[ERROR] ${red}${1}${endcolor} is not a backup file, exiting..." 1>&2
+        return
+    fi
+
+    backup_file_realname="${file_name:0:$((${#file_name} - 18))}"
+    reversed_file_path="${file_path}/${backup_file_realname}"
+    operation_type=0
+    if [[ -e ${reversed_file_path} ]]; then
+        if [[ ${force_option} -eq 0 ]]; then
+            echo -e "[INFO] ${orange}${reversed_file_path}${endcolor} already exists"
+            read -rp "Overwrite it? (y/n): " exist_file_option
+            exist_file_option="$(echo "${exist_file_option}" | tr '[:upper:]' '[:lower:]')"
+            if [[ ${exist_file_option} == "y" || ${exist_file_option} == "yes" ]]; then
+                force_option=1
+            fi
+        fi
+        if [[ ${force_option} -eq 1 ]]; then
+            rm -rf "${reversed_file_path}"
+            mv "${absolute_path}" "${reversed_file_path}"
+            operation_type=1
+        fi
+    else
+        mv "${absolute_path}" "${reversed_file_path}"
+        operation_type=1
+    fi
+    if [[ ${operation_type} -eq 1 ]]; then
+        echo "${green}[FINISHED]${endcolor} ${reversed_file_path}"
+    else
+        echo "[ERROR] User quit, exiting..." 1>&2
+    fi
+}
+function _backup_complete
+{
+    local cur prev name_list 
+
+	COMP_WORDBREAKS=${COMP_WORDBREAKS//[:=]}
+    COMPREPLY=()
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+    _get_comp_words_by_ref cur
+
+    if [[ ${prev} == "-r" || ${prev} == "-rf" ]]; then
+        name_list="$(\ls | grep "_[0-9]\{8\}_[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}\$" | sort)"
+    else
+        name_list="$(\ls)"
+    fi
+    
+    COMPREPLY=( $( compgen -W "${name_list}" -- "$cur" ) )
+}
+
+function backup
+{
+    if [[ $# -eq 0 ]]; then
+        _backup_helper
+    fi
+    command -v getopts >/dev/null 2>&1 || { echo "[ERROR] Missing ${red}getopts${endcolor}" 1>&2; return; }
+    command -v basename >/dev/null 2>&1 || { echo "[ERROR] Missing ${red}basename${endcolor}" 1>&2; return; }
+    command -v dirname >/dev/null 2>&1 || { echo "[ERROR] Missing ${red}dirname${endcolor}" 1>&2; return; }
+
+    option_count=0
+    reverse_flag=0
+    force_flag=0
+    explanation=""
+    unset OPTIND
+    while getopts "e:fhcrs" arg; do
+        case "${arg}" in 
+            h)
+                _backup_helper
+                ((option_count++))
+                ;;
+            c)
+                _backup_remove_log 
+                ((option_count++))
+                ;;
+            s)
+                _backup_show_log 
+                ((option_count++))
+                ;;
+            r)
+                reverse_flag=1
+                ;;
+            f)
+                force_flag=1
+                ;;
+            e)
+                explanation="$OPTARG" 
+                ;; 
+            ?)
+                echo "[ERROR] ${red}$1${endcolor} is an illegal option" 1>&2
+                return
+        esac
+    done
+
+    shift $((OPTIND-1))
+    # backup
+    if [[ ${option_count} -eq 0 && ${reverse_flag} -eq 0 ]]; then
+        for item in "${@}"; do
+            _backup_op "${item}" "${explanation}"
+        done
+    fi
+
+    # reverse backup
+    if [[ ${option_count} -eq 0 && ${reverse_flag} -eq 1 ]]; then
+        for item in "${@}"; do
+            _backup_reverse_op "${item}" ${force_flag}
+        done
+    fi
+}
+complete -F _backup_complete backup 
 
 # redefine pushd and popd
 function pushdd
