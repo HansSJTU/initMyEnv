@@ -222,20 +222,22 @@ function _backup_reverse_op
 }
 function _backup_complete
 {
-    local cur prev name_list 
-
+    local cur prev  
 	COMP_WORDBREAKS=${COMP_WORDBREAKS//[:=]}
     COMPREPLY=()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
     _get_comp_words_by_ref cur
 
     if [[ ${prev} == "-r" || ${prev} == "-rf" ]]; then
-        name_list="$(\ls | grep "_[0-9]\{8\}_[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}\$" | sort)"
-    else
-        name_list="$(\ls)"
+        while read line; do
+            check_result=$(echo "${line}" | grep "_[0-9]\{8\}_[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}\$" | grep -i "^${cur}" | wc -l)
+            if [[ ${check_result} -eq 1 ]]; then
+                line=${line// /\\\ }
+                COMPREPLY=("${COMPREPLY[@]}" "${line}")
+            fi
+        done < <(ls)
     fi
     
-    COMPREPLY=( $( compgen -W "${name_list}" -- "$cur" ) )
 }
 
 function backup
@@ -296,7 +298,7 @@ function backup
         done
     fi
 }
-complete -F _backup_complete backup 
+complete -o bashdefault -o default -F _backup_complete backup 
 
 # redefine pushd and popd
 function pushdd
