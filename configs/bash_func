@@ -7,6 +7,16 @@
 #
 
 if [ "$(uname)" == "Darwin" ]; then
+    # copy file to clipboard not content of file!
+    cpfile() {
+        copy_path="$(realpath $1)"
+        osascript \
+            -e 'on run args' \
+            -e 'set the clipboard to POSIX file (first item of args)' \
+            -e end \
+            "${copy_path}"
+    }
+
     # open safari
     function safari {
         /usr/bin/env osascript <<-EOF
@@ -138,7 +148,7 @@ function _backup_delete_current_dir
             file_list=("${file_list[@]}" "${line}")
             ((count++))
         fi
-    done < <(ls --color=never)
+    done < <(ls -a --color=never)
     if [[ ${count} -eq 0 ]]; then
         echo "[FINISHED] Nothing to delete"
     else
@@ -267,7 +277,7 @@ function _backup_complete
                 COMPREPLY=("${COMPREPLY[@]}" "${line}")
                 ((count++))
             fi
-        done < <(ls --color=never)
+        done < <(ls -a --color=never)
         if [[ ${count} -eq 0 ]]; then
             COMPREPLY=("--- No Backup File ---" "")
         fi
