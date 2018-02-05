@@ -29,8 +29,8 @@ vmap<C-a> 0
 vmap<C-e> $
 imap<C-e> <End>
 imap<C-a> <Esc>0a<Esc>i
-noremap <silent><leader>k <C-o>zz:call HighLightCursor()<cr>
-noremap <silent><leader>j <C-i>zz:call HighLightCursor()<cr>
+noremap <silent><leader>k <C-i>zz:call HighLightCursor()<cr>
+noremap <silent><leader>j <C-o>zz:call HighLightCursor()<cr>
 
 " if in diff mode, set as diff shortcut, else set as other
 if &diff

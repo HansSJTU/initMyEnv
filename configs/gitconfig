@@ -1,14 +1,14 @@
 [filter "lfs"]
-	clean = git-lfs clean %f
 	smudge = git-lfs smudge %f
 	required = true
+	clean = git-lfs clean %f
 [user]
 	name = #NAME#
 	email = #MAIL#
 [diff]
 	tool = vimdiff
 [difftool]
-	prompt = true
+	prompt = false
 [merge]
 	tool = vimdiff
 [mergetool]
@@ -21,3 +21,5 @@
 [core]
 	editor = /usr/bin/vim
 	ignorecase = false
+[alias]
+	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
