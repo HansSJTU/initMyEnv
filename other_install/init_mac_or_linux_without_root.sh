@@ -63,6 +63,7 @@ fi
 
 # config the tmux with different version
 #/${base_dir}/other_install/install_tmux_without_root.sh
+unalias tmux
 tmux_version=$(command -v tmux > /dev/null 2>&1 && tmux -V | awk '{print $2}' || echo "2.5")
 if [ $(echo "2.3 ${tmux_version}" | awk '{if($1>$2) {print 0} else {print 1}}') -eq 1 ]; then
     sed -i "s@#HV2.3 @@" ~/.tmux.conf
