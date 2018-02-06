@@ -56,7 +56,8 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 red=$'\e[35;01m'
 green=$'\e[32;01m'
 orange=$'\e[33;01m'
-white=$'\e[1;00m'
+white=$'\e[1;01m'
+grey=$'\e[30;01m'
 endcolor=$'\e[m'
 alias echo='echo -e'
 
