@@ -379,7 +379,7 @@ function gitregenerate
         echo -ne "\n"
     fi
 
-    repo_web=$(awk '{print $NF}' .git/FETCH_HEAD)
+    repo_web=$(awk '{print $NF}' .git/FETCH_HEAD | head -1)
     git remote rm origin
     new_web=$(echo "${repo_web}" | sed "s@http\(s\)\?://@https://${git_rege_name}:${git_rege_password}\@@")
     echo "${new_web}"
