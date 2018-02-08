@@ -9,7 +9,7 @@
 echo -e "\n******* [INFO] *******\nThis script is to install different versions of tensorflow: \n"
 sleep 1
 
-read -rp "Version to Install (1.0.0, 1.5.0, 1.6.0): " version
+read -rp "Version to Install (1.0.0, 1.2.3, 1.5.0): " version
 if [[ $(echo "${version}" | grep -c "[1].[0-9].[0-9]") -eq 0 ]]; then
     echo "[ERROR] Version number error"
     exit -1
@@ -47,16 +47,17 @@ if [ "$(uname)" == "Darwin" ]; then
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     if [[ ${GPU_enable} -eq 1 ]]; then
         proc="gpu"
+        suffix="_gpu"
     else
         proc="cpu"
+        suffix=""
     fi
     if [[ ${py_version_1} -eq 2 ]]; then
-        url="https://storage.googleapis.com/tensorflow/linux/${proc}/tensorflow-${version}-cp${py_version_1}${py_version_2}-none-linux_x86_64.whl"
+        url="https://storage.googleapis.com/tensorflow/linux/${proc}/tensorflow${suffix}-${version}-cp${py_version_1}${py_version_2}-none-linux_x86_64.whl"
     else
-        url="https://storage.googleapis.com/tensorflow/linux/${proc}/tensorflow-${version}-cp${py_version_1}${py_version_2}-cp${py_version_1}${py_version_2}m-linux_x86_64.whl"
+        url="https://storage.googleapis.com/tensorflow/linux/${proc}/tensorflow${suffix}-${version}-cp${py_version_1}${py_version_2}-cp${py_version_1}${py_version_2}m-linux_x86_64.whl"
     fi
 fi
-echo ${url}
 
 if [[ $(validate_url "${url}") == 'false' ]]; then
     echo "[ERROR] File dose not exists: ${url}"
