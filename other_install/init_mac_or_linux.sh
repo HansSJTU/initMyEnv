@@ -1,5 +1,10 @@
-#!/bin/bash
-version="v1.0"
+#! /bin/bash
+#
+# init_mac_or_linux.sh
+# Copyright (C) 2017 Hanxiao <hah114@ucsd.edu>
+#
+# Distributed under terms of the MIT license.
+#
 
 base_dir=$(dirname $(pwd))
 if [[ ! $1 = "-a" ]]; then
@@ -56,7 +61,6 @@ function install_plugins
 echo "${orange}Start to Install Plugins...${endcolor}"
 total_plugin_num=`cat ${plugin_file} | wc -l`
 current_plugin_num=1
-all_plugin=""
 for plugin in `cat ${plugin_file}`; do
     echo "${green}[${current_plugin_num} / ${total_plugin_num}] ${endcolor} : ${plugin}..."
     ((current_plugin_num++))
@@ -90,6 +94,12 @@ backup_and_copy ~/Library/Preferences/com.apple.Terminal.plist #terminal theme b
 
 ${base_dir}/other_install/install_vim.sh ${user_name} ${user_mail}
 
+# config for sed
+if [ "$(uname)" == "Darwin" ]; then
+    source "${base_dir}/configs/bashrc"
+    type sed 1>&2
+fi
+
 cp ${base_dir}/configs/bash_alias ~/.bash_alias
 cp ${base_dir}/configs/bash_func ~/.bash_func; sed -i "s?#GITNAME#?${git_name}?g;s?#GITPASSWD#?${git_passwd}?g" ~/.bash_func
 cp ${base_dir}/configs/bashrc ~/.bashrc
@@ -101,19 +111,6 @@ cp ${base_dir}/configs/git-completion.bash ~/.git-completion.bash
 cp ${base_dir}/configs/bash_profile ~/.bash_profile
 if [ ! -e ~/.web_list ]; then
     cp ${base_dir}/configs/web_list ~/.web_list
-fi
-
-# set go path
-gp="~/.mygo"
-if [ ! -d ~/.mygo ]; then
-    mkdir -p ~/.mygo
-fi
-gp_real=`realpath ~/.mygo`
-export GOPATH=${gp_real}
-# set new pprop
-if [ ! -f ${gp_real}/bin/pprof ]; then
-    go get github.com/google/pprof
-    sudo ln -s ${gp_real}/bin/pprof /usr/local/bin/pprof-new
 fi
 
 # config the tmux with different version

@@ -521,15 +521,19 @@ function offline-download
         echo -e "${green}[HELP MENU]${endcolor}:\n \
             <file> download torrent file\n \
             <link> download link\n \
-            [-s] states of downloading torrents"
+            [-s] states of downloading torrents\n \
+            [-c] clear logs\n \
+            [-d] delete current task"
     elif [ "$1" = "-s" ]; then
         ssh ${user}@${ip} "${tool_dir}/show_status.sh ${tool_dir}"
     elif [ "$1" = "-c" ]; then
         ssh ${user}@${ip} "${tool_dir}/clean.sh -a"
         read -p "Continue? [y/n]" answer
-        if [[ ${answer} = "y" ]]  && [[ ${answer} = "Y" ]]; then
+        if [[ ${answer} = "y" ]]  || [[ ${answer} = "Y" ]]; then
             ssh ${user}@${ip} "${tool_dir}/clean.sh -c"
         fi
+    elif [ "$1" = "-d" ]; then
+        ssh ${user}@${ip} "${tool_dir}/stop_current_task.sh"
     else
         download_torrent="$1"
         download_torrent_name=$(basename "${download_torrent}")
@@ -707,3 +711,46 @@ function web
     done
 }
 complete -F _web_complete web 
+
+# automatically unzip
+function q-extract
+{
+    if [ -f $1 ] ; then
+        case $1 in
+            *.tar.bz2)   tar -xvjf $1    ;;
+            *.tar.gz)    tar -xvzf $1    ;;
+            *.tar.xz)    tar -xvJf $1    ;;
+            *.bz2)       bunzip2 $1     ;;
+            *.rar)       rar x $1       ;;
+            *.gz)        gunzip $1      ;;
+            *.tar)       tar -xvf $1     ;;
+            *.tbz2)      tar -xvjf $1    ;;
+            *.tgz)       tar -xvzf $1    ;;
+            *.zip)       unzip $1       ;;
+            *.Z)         uncompress $1  ;;
+            *.7z)        7z x $1        ;;
+            *)           echo "don't know how to extract '$1'..." ;;
+        esac
+    else
+        echo "'$1' is not a valid file!"
+    fi
+}
+
+# automatically zip
+function q-compress
+{
+    if [ -n "$1" ] ; then
+        FILE=$1
+        case $FILE in
+            *.tar) shift && tar -cf $FILE $* ;;
+            *.tar.bz2) shift && tar -cjf $FILE $* ;;
+            *.tar.xz) shift && tar -cJf $FILE $* ;;
+            *.tar.gz) shift && tar -czf $FILE $* ;;
+            *.tgz) shift && tar -czf $FILE $* ;;
+            *.zip) shift && zip $FILE $* ;;
+            *.rar) shift && rar $FILE $* ;;
+        esac
+    else
+        echo "usage: q-compress <foo.tar.gz> ./foo ./bar"
+    fi
+}

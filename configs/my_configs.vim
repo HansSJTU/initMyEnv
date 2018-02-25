@@ -5,6 +5,10 @@ set foldmethod=indent "set default foldmethod
 set cursorline
 highlight Cursorline cterm=bold ctermbg=16 
 set scrolloff=1
+set swapfile
+" set tabstop=2
+" set shiftwidth=2
+" set expandtab
 
 " copy and paste
 vmap<leader>y y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
@@ -15,6 +19,7 @@ nmap<leader>yyaa mbggvG$y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelet
 nmap<leader>p :r! cat ~/.vbuf<cr>
 
 " auxiliary
+nmap<leader>u :diffupdate<cr>
 nmap<leader>o :only<cr>
 nmap<leader>/ :noh<cr>
 nmap<leader>w <C-w>
@@ -171,3 +176,9 @@ let g:comfortable_motion_no_default_key_mappings = 1
 let g:comfortable_motion_impulse_multiplier = 1  " Feel free to increase/decrease this value.
 nnoremap <silent> <C-d> :call comfortable_motion#flick(g:comfortable_motion_impulse_multiplier * winheight(0) * 2)<CR>
 nnoremap <silent> <C-u> :call comfortable_motion#flick(g:comfortable_motion_impulse_multiplier * winheight(0) * -2)<CR>
+
+" For move between split window
+nnoremap <silent> fh <C-w>h
+nnoremap <silent> fj <C-w>j
+nnoremap <silent> fk <C-w>k
+nnoremap <silent> fl <C-w>l

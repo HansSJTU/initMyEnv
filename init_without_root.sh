@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# init.sh
+# init_without_root.sh
 # Copyright (C) 2017-07-27 Hanxiao <hah114@ucsd.edu>
 #
 # Distributed under terms of the MIT license.
