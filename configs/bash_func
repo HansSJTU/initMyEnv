@@ -359,7 +359,7 @@ function popdd
 }
 
 # git regenerate origin
-function gitregenerate
+function git-regenerate
 {
     if [ ! -d .git ]; then
         echo "No git repo found.."
@@ -384,6 +384,21 @@ function gitregenerate
     new_web=$(echo "${repo_web}" | sed "s@http\(s\)\?://@https://${git_rege_name}:${git_rege_password}\@@")
     echo "${new_web}"
     git remote add origin "${new_web}"
+}
+
+# git open website  
+function git-openwebsite
+{
+    if [[ $(git rev-parse --is-inside-work-tree 2>&1) == "true" ]]; then
+        url=$(git config --get remote.origin.url)
+        if [ "$(uname)" == "Darwin" ]; then
+            open "${url}"
+        elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+            xdg-open "${url}"
+        fi
+    else
+        echo "[ERR] Not a git, quit..." 1>&2
+    fi
 }
 
 # sedding
@@ -525,7 +540,7 @@ function offline-download
             [-c] clear logs\n \
             [-d] delete current task"
     elif [ "$1" = "-s" ]; then
-        ssh ${user}@${ip} "${tool_dir}/show_status.sh ${tool_dir}"
+        ssh ${user}@${ip} "${tool_dir}/show_status.sh"
     elif [ "$1" = "-c" ]; then
         ssh ${user}@${ip} "${tool_dir}/clean.sh -a"
         read -p "Continue? [y/n]" answer
@@ -538,17 +553,18 @@ function offline-download
         download_torrent="$1"
         download_torrent_name=$(basename "${download_torrent}")
         simplified_torrent_name=$(echo "${download_torrent_name}" | strings | tr -d "\n" | tr -d " " | tr -d "\t")
+        p1=$(sed -n "1p" ${HOME}/.ssh/offline-code)
         if [ -f "${download_torrent}" ]; then
-            p1=$(sed -n "1p" ${HOME}/.ssh/offline-code)
             p2=$(sed -n "2p" ${HOME}/.ssh/offline-code)
-            encry_name=$(echo "${simplified_torrent_name}" | base64 | tr "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" ${p1})
+            encry_name=$(echo "${simplified_torrent_name}" | base64 | tr "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" "${p1}")
             gbase64 "${download_torrent}" | tr "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" "${p2}" > "${HOME}/${encry_name}"
             scp -r "${HOME}/${encry_name}" ${user}@${ip}:"${torrent_dir}/${encry_name}"
             ssh -f -n ${user}@${ip} "${tool_dir}/start_download_torrent.sh ${torrent_dir}${encry_name} &"
             rm "${download_torrent}"
             rm "${HOME}/${encry_name}"
         else
-            ssh -f -n ${user}@${ip} "${tool_dir}/start_download_link.sh ${download_torrent} &"
+            encry_link=$(echo "${download_torrent}" | base64 | tr "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" "${p1}")
+            ssh -f -n ${user}@${ip} "${tool_dir}/start_download_link.sh ${encry_link} &"
         fi
     fi
 }
@@ -593,7 +609,7 @@ function relpath()
 if [[ $(command -v j) ]]; then
     function cd
     {
-        if [[ -e "$@" || "$@" == "-" ]]; then
+        if [[ ${#} -gt 1 || -e "$1" || "$1" == "-" ]]; then
             command cd "$@"
         else
             p1="${PWD}"
@@ -603,7 +619,7 @@ if [[ $(command -v j) ]]; then
     }
     function cdc
     {
-        if [[ -e "$@" || "$@" == "-" ]]; then
+        if [[ ${#} -gt 1 || -e "$1" || "$1" == "-" ]]; then
             command cd "$@"
         else
             jc "$@"
@@ -611,7 +627,7 @@ if [[ $(command -v j) ]]; then
     }
     function cdo
     {
-        if [[ -e "$@" || "$@" == "-" ]]; then
+        if [[ ${#} -gt 1 || -e "$1" || "$1" == "-" ]]; then
             if [ "$(uname)" == "Darwin" ]; then
                 pushd "$@" > /dev/null
                 open . 
