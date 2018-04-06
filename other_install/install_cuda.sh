@@ -7,20 +7,20 @@
 #
 
 echo -e "\n******* [INFO] *******\nThis script is to install: \n \
-    \t(1) CUDA 8.0 with CUBLAS Patch and CUDNN 6.0 (for tensorflow 1.0) on Ubuntu 14.04 \n \
-    \t(2) CUDA 9.0 with CUBLAS 9.0 and CUDNN 7.0 (for tensorflow 1.5) on Ubuntu 16.04 \n \
-    \t(3) CUDA 9.1 with CUBLAS 9.0 and CUDNN 7.1.2\n"
+    \t(1) CUDA 8.0 with Patch 2 and CUDNN 6.0 (for tensorflow 1.0) on Ubuntu 14.04 \n \
+    \t(2) CUDA 9.0 with Patch 2 and CUDNN 7.0 (for tensorflow 1.5) on Ubuntu 16.04 \n \
+    \t(3) CUDA 9.1 with Patch 3 CUBLAS 9.0 and CUDNN 7.1.2\n"
 sleep 1
 read -rp "Version To Install (1/2/3): " version
 
 if [[ ${version} -eq 1 ]]; then
     cuda_addr="https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda-repo-ubuntu1404-8-0-local-ga2_8.0.61-1_amd64-deb"
-    cublas_addr="http://108.61.247.112/public/cuda-repo-ubuntu1404-8-0-local-cublas-performance-update_8.0.61-1_amd64.deb"
+    cublas_addr="https://developer.nvidia.com/compute/cuda/8.0/Prod2/patches/2/cuda-repo-ubuntu1404-8-0-local-cublas-performance-update_8.0.61-1_amd64-deb"
     cudnn_addr="http://108.61.247.112/public/libcudnn6_6.0.21-1+cuda8.0_amd64.deb"
     suffix="8.0"
 elif [[ ${version} -eq 2 ]]; then
     cuda_addr="https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda-repo-ubuntu1604-9-0-local_9.0.176-1_amd64-deb"
-    cublas_addr="http://108.61.247.112/public/cuda-repo-ubuntu1604-9-0-local-cublas-performance-update_1.0-1_amd64.deb"
+    cublas_addr="https://developer.nvidia.com/compute/cuda/9.0/Prod/patches/2/cuda-repo-ubuntu1604-9-0-local-cublas-performance-update-2_1.0-1_amd64-deb"
     cudnn_addr="http://108.61.247.112/public/libcudnn7_7.0.5.15-1+cuda9.0_amd64.deb"
     suffix="9.0"
 elif [[ ${version} -eq 3 ]]; then
