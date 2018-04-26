@@ -610,7 +610,10 @@ if [[ $(command -v j) ]]; then
     function cd
     {
         if [[ ${#} -gt 1 || -e "$1" || "$1" == "-" ]]; then
-            command cd "$@"
+            #command cd "$@"
+            pushd "$@" > /dev/null
+        elif [[ "$1" == "=" ]]; then
+            popd > /dev/null
         else
             p1="${PWD}"
             j "$@"
@@ -731,40 +734,41 @@ complete -F _web_complete web
 # automatically unzip
 function q-extract
 {
-    if [ -f $1 ] ; then
-        case $1 in
-            *.tar.bz2)   tar -xvjf $1    ;;
-            *.tar.gz)    tar -xvzf $1    ;;
-            *.tar.xz)    tar -xvJf $1    ;;
-            *.bz2)       bunzip2 $1     ;;
-            *.rar)       rar x $1       ;;
-            *.gz)        gunzip $1      ;;
-            *.tar)       tar -xvf $1     ;;
-            *.tbz2)      tar -xvjf $1    ;;
-            *.tgz)       tar -xvzf $1    ;;
-            *.zip)       unzip $1       ;;
-            *.Z)         uncompress $1  ;;
-            *.7z)        7z x $1        ;;
-            *)           echo "don't know how to extract '$1'..." ;;
+    file_name="$1"
+    if [[ -f ${file_name} ]] ; then
+        case ${file_name} in
+            *.tar.bz2)   tar -xvjf ${file_name}    ;;
+            *.tar.gz)    tar -xvzf ${file_name}    ;;
+            *.tar.xz)    tar -xvJf ${file_name}    ;;
+            *.bz2)       bunzip2 ${file_name}     ;;
+            *.rar)       rar x ${file_name}       ;;
+            *.gz)        gunzip ${file_name}      ;;
+            *.tar)       tar -xvf ${file_name}     ;;
+            *.tbz2)      tar -xvjf ${file_name}    ;;
+            *.tgz)       tar -xvzf ${file_name}    ;;
+            *.zip)       unzip ${file_name}       ;;
+            *.Z)         uncompress ${file_name}  ;;
+            *.7z)        7z x ${file_name}        ;;
+            *)           echo "don't know how to extract ${file_name}..." ;;
         esac
     else
-        echo "'$1' is not a valid file!"
+        echo "${file_name} is not a valid file!"
     fi
 }
 
 # automatically zip
 function q-compress
 {
-    if [ -n "$1" ] ; then
+    if [[ -n "$1" ]] ; then
         FILE=$1
         case $FILE in
-            *.tar) shift && tar -cf $FILE $* ;;
-            *.tar.bz2) shift && tar -cjf $FILE $* ;;
-            *.tar.xz) shift && tar -cJf $FILE $* ;;
-            *.tar.gz) shift && tar -czf $FILE $* ;;
-            *.tgz) shift && tar -czf $FILE $* ;;
-            *.zip) shift && zip $FILE $* ;;
-            *.rar) shift && rar $FILE $* ;;
+            *.tar) shift && tar -cf "$FILE" $* ;;
+            *.tar.bz2) shift && tar -cjf "$FILE" $* ;;
+            *.tar.xz) shift && tar -cJf "$FILE" $* ;;
+            *.tar.gz) shift && tar -czf "$FILE" $* ;;
+            *.tgz) shift && tar -czf "$FILE" $* ;;
+            *.zip) shift && zip -r "$FILE" $* ;;
+            *.rar) shift && rar "$FILE" $* ;;
         esac
     else
         echo "usage: q-compress <foo.tar.gz> ./foo ./bar"

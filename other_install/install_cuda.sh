@@ -9,7 +9,7 @@
 echo -e "\n******* [INFO] *******\nThis script is to install: \n \
     \t(1) CUDA 8.0 with Patch 2 and CUDNN 6.0 (for tensorflow 1.0) on Ubuntu 14.04 \n \
     \t(2) CUDA 9.0 with Patch 2 and CUDNN 7.0 (for tensorflow 1.5) on Ubuntu 16.04 \n \
-    \t(3) CUDA 9.1 with Patch 3 CUBLAS 9.0 and CUDNN 7.1.2\n"
+    \t(3) CUDA 9.1 with Patch 3 and CUDNN 7.1.2 on Ubuntu 16.04\n"
 sleep 1
 read -rp "Version To Install (1/2/3): " version
 

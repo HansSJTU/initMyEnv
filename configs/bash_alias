@@ -76,7 +76,7 @@ alias vultr='ssh -X root@${vultr_ip}'
 alias bang='ssh -X hah114@${bang_ip}'
 alias sorken='ssh -X hah114@${sorken_ip}'
 alias ieng6='ssh -X cs291dah@ieng6.ucsd.edu'
-alias google1="gcloud compute ssh instance-1"
+alias google1="gcloud compute ssh instance-1 -- -Y"
 alias google1-stop="gcloud compute instances stop instance-1"
 alias google1-start="gcloud compute instances start instance-1"
 

@@ -11,12 +11,12 @@ set swapfile
 " set expandtab
 
 " copy and paste
-vmap<leader>y y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
-nmap<leader>y yiw:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
-nmap<leader>yy yy:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pggdd:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
-nmap<leader>yya mbvG$y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>`b
-nmap<leader>yyaa mbggvG$y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>`b
-nmap<leader>p :r! cat ~/.vbuf<cr>
+vmap<leader>y mby:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }" <cr>:redraw!<cr>`b
+nmap<leader>y mbyiw:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>`b
+nmap<leader>yy yy:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>pggdd:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>
+nmap<leader>yya mbvG$y:silent exec "!rm ~/.vbuf"<cr>:redraw!<cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>`b
+nmap<leader>yyaa mbggvG$y:silent exec "!rm -f ~/.vbuf"<cr>:redraw!<cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>`b
+nmap<leader>p :r! sed -z '$ s@\\n$@@' ~/.vbuf<cr>
 
 " auxiliary
 nmap<leader>u :diffupdate<cr>
