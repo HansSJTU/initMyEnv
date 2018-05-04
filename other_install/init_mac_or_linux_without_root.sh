@@ -1,5 +1,10 @@
-#!/bin/bash
-version="v1.0"
+#! /bin/bash
+#
+# init_mac_or_linux.sh
+# Copyright (C) 2017 Hanxiao <hah114@ucsd.edu>
+#
+# Distributed under terms of the MIT license.
+#
 
 base_dir=$(dirname $(pwd))
 if [[ ! $1 = "-a" ]]; then
@@ -24,8 +29,8 @@ if [ "$(uname)" == "Darwin" ]; then
     echo "${green}[Operation System Detect]${endcolor} Mac OSX "
     plugin_file="${base_dir}/configs/install.mac"
     os_name="OSX"
-    command -v brew >/dev/null 2>&1 || { ${base_dir}/other_install/install_brew.sh; }
-    sudo easy_install pip
+    unalias cp
+    unalias rm
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     echo "${green}[Operation System Detect]${endcolor} Linux "
     plugin_file="${base_dir}/configs/install.linux"
@@ -35,18 +40,6 @@ else
     echo "This init script only support Mac OSX and Linux!" 1>&2
 EOF
 fi
-
-function install_plugins
-{
-    if [ $1 == "OSX" ]; then
-        brew install "$2"
-    elif [ $1 == "Linux" ]; then
-        sudo apt-get install "$2" -y
-        wait
-    fi
-}
-
-echo "${green}[FINISHED]${endcolor} done installing! "
 
 ${base_dir}/other_install/install_vim.sh ${user_name} ${user_mail}
 

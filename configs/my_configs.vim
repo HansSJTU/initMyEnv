@@ -5,16 +5,21 @@ set foldmethod=indent "set default foldmethod
 set cursorline
 highlight Cursorline cterm=bold ctermbg=16 
 set scrolloff=1
+set swapfile
+" set tabstop=2
+" set shiftwidth=2
+" set expandtab
 
 " copy and paste
-vmap<leader>y y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
-nmap<leader>y yiw:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
-nmap<leader>yy yy:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pggdd:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>
-nmap<leader>yya mbvG$y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>`b
-nmap<leader>yyaa mbggvG$y:!rm ~/.vbuf<cr><cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:!pbcopy < ~/.vbuf<cr><cr>`b
-nmap<leader>p :r! cat ~/.vbuf<cr>
+vmap<leader>y mby:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }" <cr>:redraw!<cr>`b
+nmap<leader>y mbyiw:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>`b
+nmap<leader>yy yy:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>pggdd:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>
+nmap<leader>yya mbvG$y:silent exec "!rm ~/.vbuf"<cr>:redraw!<cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>`b
+nmap<leader>yyaa mbggvG$y:silent exec "!rm -f ~/.vbuf"<cr>:redraw!<cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>`b
+nmap<leader>p :r! sed -z '$ s@\\n$@@' ~/.vbuf<cr>
 
 " auxiliary
+nmap<leader>u :diffupdate<cr>
 nmap<leader>o :only<cr>
 nmap<leader>/ :noh<cr>
 nmap<leader>w <C-w>
@@ -171,3 +176,9 @@ let g:comfortable_motion_no_default_key_mappings = 1
 let g:comfortable_motion_impulse_multiplier = 1  " Feel free to increase/decrease this value.
 nnoremap <silent> <C-d> :call comfortable_motion#flick(g:comfortable_motion_impulse_multiplier * winheight(0) * 2)<CR>
 nnoremap <silent> <C-u> :call comfortable_motion#flick(g:comfortable_motion_impulse_multiplier * winheight(0) * -2)<CR>
+
+" For move between split window
+nnoremap <silent> fh <C-w>h
+nnoremap <silent> fj <C-w>j
+nnoremap <silent> fk <C-w>k
+nnoremap <silent> fl <C-w>l
