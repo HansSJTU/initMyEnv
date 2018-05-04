@@ -10,7 +10,7 @@ COLOR_06="#EE7973"           # SYNTAX_VAR
 COLOR_07="#85e0ec"           # PROMP
 COLOR_08="#94A3A5"           #
 
-COLOR_09="#000000"           #
+COLOR_09="#979797"           #
 COLOR_10="#D32C1F"           # COMMAND_ERROR
 COLOR_11="#8ADA7E"           # EXEC
 COLOR_12="#EBB17E"           #
