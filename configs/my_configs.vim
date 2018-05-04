@@ -6,6 +6,7 @@ set cursorline
 highlight Cursorline cterm=bold ctermbg=16 
 set scrolloff=1
 set swapfile
+set shortmess=a
 " set tabstop=2
 " set shiftwidth=2
 " set expandtab
@@ -122,6 +123,10 @@ map <silent><leader><leader>a `azz :call HighLightCursor()<cr>
 " run when start
 autocmd VimEnter * call HighLightCursor()
 
+" set spell check
+map <silent><Leader>c :set spell spelllang=en_us<CR>
+autocmd BufRead,BufNewFile *.txt,*.md set spell spelllang=en_us
+
 " set ycm 
 " let g:ycm_global_ycm_extra_conf = "/Users/Hans/.vim_runtime/sources_forked/YouCompleteMe/.ycm_extra_conf.py"
 " let g:ycm_add_preview_to_completeopt = 0
@@ -136,7 +141,7 @@ autocmd VimEnter * call HighLightCursor()
 " noremap <c-z> <NOP>
 " 
 " let g:ycm_semantic_triggers =  {
-" 			\ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
+" 			\ 'c,cpp,cu,python,java,go,erlang,perl': ['re!\w{2}'],
 " 			\ 'cs,lua,javascript': ['re!\w{2}'],
 " 			\ }
 " let g:ycm_filetype_whitelist = { 
@@ -145,6 +150,7 @@ autocmd VimEnter * call HighLightCursor()
 " 			\ "py":1,
 " 			\ "sh":1,
 " 			\ "zsh":1,
+" 			\ "cu":1,
 " 			\ }
 
 " automatically paste without format
@@ -160,7 +166,7 @@ function! XTermPasteBegin()
 endfunction
 
 " Commenting blocks of code.
-autocmd FileType c,cpp,java,scala let b:comment_leader = '// '
+autocmd FileType c,cpp,cu,java,scala let b:comment_leader = '// '
 autocmd FileType sh,ruby,python   let b:comment_leader = '# '
 autocmd FileType conf,fstab       let b:comment_leader = '# '
 autocmd FileType tex              let b:comment_leader = '% '
@@ -170,15 +176,27 @@ noremap <silent><leader>. mb:<C-B>silent <C-E>s/^/<C-R>=escape(b:comment_leader,
 noremap <silent><leader>, mb:<C-B>silent <C-E>s/^\V<C-R>=escape(b:comment_leader,'\/')<CR>//e<CR>:nohlsearch<CR>`b
 
 " For smooth motion
-let g:comfortable_motion_scroll_down_key = "j"
-let g:comfortable_motion_scroll_up_key = "k"
-let g:comfortable_motion_no_default_key_mappings = 1
-let g:comfortable_motion_impulse_multiplier = 1  " Feel free to increase/decrease this value.
-nnoremap <silent> <C-d> :call comfortable_motion#flick(g:comfortable_motion_impulse_multiplier * winheight(0) * 2)<CR>
-nnoremap <silent> <C-u> :call comfortable_motion#flick(g:comfortable_motion_impulse_multiplier * winheight(0) * -2)<CR>
+if v:version < 705 " Version less than 7.04.15 does not support
+    let g:comfortable_motion_no_default_key_mappings = 1
+else
+    let g:comfortable_motion_scroll_down_key = "j"
+    let g:comfortable_motion_scroll_up_key = "k"
+    let g:comfortable_motion_no_default_key_mappings = 1
+    let g:comfortable_motion_impulse_multiplier = 1  " Feel free to increase/decrease this value.
+    nnoremap <silent> <C-d> :call comfortable_motion#flick(g:comfortable_motion_impulse_multiplier * winheight(0) * 2)<CR>
+    nnoremap <silent> <C-u> :call comfortable_motion#flick(g:comfortable_motion_impulse_multiplier * winheight(0) * -2)<CR>
+endif
 
 " For move between split window
 nnoremap <silent> fh <C-w>h
 nnoremap <silent> fj <C-w>j
 nnoremap <silent> fk <C-w>k
 nnoremap <silent> fl <C-w>l
+
+" Relative line number
+set number relativenumber
+augroup numbertoggle
+  autocmd!
+  autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
+  autocmd BufLeave,FocusLost,InsertEnter   * set norelativenumber
+augroup END

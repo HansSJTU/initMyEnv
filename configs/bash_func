@@ -9,7 +9,7 @@
 if [ "$(uname)" == "Darwin" ]; then
     # copy file to clipboard not content of file!
     cpfile() {
-        copy_path="$(realpath $1)"
+        copy_path="$(realpath "$1")"
         osascript \
             -e 'on run args' \
             -e 'set the clipboard to POSIX file (first item of args)' \
@@ -421,7 +421,8 @@ function de
 # sync
 function get_pub_name
 {
-    echo "$1" | sed "s@ @\%20@g"
+    original_name="$1"
+    echo "${original_name// /%20}"
 }
 
 function websync
@@ -543,7 +544,7 @@ function offline-download
         ssh ${user}@${ip} "${tool_dir}/show_status.sh"
     elif [ "$1" = "-c" ]; then
         ssh ${user}@${ip} "${tool_dir}/clean.sh -a"
-        read -p "Continue? [y/n]" answer
+        read -rp "Continue? [y/n]" answer
         if [[ ${answer} = "y" ]]  || [[ ${answer} = "Y" ]]; then
             ssh ${user}@${ip} "${tool_dir}/clean.sh -c"
         fi
@@ -577,7 +578,7 @@ function decrypt
     decrypt_file_name=$(basename "${decrypt_file}" | sed "s@.gpg@@")
     decrypt_file_path=$(dirname "${decrypt_file}")
     decrypt_encry_name=$(echo "${decrypt_file_name}" | tr "${p1}" "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" | gbase64 -d)
-    mv ${decrypt_file} ${decrypt_file_path}/${decrypt_encry_name}
+    mv "${decrypt_file}" "${decrypt_file_path}/${decrypt_encry_name}"
 
     decrypt_file="${decrypt_file_path}/${decrypt_encry_name}"
     decrypt_file_name=$(basename "${decrypt_file}")
@@ -701,7 +702,7 @@ for line in sys.stdin:
             chinese_character += 1
     sys.stdout.write('|  ' + show_size + '  |  ' + name_type[file_type] + '%0*s'%(-width - 3 + chinese_character, name) + end_type[file_type] + '|' + '\n')
 sys.stdout.write('+' + '-' * width + '-' * 19 + '+' + '\n')
-" ${width}
+" "${width}"
 }
 
 # use function to open web
@@ -737,18 +738,18 @@ function q-extract
     file_name="$1"
     if [[ -f ${file_name} ]] ; then
         case ${file_name} in
-            *.tar.bz2)   tar -xvjf ${file_name}    ;;
-            *.tar.gz)    tar -xvzf ${file_name}    ;;
-            *.tar.xz)    tar -xvJf ${file_name}    ;;
-            *.bz2)       bunzip2 ${file_name}     ;;
-            *.rar)       rar x ${file_name}       ;;
-            *.gz)        gunzip ${file_name}      ;;
-            *.tar)       tar -xvf ${file_name}     ;;
-            *.tbz2)      tar -xvjf ${file_name}    ;;
-            *.tgz)       tar -xvzf ${file_name}    ;;
-            *.zip)       unzip ${file_name}       ;;
-            *.Z)         uncompress ${file_name}  ;;
-            *.7z)        7z x ${file_name}        ;;
+            *.tar.bz2)   tar -xvjf "${file_name}"    ;;
+            *.tar.gz)    tar -xvzf "${file_name}"    ;;
+            *.tar.xz)    tar -xvJf "${file_name}"    ;;
+            *.bz2)       bunzip2 "${file_name}"     ;;
+            *.rar)       rar x "${file_name}"       ;;
+            *.gz)        gunzip "${file_name}"      ;;
+            *.tar)       tar -xvf "${file_name}"     ;;
+            *.tbz2)      tar -xvjf "${file_name}"    ;;
+            *.tgz)       tar -xvzf "${file_name}"    ;;
+            *.zip)       unzip "${file_name}"       ;;
+            *.Z)         uncompress "${file_name}"  ;;
+            *.7z)        7z x "${file_name}"        ;;
             *)           echo "don't know how to extract ${file_name}..." ;;
         esac
     else
@@ -762,13 +763,13 @@ function q-compress
     if [[ -n "$1" ]] ; then
         FILE=$1
         case $FILE in
-            *.tar) shift && tar -cf "$FILE" $* ;;
-            *.tar.bz2) shift && tar -cjf "$FILE" $* ;;
-            *.tar.xz) shift && tar -cJf "$FILE" $* ;;
-            *.tar.gz) shift && tar -czf "$FILE" $* ;;
-            *.tgz) shift && tar -czf "$FILE" $* ;;
-            *.zip) shift && zip -r "$FILE" $* ;;
-            *.rar) shift && rar "$FILE" $* ;;
+            *.tar) shift && tar -cf "$FILE" "$*" ;;
+            *.tar.bz2) shift && tar -cjf "$FILE" "$*" ;;
+            *.tar.xz) shift && tar -cJf "$FILE" "$*" ;;
+            *.tar.gz) shift && tar -czf "$FILE" "$*" ;;
+            *.tgz) shift && tar -czf "$FILE" "$*" ;;
+            *.zip) shift && zip -r "$FILE" "$*" ;;
+            *.rar) shift && rar "$FILE" "$*" ;;
         esac
     else
         echo "usage: q-compress <foo.tar.gz> ./foo ./bar"
