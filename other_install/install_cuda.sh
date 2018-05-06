@@ -24,6 +24,10 @@ elif [[ ${version} -eq 2 ]]; then
     cudnn_addr="http://108.61.247.112/public/libcudnn7_7.0.5.15-1+cuda9.0_amd64.deb"
     suffix="9.0"
 elif [[ ${version} -eq 3 ]]; then
+    echo "Make sure your driver version is higher than 390.46!"
+    echo "Your driver version:"
+    dpkg -l | grep nvidia
+    sleep 5
     cuda_addr="https://developer.nvidia.com/compute/cuda/9.1/Prod/local_installers/cuda-repo-ubuntu1604-9-1-local_9.1.85-1_amd64"
     cublas_addr="https://developer.nvidia.com/compute/cuda/9.1/Prod/patches/3/cuda-repo-ubuntu1604-9-1-local-cublas-performance-update-3_1.0-1_amd64"
     cudnn_addr="108.61.247.112/public/libcudnn7_7.1.2.21-1+cuda9.1_amd64.deb"
