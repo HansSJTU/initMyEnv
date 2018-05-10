@@ -554,9 +554,9 @@ function offline-download
         download_torrent="$1"
         download_torrent_name=$(basename "${download_torrent}")
         simplified_torrent_name=$(echo "${download_torrent_name}" | strings | tr -d "\n" | tr -d " " | tr -d "\t")
-        p1=$(sed -n "1p" ${HOME}/.ssh/offline-code)
+        p1=$(sed -n "1p" "${HOME}"/.ssh/offline-code)
         if [ -f "${download_torrent}" ]; then
-            p2=$(sed -n "2p" ${HOME}/.ssh/offline-code)
+            p2=$(sed -n "2p" "${HOME}"/.ssh/offline-code)
             encry_name=$(echo "${simplified_torrent_name}" | base64 | tr "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" "${p1}")
             gbase64 "${download_torrent}" | tr "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" "${p2}" > "${HOME}/${encry_name}"
             scp -r "${HOME}/${encry_name}" ${user}@${ip}:"${torrent_dir}/${encry_name}"
@@ -573,7 +573,7 @@ function offline-download
 # Decrypt
 function decrypt
 {
-    p1=$(sed -n "3p" ${HOME}/.ssh/offline-code)
+    p1=$(sed -n "3p" "${HOME}"/.ssh/offline-code)
     decrypt_file="$1"
     decrypt_file_name=$(basename "${decrypt_file}" | sed "s@.gpg@@")
     decrypt_file_path=$(dirname "${decrypt_file}")
@@ -773,5 +773,165 @@ function q-compress
         esac
     else
         echo "usage: q-compress <foo.tar.gz> ./foo ./bar"
+    fi
+}
+
+# Calculate sum, average, max, min for files
+function cal-sum
+{
+    if [[ $1 == "l" ]]; then
+        awk '
+            BEGIN {
+                OFS=" ";ORS=" "
+            }
+            {   
+                for (i = 1; i <= NF; i++)
+                    {a[i] += $i;} 
+            }
+            END {
+                for (i = 1; i <= NF; i++)
+                    {print a[i]}
+                printf "\n"
+            }
+        ' "$2"
+    elif [[ $1 == "-" ]]; then
+        awk '
+            BEGIN {
+                OFS=" ";ORS=" "
+            }
+            {   
+                sum = 0;
+                for (i = 1; i <= NF; i++)
+                    {sum += $i;} 
+                print sum;
+                printf "\n"
+            }
+        ' "$2"
+    fi
+}
+
+function cal-avg
+{
+    if [[ $1 == "l" ]]; then
+        awk '
+            BEGIN {
+                OFS=" ";ORS=" "
+            }
+            {   
+                for (i = 1; i <= NF; i++)
+                    {a[i] += $i;} 
+            }
+            END {
+                for (i = 1; i <= NF; i++)
+                    {print a[i]/NR}
+                printf "\n"
+            }
+        ' "$2"
+    elif [[ $1 == "-" ]]; then
+        awk '
+            BEGIN {
+                OFS=" ";ORS=" "
+            }
+            {   
+                sum = 0;
+                for (i = 1; i <= NF; i++)
+                    {sum += $i;} 
+                print sum/NF;
+                printf "\n"
+            }
+        ' "$2"
+    fi
+}
+
+function cal-no-first
+{
+    if [[ $1 == "l" ]]; then
+        awk '
+            BEGIN {
+                OFS=" ";ORS=" "
+            }
+            {
+                for (i = 2; i <= NF; i++)
+                    {print $i}
+                printf "\n"
+            }
+        ' "$2"
+    elif [[ $1 == "-" ]]; then
+        awk 'NR != 1' "$2"
+    fi
+}
+
+function cal-max
+{
+    if [[ $1 == "l" ]]; then
+        awk '
+            BEGIN {
+                OFS=" ";ORS=" "
+            }
+            {   
+                if (NR == 1)
+                {
+                    for (i = 1; i <= NF; i++)
+                        {a[i] = -2147483648}
+                }
+                for (i = 1; i <= NF; i++)
+                    {a[i]=($i>a[i])? $i:a[i]}
+            }
+            END {
+                for (i = 1; i <= NF; i++)
+                    {print a[i]}
+                printf "\n"
+            }
+        ' "$2"
+    elif [[ $1 == "-" ]]; then
+        awk '
+            BEGIN {
+                OFS=" ";ORS=" "
+            }
+            {   
+                max = -2147483648
+                for (i = 1; i <= NF; i++)
+                    {max=($i>max)? $i:max}
+                print max;
+                printf "\n"
+            }
+        ' "$2"
+    fi
+}
+function cal-min
+{
+    if [[ $1 == "l" ]]; then
+        awk '
+            BEGIN {
+                OFS=" ";ORS=" "
+            }
+            {   
+                if (NR == 1)
+                {
+                    for (i = 1; i <= NF; i++)
+                        {a[i] = 2147483648}
+                }
+                for (i = 1; i <= NF; i++)
+                    {a[i]=($i<a[i])? $i:a[i]}
+            }
+            END {
+                for (i = 1; i <= NF; i++)
+                    {print a[i]}
+                printf "\n"
+            }
+        ' "$2"
+    elif [[ $1 == "-" ]]; then
+        awk '
+            BEGIN {
+                OFS=" ";ORS=" "
+            }
+            {   
+                max = 2147483648
+                for (i = 1; i <= NF; i++)
+                    {max=($i<max)? $i:max}
+                print max;
+                printf "\n"
+            }
+        ' "$2"
     fi
 }

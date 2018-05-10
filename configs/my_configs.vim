@@ -21,7 +21,7 @@ nmap<leader>p :r! sed -z '$ s@\\n$@@' ~/.vbuf<cr>
 
 " auxiliary
 nmap<leader>u :diffupdate<cr>
-nmap<leader>o :only<cr>
+nmap<leader><leader>o :only<cr>
 nmap<leader>/ :noh<cr>
 nmap<leader>w <C-w>
 nmap<leader>q :q<cr>
@@ -136,22 +136,26 @@ autocmd BufRead,BufNewFile *.txt,*.md set spell spelllang=en_us
 " let g:ycm_collect_identifiers_from_comments_and_strings = 1
 " let g:ycm_complete_in_strings=1
 " let g:ycm_key_invoke_completion = '<c-z>'
-" set completeopt=menu,menuone
+" let g:ycm_autoclose_preview_window_after_completion = 0
+" let g:ycm_autoclose_preview_window_after_insertion = 1
+" set completeopt=menu,menuone,preview
 " 
 " noremap <c-z> <NOP>
 " 
 " let g:ycm_semantic_triggers =  {
-" 			\ 'c,cpp,cu,python,java,go,erlang,perl': ['re!\w{2}'],
+" 			\ 'c,cpp,cu,python,java,go,erlang,perl,py': ['re!\w{2}'],
 " 			\ 'cs,lua,javascript': ['re!\w{2}'],
 " 			\ }
-" let g:ycm_filetype_whitelist = { 
-" 			\ "c":1,
-" 			\ "cpp":1, 
-" 			\ "py":1,
-" 			\ "sh":1,
-" 			\ "zsh":1,
-" 			\ "cu":1,
-" 			\ }
+" let g:ycm_filetype_blacklist = {
+"       \ 'tagbar' : 1,
+"       \ 'qf' : 1,
+"       \ 'notes' : 1,
+"       \ 'unite' : 1,
+"       \ 'vimwiki' : 1,
+"       \ 'pandoc' : 1,
+"       \ 'infolog' : 1,
+"       \ 'mail' : 1
+"       \}
 
 " automatically paste without format
 let &t_SI .= "\<Esc>[?2004h"
@@ -194,9 +198,59 @@ nnoremap <silent> fk <C-w>k
 nnoremap <silent> fl <C-w>l
 
 " Relative line number
-set number relativenumber
-augroup numbertoggle
-  autocmd!
-  autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
-  autocmd BufLeave,FocusLost,InsertEnter   * set norelativenumber
-augroup END
+" set number relativenumber
+" augroup numbertoggle
+"   autocmd!
+"   autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
+"   autocmd BufLeave,FocusLost,InsertEnter   * set norelativenumber
+" augroup END
+
+" Handle url and file
+function! HandleURL()
+    " substitute \", \', //
+    let s:line = substitute(getline("."), "\\\"", " ", "g")
+    let s:line = substitute(s:line, "\\\'", " ", "g")
+    let s:line = substitute(s:line, "`", " ", "g")
+    let s:line = substitute(s:line, "${HOME}", "~", "g")
+
+    let s:uri_http = matchstr(s:line, '[a-z]*:\/\/[^ >,;)]*')
+    let s:uri_www = matchstr(s:line, 'www[^ >,;)]*')
+    let s:line = substitute(s:line, "//", " ", "")
+    let s:uri_path = matchstr(s:line, '\(\./\|\~\|\.\./\|/\)[^ >,;)]*')
+
+    let s:open_list = ["pdf", "jpg", "jpeg", "png", "doc", "docx"]
+
+    if s:uri_http != ""
+        silent exec "!open '".s:uri_http."'"
+        redraw!
+        echo "'".s:uri_http."' opened"
+    elseif s:uri_www != ""
+        silent exec "!open https://'".s:uri_www."'"
+        redraw!
+        echo "'https://".s:uri_www."' opened"
+    elseif s:uri_path != ""
+        let s:uri_path = substitute(s:uri_path, "^\\\~", $HOME, "")
+        if isdirectory(s:uri_path)
+            silent exec "!open '".s:uri_path."'"
+            redraw!
+            echo "'".s:uri_path."' opened"
+        elseif filereadable(s:uri_path)
+            let s:suffix = fnamemodify(s:uri_path, ':e')
+            
+            if index(s:open_list, s:suffix) == -1
+                :IHT
+            else
+                silent exec "!open '".s:uri_path."'"
+            endif
+            redraw!
+            echo "'".s:uri_path."' opened"
+        else
+            echo "'".s:uri_path."' does not exists"
+        endif
+    else
+        :IHT
+        redraw!
+        echo ":IHT"
+    endif
+endfunction
+map <leader>o :call HandleURL()<cr>
