@@ -653,7 +653,7 @@ fi
 function du-auto
 {
     width=${1:-34}
-    du -sk -- * | sort -n | python3 -c "
+    du -sb -- * | sort -n | python3 -c "
 import sys, os
 width = int(sys.argv[-1])
 width = width if width < 120 else 120
@@ -666,7 +666,7 @@ sys.stdout.write('|  ' + '   Size  ' + '  |  ' + '%16s'%('File') + ' '*(width - 
 for line in sys.stdin:
     unit_count = 0;
     content = line.rstrip().split('\t')
-    size = float(content[0])
+    size = float(content[0]) / 1024.0
     while True:
         if (size / 1024.0 <= 1):
             break

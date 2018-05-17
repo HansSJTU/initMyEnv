@@ -89,6 +89,7 @@ alias gitlogauto='git log --oneline --graph --all '
 
 # Alias for ctags
 alias ctags-with-variable-for-c++='ctags --c++-kinds=+l '
+alias ctags-with-cuda='ctags --c++-kinds=+l --langmap=C++:+.cu '
 
 # Alias for dropbox
 alias db='dropbox_uploader.sh '
