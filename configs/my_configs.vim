@@ -259,17 +259,16 @@ map <leader>o :call HandleURL()<cr>
 
 function! ToggleErrors()
     if empty(filter(tabpagebuflist(), 'getbufvar(v:val, "&buftype") is# "quickfix"'))
-         " No location/quickfix list shown, open syntastic error location panel
-         SyntasticCheck
-         Errors
-         echo "Syntax Check Finished"
+        " No location/quickfix list shown, open syntastic error location panel
+        SyntasticCheck
+        Errors
+        echo "Syntax Check Finished"
     else
         lclose
         SyntasticReset
-         echo "Syntax Check Closed"
+        echo "Syntax Check Closed"
     endif
 endfunction
 nnoremap <silent> <C-e> :call ToggleErrors()<CR>
 nnoremap <silent> <C-n> :lnext<CR>:call HighLightCursor(1)<cr>
 nnoremap <silent> <C-m> :lprevious<CR>:call HighLightCursor(1)<cr>
-

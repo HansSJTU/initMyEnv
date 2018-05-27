@@ -12,6 +12,7 @@ if [ "$(uname)" == "Darwin" ]; then
     alias vdir="gvdir --color"
     alias cp="gcp"
     alias head="ghead"
+    alias du="gdu"
 
     # grep
     alias grep='GREP_COLOR="1;37;41" LANG=C grep --color=auto'
@@ -69,11 +70,13 @@ amazon1_ip="52.38.53.205"
 aliyun_ip="106.14.7.228"
 bang_ip="ccom-bang-login.ucsd.edu"
 sorken_ip="sorken.ucsd.edu"
+digital_ip="209.97.160.120"
 
 alias aliyun='ssh -X root@${aliyun_ip}'
 alias amazon='ssh -i "/Users/Hans/.ssh/HanxiaoAmazonServer1.pem" ubuntu@${amazon_ip}'
 alias amazon1='ssh -i "/Users/Hans/Downloads/Hanxiao.pem.txt" ubuntu@${amazon1_ip}'
 alias vultr='ssh -X root@${vultr_ip}'
+alias digital='ssh -X root@${digital_ip}'
 alias bang='ssh -X hah114@${bang_ip}'
 alias sorken='ssh -X hah114@${sorken_ip}'
 alias ieng6='ssh -X cs291dah@ieng6.ucsd.edu'

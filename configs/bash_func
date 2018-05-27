@@ -6,6 +6,7 @@
 # Distributed under terms of the MIT license.
 #
 
+INIT_FILE_ROOT_DIR="${HOME}/"
 if [ "$(uname)" == "Darwin" ]; then
     # copy file to clipboard not content of file!
     cpfile() {
@@ -125,18 +126,18 @@ function _backup_helper
         [-e] add explanation\n \
         [-s] show logs\n \
         [-d] delete backup files in current directory\n \
-        [-c] clean the log file (${HOME}/.backup.logs)"
+        [-c] clean the log file (${INIT_FILE_ROOT_DIR}/.backup.logs)"
 }
 function _backup_remove_log
 {
-    if [[ -f "${HOME}/.backup.logs" ]]; then
-        rm "${HOME}/.backup.logs"
+    if [[ -f "${INIT_FILE_ROOT_DIR}/.backup.logs" ]]; then
+        rm "${INIT_FILE_ROOT_DIR}/.backup.logs"
     fi
     echo "${green}[FINISHED]${endcolor} Log File Cleaned"
 }
 function _backup_show_log
 {
-    vim "${HOME}/.backup.logs"
+    vim "${INIT_FILE_ROOT_DIR}/.backup.logs"
 }
 function _backup_delete_current_dir
 {
@@ -210,7 +211,7 @@ function _backup_op
             exp="No explain. "
         fi
 
-        echo -e "${file_name}\t${current_time}\t${file_path}\t${md5}\t${exp}\n------" >> ~/.backup.logs
+        echo -e "${file_name}\t${current_time}\t${file_path}\t${md5}\t${exp}\n------" >> "${INIT_FILE_ROOT_DIR}/.backup.logs"
         echo -e "${green}[FINISHED]${endcolor} ${file_path}/${dst_file_name}_${current_time}"
     else
         echo -e "[ERROR] ${red}Permission Denied${endcolor}" 1>&2
@@ -429,8 +430,10 @@ function websync
 {
     #web="hanxiao.xin"
     #ip="106.14.7.228"
-    web="108.61.247.112"
-    ip="108.61.247.112"
+    #web="108.61.247.112"
+    #ip="108.61.247.112"
+    web="209.97.160.120"
+    ip="209.97.160.120"
     user="root"
     root_dir="/root/01_Project/03_offline-download"
     tool_dir="${root_dir}/02_tools"
@@ -526,7 +529,9 @@ function offline-download
 {
     #ip="106.14.7.228"
     #base_dir="/root/02_Downloads"
-    ip="108.61.247.112"
+    #ip="108.61.247.112"
+    ip="209.97.160.120"
+
     base_dir="/root/01_Project/03_offline-download"
     user="root"
 
@@ -706,29 +711,71 @@ sys.stdout.write('+' + '-' * width + '-' * 19 + '+' + '\n')
 }
 
 # use function to open web
-_web_complete()
+function _web_complete
 {
     local HOST cur
     COMPREPLY=()
     _get_comp_words_by_ref cur
-    HOST="$(grep -v ^\# ~/.web_list | awk -F '|' '{print $1}')"
+    HOST="$(grep -v ^\# "${INIT_FILE_ROOT_DIR}/web_list" | awk -F '|' '{print $1}')"
     COMPREPLY=( $( compgen -W "$HOST" -- "$cur" ) )
+}
+function _web_google_search
+{
+    _web_google_search_url="https://www.google.com/search?q="
+    for word in $@; do
+        word=${word//+/%2B}
+        _web_google_search_url="${_web_google_search_url}+${word}"
+    done
+    echo "[SUC] ${green}Google Search${endcolor}: $*"
+}
+function _web_yd_search
+{
+    _web_yd_search_url="https://dict.youdao.com/w/eng/"
+    for word in $@; do
+        _web_yd_search_url="${_web_yd_search_url}${word}%20"
+    done
+    _web_yd_search_url=${_web_yd_search_url/%\%20/}
+    echo "[SUC] ${green}Youdao Search${endcolor}: $*"
 }
 function web
 {
-    for item in "${@}"; do
-        website_addr=$(grep -v ^\# ~/.web_list | grep "^${item}|" | awk -F '|' '{print $2}')
-        if [[ -z ${website_addr} ]]; then
-            echo "[ERR] ${red}${item}${endcolor} not exists in ~/.web_list" 1>&2
+    item="$1"
+    website_addr=$(grep -v ^\# "${INIT_FILE_ROOT_DIR}/web_list" | grep "^${item}|" | awk -F '|' '{print $2}')
+    open="False"
+    if [[ -z $1 ]]; then
+        echo "web list dir: ${INIT_FILE_ROOT_DIR}/web_list" 1>&2
+    elif [[ ! -z ${website_addr} && -z $2 ]]; then
+        open="True"
+        echo "[SUC] ${green}${item}${endcolor}: ${website_addr}" 
+    elif [[ ! -z ${website_addr} && ! -z $2 ]]; then
+        #web specific
+        open="True"
+        if [[ ${item} == "google" ]]; then
+            shift
+            _web_google_search "$@"
+            website_addr="${_web_google_search_url}"
+        elif [[ ${item} == "yd" ]]; then
+            shift
+            _web_yd_search "$@"
+            website_addr="${_web_yd_search_url}"
         else
-            echo "[SUC] ${green}${item}${endcolor}: ${website_addr}" 
-            if [ "$(uname)" == "Darwin" ]; then
-                open "${website_addr}"
-            elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-                xdg-open "${website_addr}"
-            fi
+            _web_google_search "$@"
+            website_addr="${_web_google_search_url}"
         fi
-    done
+    elif [[ -z ${website_addr} ]]; then
+        open="True"
+        _web_google_search "$@"
+        website_addr="${_web_google_search_url}"
+    fi
+
+    # open by default
+    if [[ ${open} == "True" ]]; then
+        if [ "$(uname)" == "Darwin" ]; then
+            open "${website_addr}"
+        elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+            xdg-open "${website_addr}"
+        fi
+    fi
 }
 complete -F _web_complete web 
 
