@@ -35,8 +35,8 @@ vmap<C-a> 0
 vmap<C-e> $
 imap<C-e> <End>
 imap<C-a> <Esc>0a<Esc>i
-noremap <silent><leader>k <C-i>zz:call HighLightCursor()<cr>
-noremap <silent><leader>j <C-o>zz:call HighLightCursor()<cr>
+noremap <silent><leader>k <C-i>zz:call HighLightCursor(2)<cr>
+noremap <silent><leader>j <C-o>zz:call HighLightCursor(2)<cr>
 
 " if in diff mode, set as diff shortcut, else set as other
 if &diff
@@ -70,7 +70,7 @@ function! GoToTagWithNewTab()
         :tabprevious
     else
         :silent! normal jzok
-        :call HighLightCursor()
+        :call HighLightCursor(2)
     endif
     :set ignorecase
 endfunction
@@ -86,23 +86,25 @@ function! GoToTagWithNewSplit()
         :q
     else
         :silent! normal jzok
-        :call HighLightCursor()
+        :call HighLightCursor(2)
     endif
     :set ignorecase
 endfunction
 
-function! HighLightCursor()
-    :highlight Cursorline cterm=bold ctermbg=13
-    redraw
-    sleep 100m
-    :highlight Cursorline cterm=bold ctermbg=16
-    redraw
-    sleep 100m
-    :highlight Cursorline cterm=bold ctermbg=13
-    redraw
-    sleep 100m
-    :highlight Cursorline cterm=bold ctermbg=16
-    redraw
+function! HighLightCursor(time)
+    let s:time_local = a:time
+    while 1
+        :highlight Cursorline cterm=bold ctermbg=13
+        redraw
+        sleep 100m
+        :highlight Cursorline cterm=bold ctermbg=16
+        redraw
+        let s:time_local -= 1
+        if s:time_local == 0
+            break
+        endif
+        sleep 100m
+    endwhile
 endfunction
 
 map <silent><Leader>] :call GoToTagWithNewTab()<CR>
@@ -113,15 +115,15 @@ map <silent><leader>n :NERDTree<CR>
 
 map <silent><leader>f mtgd
 map <silent><leader><leader>f mt<s-#>
-map <silent><leader>g :noh<cr>`t :call HighLightCursor()<cr>
-map <silent><leader>h :call HighLightCursor()<cr>
+map <silent><leader>g :noh<cr>`t :call HighLightCursor(2)<cr>
+map <silent><leader>h :call HighLightCursor(2)<cr>
 
 " bookmark
 map <silent><leader>a ma
-map <silent><leader><leader>a `azz :call HighLightCursor()<cr>
+map <silent><leader><leader>a `azz :call HighLightCursor(2)<cr>
 
 " run when start
-autocmd VimEnter * call HighLightCursor()
+autocmd VimEnter * call HighLightCursor(2)
 
 " set spell check
 map <silent><Leader>c :set spell spelllang=en_us<CR>
@@ -179,7 +181,6 @@ autocmd FileType vim              let b:comment_leader = '" '
 noremap <silent><leader>. mb:<C-B>silent <C-E>s/^/<C-R>=escape(b:comment_leader,'\/')<CR>/<CR>:nohlsearch<CR>`blll
 noremap <silent><leader>, mb:<C-B>silent <C-E>s/^\V<C-R>=escape(b:comment_leader,'\/')<CR>//e<CR>:nohlsearch<CR>`b
 
-<<<<<<< HEAD
 
 
 set ycm 
@@ -206,7 +207,6 @@ let g:ycm_filetype_whitelist = {
    \ "sh":1,
    \ "zsh":1,
    \ }
-=======
 " For smooth motion
 if v:version < 705 " Version less than 7.04.15 does not support
     let g:comfortable_motion_no_default_key_mappings = 1
@@ -282,4 +282,19 @@ function! HandleURL()
     endif
 endfunction
 map <leader>o :call HandleURL()<cr>
->>>>>>> 8b958258910fe9ed7c74c4bda8ad743e22432a50
+
+function! ToggleErrors()
+    if empty(filter(tabpagebuflist(), 'getbufvar(v:val, "&buftype") is# "quickfix"'))
+        " No location/quickfix list shown, open syntastic error location panel
+        SyntasticCheck
+        Errors
+        echo "Syntax Check Finished"
+    else
+        lclose
+        SyntasticReset
+        echo "Syntax Check Closed"
+    endif
+endfunction
+nnoremap <silent> <C-e> :call ToggleErrors()<CR>
+nnoremap <silent> <C-n> :lnext<CR>:call HighLightCursor(1)<cr>
+nnoremap <silent> <C-m> :lprevious<CR>:call HighLightCursor(1)<cr>
