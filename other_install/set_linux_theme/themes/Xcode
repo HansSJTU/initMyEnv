@@ -2,25 +2,25 @@
 
 # ====================CONFIG THIS =============================== #
 COLOR_01="#000000"           # HOST
-COLOR_02="#8c1a10"           # SYNTAX_STRING
-COLOR_03="#8ad97d"           # COMMAND
-COLOR_04="#c99163"           # COMMAND_COLOR2
+COLOR_02="#C5624C"           # SYNTAX_STRING
+COLOR_03="#6DBB63"           # COMMAND
+COLOR_04="#EBB17E"           # COMMAND_COLOR2
 COLOR_05="#729fcf"           # PATH
-COLOR_06="#ef7a73"           # SYNTAX_VAR
+COLOR_06="#EE7973"           # SYNTAX_VAR
 COLOR_07="#85e0ec"           # PROMP
 COLOR_08="#94A3A5"           #
 
-COLOR_09="#000000"           #
-COLOR_10="#ef2929"           # COMMAND_ERROR
-COLOR_11="#8ad97d"           # EXEC
-COLOR_12="#c99163"           #
+COLOR_09="#979797"           #
+COLOR_10="#D32C1F"           # COMMAND_ERROR
+COLOR_11="#8ADA7E"           # EXEC
+COLOR_12="#EBB17E"           #
 COLOR_13="#729fcf"           # FOLDER
-COLOR_14="#ef7a73"           #
+COLOR_14="#EE7973"           #
 COLOR_15="#85e0ec"           #
 COLOR_16="#ffffff"           #
 
-BACKGROUND_COLOR="#282a34"   # Background Color
-FOREGROUND_COLOR="#6e868e"   # Text
+BACKGROUND_COLOR="#282B34"   # Background Color
+FOREGROUND_COLOR="#AEBDBE"   # Text
 CURSOR_COLOR="$FOREGROUND_COLOR" # Cursor
 PROFILE_NAME="Xcode"
 # =============================================================== #
