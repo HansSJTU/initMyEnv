@@ -59,8 +59,8 @@ EOF
                         repeat while (current configuration of VPN is not connected)
                             delay 1
                         end repeat
+                    end tell
                 end tell
-        end tell
 EOF
     }
 
@@ -70,8 +70,8 @@ EOF
                 tell current location of network preferences
                         set VPN to service "VPN (L2TP)"
                         if exists VPN then disconnect VPN
-                end tell
-        end tell
+                        end tell
+                    end tell
         return
 EOF
     }
@@ -101,20 +101,20 @@ fi
 
 # change name for shell tab
 function nn {
-  if [ -z "$1" ]; then
-    title=${PWD##*/} # current directory
-  else
-    title=$1 # first param
-  fi
-  echo -n -e "\033]0;$title\007"
+    if [ -z "$1" ]; then
+        title=${PWD##*/} # current directory
+    else
+        title=$1 # first param
+    fi
+    echo -n -e "\033]0;$title\007"
 }
 
 # generate a backup
 function _backup_realpath
 {
     pushd "$(dirname "$1")" > /dev/null
-        echo "${PWD}/$(basename "$1")"
-	popd > /dev/null
+    echo "${PWD}/$(basename "$1")"
+    popd > /dev/null
 }
 function _backup_helper
 {
@@ -155,13 +155,13 @@ function _backup_delete_current_dir
     else
         echo "${red}Deleting: ${endcolor}"
         for item in "${file_list[@]}"; do
-           echo -e "\t${item}" 
+            echo -e "\t${item}" 
         done
         read -rp "Sure to delete? (y/n): " delete_option 
         delete_option="$(echo "${delete_option}" | tr '[:upper:]' '[:lower:]')"
         if [[ ${delete_option} == "y" || ${delete_option} == "yes" ]]; then
             for item in "${file_list[@]}"; do
-               rm -rf "${item}" 
+                rm -rf "${item}" 
             done
         else
             echo "[ERROR] User quit, exiting..." 1>&2
@@ -449,7 +449,7 @@ function websync
             [-m] <file>: modify or regenerate the expire time for the file\n \
             [ls]:        show all files in web\n \
             [-expire]:   show all expire files, and their expire time"
-    # cp dir directly
+        # cp dir directly
     elif [ "$1" = "-d" ]; then
         if [ ! -e "$2" ]; then
             echo "file not exists!" 1>&2
@@ -537,7 +537,7 @@ function offline-download
 
     torrent_dir="${base_dir}/00_torrent/"
     tool_dir="${base_dir}/02_tools/"
-    
+
     if [ -z "$1" ]; then
         echo -e "${green}[HELP MENU]${endcolor}:\n \
             <file> download torrent file\n \
@@ -659,326 +659,326 @@ function du-auto
 {
     width=${1:-34}
     du -sb -- * | sort -n | python3 -c "
-import sys, os
-width = int(sys.argv[-1])
-width = width if width < 120 else 120
-unit = ['KB', 'MB', 'GB', 'TB']
-unit_split = [0, 0, 0, 0]
-name_type = ['', '\033[1;34m', '\033[1;36m', '\033[1;32m']
-end_type = ['', '\033[0m', '\033[0m', '\033[0m']
-sys.stdout.write('+' + '-' * width + '-' * 19 + '+' + '\n')
-sys.stdout.write('|  ' + '   Size  ' + '  |  ' + '%16s'%('File') + ' '*(width - 13) + '|\n')
-for line in sys.stdin:
-    unit_count = 0;
-    content = line.rstrip().split('\t')
-    size = float(content[0]) / 1024.0
-    while True:
-        if (size / 1024.0 <= 1):
-            break
-        size /= 1024.0
-        unit_count += 1
-    show_size = \"%6.1f %s\"%(size, unit[unit_count])
-    name = '\t'.join(content[1:])
+    import sys, os
+    width = int(sys.argv[-1])
+    width = width if width < 120 else 120
+    unit = ['KB', 'MB', 'GB', 'TB']
+    unit_split = [0, 0, 0, 0]
+    name_type = ['', '\033[1;34m', '\033[1;36m', '\033[1;32m']
+    end_type = ['', '\033[0m', '\033[0m', '\033[0m']
+    sys.stdout.write('+' + '-' * width + '-' * 19 + '+' + '\n')
+    sys.stdout.write('|  ' + '   Size  ' + '  |  ' + '%16s'%('File') + ' '*(width - 13) + '|\n')
+    for line in sys.stdin:
+        unit_count = 0;
+        content = line.rstrip().split('\t')
+        size = float(content[0]) / 1024.0
+        while True:
+            if (size / 1024.0 <= 1):
+                break
+                size /= 1024.0
+                unit_count += 1
+                show_size = \"%6.1f %s\"%(size, unit[unit_count])
+                name = '\t'.join(content[1:])
 
-    file_type = 0;
-    if os.path.islink(name):
-        file_type = 2
-    elif os.path.isdir(name):
-        file_type = 1
-    elif os.path.isfile(name) and os.access(name, os.X_OK):
-        file_type = 3
+                file_type = 0;
+                if os.path.islink(name):
+                    file_type = 2
+                elif os.path.isdir(name):
+                    file_type = 1
+                elif os.path.isfile(name) and os.access(name, os.X_OK):
+                    file_type = 3
 
-    if unit_split[unit_count] == 0:
-        sys.stdout.write('|' + '-' * width + '-' * 19 + '|\n')
-        unit_split[unit_count] = 1
-    chinese_character = 0;
-    for item in name:
-        if item <= '\u9fa5' and item >= '\u4e00':
-            chinese_character += 1
-    if len(name) + chinese_character > width + 1:
-        ext = os.path.splitext(name)
-        if chinese_character:
-            name = name[:int(width / 2) - len(ext[-1]) - 1] + '.. ' + ext[-1]
-        else:
-            name = name[:width - len(ext[-1]) - 1] + '.. ' + ext[-1]
-    chinese_character = 0;
-    for item in name:
-        if item <= '\u9fa5' and item >= '\u4e00':
-            chinese_character += 1
-    sys.stdout.write('|  ' + show_size + '  |  ' + name_type[file_type] + '%0*s'%(-width - 3 + chinese_character, name) + end_type[file_type] + '|' + '\n')
-sys.stdout.write('+' + '-' * width + '-' * 19 + '+' + '\n')
-" "${width}"
-}
+                    if unit_split[unit_count] == 0:
+                        sys.stdout.write('|' + '-' * width + '-' * 19 + '|\n')
+                        unit_split[unit_count] = 1
+                        chinese_character = 0;
+                        for item in name:
+                            if item <= '\u9fa5' and item >= '\u4e00':
+                                chinese_character += 1
+                                if len(name) + chinese_character > width + 1:
+                                    ext = os.path.splitext(name)
+                                    if chinese_character:
+                                        name = name[:int(width / 2) - len(ext[-1]) - 1] + '.. ' + ext[-1]
+                                    else:
+                                        name = name[:width - len(ext[-1]) - 1] + '.. ' + ext[-1]
+                                        chinese_character = 0;
+                                        for item in name:
+                                            if item <= '\u9fa5' and item >= '\u4e00':
+                                                chinese_character += 1
+                                                sys.stdout.write('|  ' + show_size + '  |  ' + name_type[file_type] + '%0*s'%(-width - 3 + chinese_character, name) + end_type[file_type] + '|' + '\n')
+                                                sys.stdout.write('+' + '-' * width + '-' * 19 + '+' + '\n')
+                                                " "${width}"
+                                            }
 
-# use function to open web
-function _web_complete
-{
-    local HOST cur
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-    HOST="$(grep -v ^\# "${INIT_FILE_ROOT_DIR}/web_list" | awk -F '|' '{print $1}')"
-    COMPREPLY=( $( compgen -W "$HOST" -- "$cur" ) )
-}
-function _web_google_search
-{
-    _web_google_search_url="https://www.google.com/search?q="
-    for word in $@; do
-        word=${word//+/%2B}
-        _web_google_search_url="${_web_google_search_url}+${word}"
-    done
-    echo "[SUC] ${green}Google Search${endcolor}: $*"
-}
-function _web_yd_search
-{
-    _web_yd_search_url="https://dict.youdao.com/w/eng/"
-    for word in $@; do
-        _web_yd_search_url="${_web_yd_search_url}${word}%20"
-    done
-    _web_yd_search_url=${_web_yd_search_url/%\%20/}
-    echo "[SUC] ${green}Youdao Search${endcolor}: $*"
-}
-function web
-{
-    item="$1"
-    website_addr=$(grep -v ^\# "${INIT_FILE_ROOT_DIR}/web_list" | grep "^${item}|" | awk -F '|' '{print $2}')
-    open="False"
-    if [[ -z $1 ]]; then
-        echo "web list dir: ${INIT_FILE_ROOT_DIR}/web_list" 1>&2
-    elif [[ ! -z ${website_addr} && -z $2 ]]; then
-        open="True"
-        echo "[SUC] ${green}${item}${endcolor}: ${website_addr}" 
-    elif [[ ! -z ${website_addr} && ! -z $2 ]]; then
-        #web specific
-        open="True"
-        if [[ ${item} == "google" ]]; then
-            shift
-            _web_google_search "$@"
-            website_addr="${_web_google_search_url}"
-        elif [[ ${item} == "yd" ]]; then
-            shift
-            _web_yd_search "$@"
-            website_addr="${_web_yd_search_url}"
-        else
-            _web_google_search "$@"
-            website_addr="${_web_google_search_url}"
-        fi
-    elif [[ -z ${website_addr} ]]; then
-        open="True"
-        _web_google_search "$@"
-        website_addr="${_web_google_search_url}"
-    fi
+                                            # use function to open web
+                                            function _web_complete
+                                            {
+                                                local HOST cur
+                                                COMPREPLY=()
+                                                _get_comp_words_by_ref cur
+                                                HOST="$(grep -v ^\# "${INIT_FILE_ROOT_DIR}/web_list" | awk -F '|' '{print $1}')"
+                                                    COMPREPLY=( $( compgen -W "$HOST" -- "$cur" ) )
+                                            }
+                                            function _web_google_search
+                                            {
+                                                _web_google_search_url="https://www.google.com/search?q="
+                                                for word in $@; do
+                                                    word=${word//+/%2B}
+                                                    _web_google_search_url="${_web_google_search_url}+${word}"
+                                                done
+                                                echo "[SUC] ${green}Google Search${endcolor}: $*"
+                                            }
+                                            function _web_yd_search
+                                            {
+                                                _web_yd_search_url="https://dict.youdao.com/w/eng/"
+                                                for word in $@; do
+                                                    _web_yd_search_url="${_web_yd_search_url}${word}%20"
+                                                done
+                                                _web_yd_search_url=${_web_yd_search_url/%\%20/}
+                                                echo "[SUC] ${green}Youdao Search${endcolor}: $*"
+                                            }
+                                            function web
+                                            {
+                                                item="$1"
+                                                website_addr=$(grep -v ^\# "${INIT_FILE_ROOT_DIR}/web_list" | grep "^${item}|" | awk -F '|' '{print $2}')
+                                                    open="False"
+                                                if [[ -z $1 ]]; then
+                                                    echo "web list dir: ${INIT_FILE_ROOT_DIR}/web_list" 1>&2
+                                                elif [[ ! -z ${website_addr} && -z $2 ]]; then
+                                                    open="True"
+                                                    echo "[SUC] ${green}${item}${endcolor}: ${website_addr}" 
+                                                elif [[ ! -z ${website_addr} && ! -z $2 ]]; then
+                                                    #web specific
+                                                    open="True"
+                                                    if [[ ${item} == "google" ]]; then
+                                                        shift
+                                                        _web_google_search "$@"
+                                                        website_addr="${_web_google_search_url}"
+                                                    elif [[ ${item} == "yd" ]]; then
+                                                        shift
+                                                        _web_yd_search "$@"
+                                                        website_addr="${_web_yd_search_url}"
+                                                    else
+                                                        _web_google_search "$@"
+                                                        website_addr="${_web_google_search_url}"
+                                                    fi
+                                                elif [[ -z ${website_addr} ]]; then
+                                                    open="True"
+                                                    _web_google_search "$@"
+                                                    website_addr="${_web_google_search_url}"
+                                                fi
 
-    # open by default
-    if [[ ${open} == "True" ]]; then
-        if [ "$(uname)" == "Darwin" ]; then
-            open "${website_addr}"
-        elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-            xdg-open "${website_addr}"
-        fi
-    fi
-}
-complete -F _web_complete web 
+                                                # open by default
+                                                if [[ ${open} == "True" ]]; then
+                                                    if [ "$(uname)" == "Darwin" ]; then
+                                                        open "${website_addr}"
+                                                    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+                                                        xdg-open "${website_addr}"
+                                                    fi
+                                                fi
+                                            }
+                                            complete -F _web_complete web 
 
-# automatically unzip
-function q-extract
-{
-    file_name="$1"
-    if [[ -f ${file_name} ]] ; then
-        case ${file_name} in
-            *.tar.bz2)   tar -xvjf "${file_name}"    ;;
-            *.tar.gz)    tar -xvzf "${file_name}"    ;;
-            *.tar.xz)    tar -xvJf "${file_name}"    ;;
-            *.bz2)       bunzip2 "${file_name}"     ;;
-            *.rar)       rar x "${file_name}"       ;;
-            *.gz)        gunzip "${file_name}"      ;;
-            *.tar)       tar -xvf "${file_name}"     ;;
-            *.tbz2)      tar -xvjf "${file_name}"    ;;
-            *.tgz)       tar -xvzf "${file_name}"    ;;
-            *.zip)       unzip "${file_name}"       ;;
-            *.Z)         uncompress "${file_name}"  ;;
-            *.7z)        7z x "${file_name}"        ;;
-            *)           echo "don't know how to extract ${file_name}..." ;;
-        esac
-    else
-        echo "${file_name} is not a valid file!"
-    fi
-}
+                                            # automatically unzip
+                                            function q-extract
+                                            {
+                                                file_name="$1"
+                                                if [[ -f ${file_name} ]] ; then
+                                                    case ${file_name} in
+                                                        *.tar.bz2)   tar -xvjf "${file_name}"    ;;
+                                                        *.tar.gz)    tar -xvzf "${file_name}"    ;;
+                                                        *.tar.xz)    tar -xvJf "${file_name}"    ;;
+                                                        *.bz2)       bunzip2 "${file_name}"     ;;
+                                                        *.rar)       rar x "${file_name}"       ;;
+                                                        *.gz)        gunzip "${file_name}"      ;;
+                                                        *.tar)       tar -xvf "${file_name}"     ;;
+                                                        *.tbz2)      tar -xvjf "${file_name}"    ;;
+                                                        *.tgz)       tar -xvzf "${file_name}"    ;;
+                                                        *.zip)       unzip "${file_name}"       ;;
+                                                        *.Z)         uncompress "${file_name}"  ;;
+                                                        *.7z)        7z x "${file_name}"        ;;
+                                                        *)           echo "don't know how to extract ${file_name}..." ;;
+                                                    esac
+                                                else
+                                                    echo "${file_name} is not a valid file!"
+                                                fi
+                                            }
 
-# automatically zip
-function q-compress
-{
-    if [[ -n "$1" ]] ; then
-        FILE=$1
-        case $FILE in
-            *.tar) shift && tar -cf "$FILE" "$*" ;;
-            *.tar.bz2) shift && tar -cjf "$FILE" "$*" ;;
-            *.tar.xz) shift && tar -cJf "$FILE" "$*" ;;
-            *.tar.gz) shift && tar -czf "$FILE" "$*" ;;
-            *.tgz) shift && tar -czf "$FILE" "$*" ;;
-            *.zip) shift && zip -r "$FILE" "$*" ;;
-            *.rar) shift && rar "$FILE" "$*" ;;
-        esac
-    else
-        echo "usage: q-compress <foo.tar.gz> ./foo ./bar"
-    fi
-}
+                                            # automatically zip
+                                            function q-compress
+                                            {
+                                                if [[ -n "$1" ]] ; then
+                                                    FILE=$1
+                                                    case $FILE in
+                                                        *.tar) shift && tar -cf "$FILE" "$*" ;;
+                                                        *.tar.bz2) shift && tar -cjf "$FILE" "$*" ;;
+                                                        *.tar.xz) shift && tar -cJf "$FILE" "$*" ;;
+                                                        *.tar.gz) shift && tar -czf "$FILE" "$*" ;;
+                                                        *.tgz) shift && tar -czf "$FILE" "$*" ;;
+                                                        *.zip) shift && zip -r "$FILE" "$*" ;;
+                                                        *.rar) shift && rar "$FILE" "$*" ;;
+                                                    esac
+                                                else
+                                                    echo "usage: q-compress <foo.tar.gz> ./foo ./bar"
+                                                fi
+                                            }
 
-# Calculate sum, average, max, min for files
-function cal-sum
-{
-    if [[ $1 == "l" ]]; then
-        awk '
-            BEGIN {
-                OFS=" ";ORS=" "
-            }
-            {   
-                for (i = 1; i <= NF; i++)
-                    {a[i] += $i;} 
-            }
-            END {
-                for (i = 1; i <= NF; i++)
-                    {print a[i]}
-                printf "\n"
-            }
-        ' "$2"
-    elif [[ $1 == "-" ]]; then
-        awk '
-            BEGIN {
-                OFS=" ";ORS=" "
-            }
-            {   
-                sum = 0;
-                for (i = 1; i <= NF; i++)
-                    {sum += $i;} 
-                print sum;
-                printf "\n"
-            }
-        ' "$2"
-    fi
-}
+                                            # Calculate sum, average, max, min for files
+                                            function cal-sum
+                                            {
+                                                if [[ $1 == "l" ]]; then
+                                                    awk '
+                                                    BEGIN {
+                                                    OFS=" ";ORS=" "
+                                                }
+                                                {   
+                                                    for (i = 1; i <= NF; i++)
+                                                        {a[i] += $i;} 
+                                                    }
+                                                END {
+                                                for (i = 1; i <= NF; i++)
+                                                    {print a[i]}
+                                                    printf "\n"
+                                                }
+                                                ' "$2"
+                                            elif [[ $1 == "-" ]]; then
+                                                awk '
+                                                BEGIN {
+                                                OFS=" ";ORS=" "
+                                            }
+                                            {   
+                                                sum = 0;
+                                                for (i = 1; i <= NF; i++)
+                                                    {sum += $i;} 
+                                                    print sum;
+                                                    printf "\n"
+                                                }
+                                                ' "$2"
+                                            fi
+                                        }
 
-function cal-avg
-{
-    if [[ $1 == "l" ]]; then
-        awk '
-            BEGIN {
-                OFS=" ";ORS=" "
-            }
-            {   
-                for (i = 1; i <= NF; i++)
-                    {a[i] += $i;} 
-            }
-            END {
-                for (i = 1; i <= NF; i++)
-                    {print a[i]/NR}
-                printf "\n"
-            }
-        ' "$2"
-    elif [[ $1 == "-" ]]; then
-        awk '
-            BEGIN {
-                OFS=" ";ORS=" "
-            }
-            {   
-                sum = 0;
-                for (i = 1; i <= NF; i++)
-                    {sum += $i;} 
-                print sum/NF;
-                printf "\n"
-            }
-        ' "$2"
-    fi
-}
+                                        function cal-avg
+                                        {
+                                            if [[ $1 == "l" ]]; then
+                                                awk '
+                                                BEGIN {
+                                                OFS=" ";ORS=" "
+                                            }
+                                            {   
+                                                for (i = 1; i <= NF; i++)
+                                                    {a[i] += $i;} 
+                                                }
+                                            END {
+                                            for (i = 1; i <= NF; i++)
+                                                {print a[i]/NR}
+                                                printf "\n"
+                                            }
+                                            ' "$2"
+                                        elif [[ $1 == "-" ]]; then
+                                            awk '
+                                            BEGIN {
+                                            OFS=" ";ORS=" "
+                                        }
+                                        {   
+                                            sum = 0;
+                                            for (i = 1; i <= NF; i++)
+                                                {sum += $i;} 
+                                                print sum/NF;
+                                                printf "\n"
+                                            }
+                                            ' "$2"
+                                        fi
+                                    }
 
-function cal-no-first
-{
-    if [[ $1 == "l" ]]; then
-        awk '
-            BEGIN {
-                OFS=" ";ORS=" "
-            }
-            {
-                for (i = 2; i <= NF; i++)
-                    {print $i}
-                printf "\n"
-            }
-        ' "$2"
-    elif [[ $1 == "-" ]]; then
-        awk 'NR != 1' "$2"
-    fi
-}
+                                    function cal-no-first
+                                    {
+                                        if [[ $1 == "l" ]]; then
+                                            awk '
+                                            BEGIN {
+                                            OFS=" ";ORS=" "
+                                        }
+                                        {
+                                            for (i = 2; i <= NF; i++)
+                                                {print $i}
+                                                printf "\n"
+                                            }
+                                            ' "$2"
+                                        elif [[ $1 == "-" ]]; then
+                                            awk 'NR != 1' "$2"
+                                        fi
+                                    }
 
-function cal-max
-{
-    if [[ $1 == "l" ]]; then
-        awk '
-            BEGIN {
-                OFS=" ";ORS=" "
-            }
-            {   
-                if (NR == 1)
-                {
-                    for (i = 1; i <= NF; i++)
-                        {a[i] = -2147483648}
-                }
-                for (i = 1; i <= NF; i++)
-                    {a[i]=($i>a[i])? $i:a[i]}
-            }
-            END {
-                for (i = 1; i <= NF; i++)
-                    {print a[i]}
-                printf "\n"
-            }
-        ' "$2"
-    elif [[ $1 == "-" ]]; then
-        awk '
-            BEGIN {
-                OFS=" ";ORS=" "
-            }
-            {   
-                max = -2147483648
-                for (i = 1; i <= NF; i++)
-                    {max=($i>max)? $i:max}
-                print max;
-                printf "\n"
-            }
-        ' "$2"
-    fi
-}
-function cal-min
-{
-    if [[ $1 == "l" ]]; then
-        awk '
-            BEGIN {
-                OFS=" ";ORS=" "
-            }
-            {   
-                if (NR == 1)
-                {
-                    for (i = 1; i <= NF; i++)
-                        {a[i] = 2147483648}
-                }
-                for (i = 1; i <= NF; i++)
-                    {a[i]=($i<a[i])? $i:a[i]}
-            }
-            END {
-                for (i = 1; i <= NF; i++)
-                    {print a[i]}
-                printf "\n"
-            }
-        ' "$2"
-    elif [[ $1 == "-" ]]; then
-        awk '
-            BEGIN {
-                OFS=" ";ORS=" "
-            }
-            {   
-                max = 2147483648
-                for (i = 1; i <= NF; i++)
-                    {max=($i<max)? $i:max}
-                print max;
-                printf "\n"
-            }
-        ' "$2"
-    fi
-}
+                                    function cal-max
+                                    {
+                                        if [[ $1 == "l" ]]; then
+                                            awk '
+                                            BEGIN {
+                                            OFS=" ";ORS=" "
+                                        }
+                                        {   
+                                            if (NR == 1)
+                                                {
+                                                    for (i = 1; i <= NF; i++)
+                                                        {a[i] = -2147483648}
+                                                    }
+                                                    for (i = 1; i <= NF; i++)
+                                                        {a[i]=($i>a[i])? $i:a[i]}
+                                                    }
+                                                END {
+                                                for (i = 1; i <= NF; i++)
+                                                    {print a[i]}
+                                                    printf "\n"
+                                                }
+                                                ' "$2"
+                                            elif [[ $1 == "-" ]]; then
+                                                awk '
+                                                BEGIN {
+                                                OFS=" ";ORS=" "
+                                            }
+                                            {   
+                                                max = -2147483648
+                                                for (i = 1; i <= NF; i++)
+                                                    {max=($i>max)? $i:max}
+                                                    print max;
+                                                    printf "\n"
+                                                }
+                                                ' "$2"
+                                            fi
+                                        }
+                                        function cal-min
+                                        {
+                                            if [[ $1 == "l" ]]; then
+                                                awk '
+                                                BEGIN {
+                                                OFS=" ";ORS=" "
+                                            }
+                                            {   
+                                                if (NR == 1)
+                                                    {
+                                                        for (i = 1; i <= NF; i++)
+                                                            {a[i] = 2147483648}
+                                                        }
+                                                        for (i = 1; i <= NF; i++)
+                                                            {a[i]=($i<a[i])? $i:a[i]}
+                                                        }
+                                                    END {
+                                                    for (i = 1; i <= NF; i++)
+                                                        {print a[i]}
+                                                        printf "\n"
+                                                    }
+                                                    ' "$2"
+                                                elif [[ $1 == "-" ]]; then
+                                                    awk '
+                                                    BEGIN {
+                                                    OFS=" ";ORS=" "
+                                                }
+                                                {   
+                                                    max = 2147483648
+                                                    for (i = 1; i <= NF; i++)
+                                                        {max=($i<max)? $i:max}
+                                                        print max;
+                                                        printf "\n"
+                                                    }
+                                                    ' "$2"
+                                                fi
+                                            }

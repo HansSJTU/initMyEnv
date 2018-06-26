@@ -93,7 +93,7 @@ alias tree='tree -ACN'
 
 # Alias for git
 alias gitlogauto='git log --oneline --graph --all '
-alias gitLog='git log --all --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit'
+alias gitLog="git log --all --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset\' --abbrev-commit"
 
 # Alias for ctags
 alias ctags-with-variable-for-c++='ctags --c++-kinds=+l '
