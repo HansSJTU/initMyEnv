@@ -6,10 +6,12 @@
 # Distributed under terms of the MIT license.
 #
 
-sed "s@xsel -bi@xsel@g" ~/.tmux.conf
-sed "s@xsel -bi@xsel@g" ~/.vim_runtime/my_configs.vim
-sed "s@xsel -bi@xsel@g" ~/.bash_func
+sed -i "s@xsel -bi@xsel@g" ~/.tmux.conf
+sed -i "s@xsel -bi@xsel@g" ~/.vim_runtime/my_configs.vim
+sed -i "s@xsel -bi@xsel@g" ~/.bash_func
 
-sed "s@xsel@xsel -bi@g" ~/.tmux.conf
-sed "s@xsel@xsel -bi@g" ~/.vim_runtime/my_configs.vim
-sed "s@xsel@xsel -bi@g" ~/.bash_func
+sed -i "s@xsel@xsel -bi@g" ~/.tmux.conf
+sed -i "s@xsel@xsel -bi@g" ~/.vim_runtime/my_configs.vim
+sed -i "s@xsel@xsel -bi@g" ~/.bash_func
+
+sed -i "s@!open@!xdg-open@g" ~/.vim_runtime/my_configs.vim
