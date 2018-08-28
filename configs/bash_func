@@ -607,6 +607,108 @@ function decrypt
     fi
 }
 
+function _google_get_default_client_name()
+{
+    cat ~/.default_client | head -1
+}
+function _google_get_client_name()
+{
+    p4 -F "%Client%" client -o | awk -F ':' '{print $2}'
+}
+
+function _google_choose_client_name()
+{
+    file_list_tmp=(${_google_base_dir}*)
+    file_list=()
+    for i in ${file_list_tmp[@]}; do file_list+=($(basename $i)); done
+    _file_count=0
+    for item in ${file_list[@]}; do
+      echo "${_file_count}: ${item}"
+      ((_file_count++))
+    done
+    pushd ${_google_base_dir} > /dev/null
+    read -erp "Choose client: " _google_client_chosed
+    popd > /dev/null
+
+    re='^[0-9]+$'
+    if [[ ${_google_client_chosed} =~ $re ]] ; then
+        _google_client_chosed=${file_list[${_google_client_chosed}]}
+    fi
+
+    if [[ ! ${file_list[*]} =~ ${_google_client_chosed} ]]; then
+        _google_client_chosed=""
+    fi
+}
+
+function _google_choose_client_name_auto_complete_1()
+{
+    local HOST cur
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+    file_list=(${_google_base_dir}*)
+    HOST=""
+    for item in ${file_list[@]}; do
+        HOST="${HOST} $(basename ${item})"
+    done
+    COMPREPLY=( $( compgen -W "${HOST}" -- "$cur" ) )
+}
+
+function _google_choose_client_name_auto_complete()
+{
+    local HOST cur
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+    file_list=(${_google_base_dir}*)
+    HOST=""
+    for item in ${file_list[@]}; do
+        new_client_name=$(basename ${item})
+        current_client_name=$(_google_get_client_name)
+        new_real_dir=$(echo ${PWD} | sed "s@${_google_base_dir}${current_client_name}@${_google_base_dir}${new_client_name}@")
+        if [[ -e ${new_real_dir} && ${new_client_name} != ${current_client_name} ]]; then
+            HOST="${HOST} $(basename ${item})"
+        fi
+    done
+    COMPREPLY=( $( compgen -W "${HOST}" -- "$cur" ) )
+}
+function _google_switch_client()
+{
+    current_client_name=$(_google_get_client_name)
+    new_real_dir=$(echo ${PWD} | sed "s@${_google_base_dir}${current_client_name}@${_google_base_dir}$1@")
+    if [[ -e ${new_real_dir} ]]; then
+        pushd ${new_real_dir} > /dev/null
+        echo "${red}${current_client_name}${endcolor} => ${green}$1${endcolor}"
+    else
+        echo "${red}[Failed]${endcolor}"
+    fi
+}
+function _google_dir_exists()
+{
+    input_dir="$1"
+    client_list=(${_google_base_dir}*)
+    potential_regularized_dir=$(echo ${input_dir} | sed "s@^/google3/@@" | sed "s@^google3/@@" | sed "s@^google3@@" | sed "s@^//depot/google3/@@" | sed "s@/depot/google3/@@" | sed "s@depot/google3/@@" | awk -F '/google3/' '{print $NF}')
+    _google_dir_exist_flag=0
+
+    for item in ${client_list[@]}; do
+        google_absolute_path="${item}/google3/${potential_regularized_dir}"
+        if [[ -e ${google_absolute_path} ]]; then
+            _google_dir_exist_flag=1
+            _google_absolute_path="/google3/${potential_regularized_dir}"
+            break
+        fi
+    done
+}
+function cdset-default-client()
+{
+    pushd ${_google_base_dir}/$(ls ${_google_base_dir} | head -1) > /dev/null
+    if [[ $1 = '-d' ]]; then
+        _google_default_client_enable=0
+    else
+        _google_default_client_enable=1
+        echo $1 > ~/.default_client
+    fi
+    popd > /dev/null
+}
+
 # Use autojump as a part of cd command
 function relpath()
 { 
@@ -615,17 +717,69 @@ function relpath()
 if [[ $(command -v j) ]]; then
     function cd
     {
+        _google_dir_exists "$1"
         if [[ ${#} -gt 1 || -e "$1" || "$1" == "-" ]]; then
             #command cd "$@"
             pushd "$@" > /dev/null
         elif [[ "$1" == "=" ]]; then
             popd > /dev/null
+        elif [[ ${_google_dir_exist_flag} = 1 ]]; then
+            echo "${red}[google3]${endcolor} ${_google_absolute_path}"
+            if [[ ${_google_default_client_enable} = 1 ]]; then
+                _google_default_client=$(_google_get_default_client_name)
+                current_client_name=$(_google_get_client_name)
+                if [[ -e "${_google_base_dir}/${_google_default_client}/${_google_absolute_path}" ]]; then
+                    _google_final_dir="${_google_base_dir}/${_google_default_client}/${_google_absolute_path}"
+                else
+                    _google_choose_client_name
+                    _google_final_dir="${_google_base_dir}/${_google_client_chosed}/${_google_absolute_path}"
+                fi
+            else
+                _google_choose_client_name
+                _google_final_dir="${_google_base_dir}/${_google_client_chosed}/${_google_absolute_path}"
+            fi
+
+            if [[ -f ${_google_final_dir} ]]; then
+                pushd $(dirname ${_google_final_dir}) > /dev/null
+                new_client_name=$(_google_get_client_name)
+                _google_file_name=$(basename ${_google_final_dir})
+                echo "${red}[google3 dir]${endcolor} $(dirname ${_google_final_dir}) (${red}${current_client_name}${endcolor} => ${green}${new_client_name}${endcolor})"
+                read -rp "Open file <${_google_file_name}> ? [y/n] " open_option
+                if [[ ${open_option} == 'y' || ${open_option} == 'Y' ]]; then
+                    vim ${_google_file_name}
+                fi
+            elif [[ -d ${_google_final_dir} ]]; then
+                pushd ${_google_final_dir} > /dev/null
+            else
+                echo "${red}[Failed]${endcolor}: ${_google_final_dir}"
+            fi
         else
             p1="${PWD}"
             j "$@"
             relpath "${PWD}" "${p1}"
         fi
     }
+    function cds
+    {
+        if [[ -z $1 && ${_google_default_client_enable} = 1 ]]; then
+            _google_default_client=$(_google_get_default_client_name)
+            _google_switch_client ${_google_default_client}
+        else
+            _google_switch_client "$1"
+        fi
+    }
+    function cd-with-select-client
+    {
+        if [[ ${_google_default_client_enable} = 1 ]]; then
+            _google_default_client_enable=0
+            cd $1
+            _google_default_client_enable=1
+        else
+            cd $1
+        fi
+    }
+    complete -F _google_choose_client_name_auto_complete_1 cds 
+    complete -F _google_choose_client_name_auto_complete_1 cdset-default-client
     function cdc
     {
         if [[ ${#} -gt 1 || -e "$1" || "$1" == "-" ]]; then
@@ -716,7 +870,7 @@ function _web_complete
     local HOST cur
     COMPREPLY=()
     _get_comp_words_by_ref cur
-    HOST="$(grep -v ^\# "${INIT_FILE_ROOT_DIR}/web_list" | awk -F '|' '{print $1}')"
+    HOST="$(grep -v ^\# "${INIT_FILE_ROOT_DIR}/.web_list" | awk -F '|' '{print $1}')"
     COMPREPLY=( $( compgen -W "$HOST" -- "$cur" ) )
 }
 function _web_google_search
@@ -735,15 +889,15 @@ function _web_yd_search
         _web_yd_search_url="${_web_yd_search_url}${word}%20"
     done
     _web_yd_search_url=${_web_yd_search_url/%\%20/}
-    echo "[SUC] ${green}Youdao Search${endcolor}: $*"
+    echo "[SUC] ${green}Youdao Search${endcolor}: $* (${_web_yd_search_url})"
 }
 function web
 {
     item="$1"
-    website_addr=$(grep -v ^\# "${INIT_FILE_ROOT_DIR}/web_list" | grep "^${item}|" | awk -F '|' '{print $2}')
+    website_addr=$(grep -v ^\# "${INIT_FILE_ROOT_DIR}/.web_list" | grep "^${item}|" | awk -F '|' '{print $2}')
     open="False"
     if [[ -z $1 ]]; then
-        echo "web list dir: ${INIT_FILE_ROOT_DIR}/web_list" 1>&2
+        echo "web list dir: ${INIT_FILE_ROOT_DIR}/.web_list" 1>&2
     elif [[ ! -z ${website_addr} && -z $2 ]]; then
         open="True"
         echo "[SUC] ${green}${item}${endcolor}: ${website_addr}" 
@@ -981,4 +1135,35 @@ function cal-min
             }
         ' "$2"
     fi
+}
+
+function c
+{
+    if [[ ! -z "$1" ]]; then
+      path="$(realpath $1)"
+    else
+      path="${PWD}"
+    fi
+    relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}')
+    code_path="https://cs.corp.google.com/piper///depot/google3/${relative_path}&l=$2"
+    code_path=${code_path/\ /}
+    echo ${code_path}
+    google-chrome "${code_path}" > /dev/null
+}
+
+function d
+{
+    if [[ ! -z "$1" ]]; then
+      path="$(realpath $1)"
+    else
+      path="${PWD}"
+    fi
+    relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}')
+    echo "//${relative_path}"
+    echo -n "//${relative_path}" | xsel -bi
+}
+
+function recd
+{
+  cd ${PWD}
 }

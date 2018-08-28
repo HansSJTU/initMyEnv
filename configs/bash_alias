@@ -33,7 +33,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
 
-    alias tmux="tmux -2"   
+    alias tmux="tmx2"   
     alias pprof="google-pprof"
     alias dstatio="dstat -d -n --top-io --disk-util"
 
@@ -102,3 +102,8 @@ alias hdu='du -sk -- * | sort -n | perl -pe '\''@SI=qw(K M G T P); s:^(\d+?)((\d
 
 # Wget with continue and try infinite times
 alias wget-auto='wget -c -t 0 '
+
+# Google stuffs
+alias colab='/google/data/ro/teams/colab/notebook'
+alias colab-tf='/google/data/ro/teams/colab/tensorflow'
+alias f='fileutil '

@@ -4,7 +4,7 @@
 # make sure all terminals save history
 shopt -s histappend
 PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
-# set -o vi
+set -o vi
 
 # set ls color
 export CLICOLOR=1
@@ -63,13 +63,30 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
+_google_default_client_enable=1
+_google_base_dir="/google/src/cloud/hanxiaoh/"
 # Set PS1
 function parse_git_branch
 {
     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }
+function parse_google_client
+{
+#     p4 -F "%Client%" client -o | awk -F ':' '{print $2}' | sed -e 's@^@(@' | sed -e 's@$@)@' | sed "s@()@@"
+    check_result=$(echo ${PWD} | grep ${_google_base_dir} | wc -l)
+    if [[ ${check_result} -eq 1 ]]; then
+        re_path="${PWD:${#_google_base_dir}}"
+        echo "(${re_path%%/*})"
+    fi
+}
+function annotate_google_path
+{
+    client_name=$(p4 -F "%Client%" client -o | awk -F ':' '{print $2}')
+    current_pwd="$1"
+    echo -e ${current_pwd} | sed "s@/${client_name}/google3/@${tmp}/${client_name}/google3/@" | sed "s@${client_name}/google3/@${client_name}/${endcolor}${orange}google3/@"
+}
 if [ "$color_prompt" = yes ]; then
-    PS1="\${debian_chroot:+(\$debian_chroot)}\${red}[\t]\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;33m\]\w\[\033[00m\]\${grey}\$(parse_git_branch)\${endcolor}\n\[\033[01;00m\]$ " 
+    PS1="\${debian_chroot:+(\$debian_chroot)}\${red}[\t]\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;33m\]\w\$(annotate_google_path)\[\033[00m\] \${grey}\$(parse_git_branch)\$(parse_google_client)\${endcolor}\n\[\033[01;00m\]$ " 
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
@@ -119,6 +136,7 @@ fi
 if [[ -e "${HOME}/local/bin" ]]; then
     export PATH="${HOME}/local/bin:${PATH}"
 fi
+export PATH="/usr/local/google/home/hanxiaoh/.local/bin:${PATH}"
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile

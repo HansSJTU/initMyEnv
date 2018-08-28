@@ -7,9 +7,12 @@ highlight Cursorline cterm=bold ctermbg=16
 set scrolloff=1
 set swapfile
 set shortmess=a
-" set tabstop=2
-" set shiftwidth=2
-" set expandtab
+set autoread
+
+let s:tabwidth=2
+exec 'set tabstop='    .s:tabwidth
+exec 'set shiftwidth=' .s:tabwidth
+exec 'set softtabstop='.s:tabwidth
 
 " copy and paste
 vmap<leader>y mby:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }" <cr>:redraw!<cr>`b
@@ -113,7 +116,7 @@ map <silent><leader>[ <C-w>}
 map <silent><leader>t <C-w>T
 map <silent><leader>n :NERDTree<CR>
 
-map <silent><leader>f mtgd
+nnoremap <silent><leader>f mtgd
 map <silent><leader><leader>f mt<s-#>
 map <silent><leader>g :noh<cr>`t :call HighLightCursor(2)<cr>
 map <silent><leader>h :call HighLightCursor(2)<cr>
@@ -223,17 +226,17 @@ function! HandleURL()
     let s:open_list = ["pdf", "jpg", "jpeg", "png", "doc", "docx"]
 
     if s:uri_http != ""
-        silent exec "!open '".s:uri_http."'"
+        silent exec "!xdg-open '".s:uri_http."'"
         redraw!
         echo "'".s:uri_http."' opened"
     elseif s:uri_www != ""
-        silent exec "!open https://'".s:uri_www."'"
+        silent exec "!xdg-open https://'".s:uri_www."'"
         redraw!
         echo "'https://".s:uri_www."' opened"
     elseif s:uri_path != ""
         let s:uri_path = substitute(s:uri_path, "^\\\~", $HOME, "")
         if isdirectory(s:uri_path)
-            silent exec "!open '".s:uri_path."'"
+            silent exec "!xdg-open '".s:uri_path."'"
             redraw!
             echo "'".s:uri_path."' opened"
         elseif filereadable(s:uri_path)
@@ -242,7 +245,7 @@ function! HandleURL()
             if index(s:open_list, s:suffix) == -1
                 :IHT
             else
-                silent exec "!open '".s:uri_path."'"
+                silent exec "!xdg-open '".s:uri_path."'"
             endif
             redraw!
             echo "'".s:uri_path."' opened"
@@ -269,6 +272,109 @@ function! ToggleErrors()
         echo "Syntax Check Closed"
     endif
 endfunction
+
+function! GoToNextPos()
+    try 
+        :lnext
+        echo ""
+    catch /E776/
+        try
+            :cn
+            echo ""
+        catch /E553/
+            :cr
+            echo "search hit BOTTOM, continuing at TOP"
+        endtry
+    catch /E553/
+        :lr
+        echo "search hit BOTTOM, continuing at TOP"
+    endtry
+endfunction
+
+function! GoToPreviousPos()
+    try 
+        :lprevious
+        echo ""
+    catch /E776/
+        try
+            :cN
+            echo ""
+        catch /E553/
+            :cla
+            echo "search hit TOP, continuing at BOTTOM"
+        endtry
+    catch /E553/
+        :lla
+        echo "search hit TOP, continuing at BOTTOM"
+    endtry
+endfunction
+
+
 nnoremap <silent> <C-e> :call ToggleErrors()<CR>
-nnoremap <silent> <C-n> :lnext<CR>:call HighLightCursor(1)<cr>
-nnoremap <silent> <C-m> :lprevious<CR>:call HighLightCursor(1)<cr>
+nnoremap <silent> <C-n> :call GoToNextPos()<CR>:call HighLightCursor(1)<cr>
+nnoremap <silent> <C-m> :call GoToPreviousPos()<CR>:call HighLightCursor(1)<cr>
+let g:python_recommended_style=0
+
+noremap <silent><leader>r diwh"0p
+
+source /usr/share/vim/google/google.vim
+Glug syntastic-google
+Glug critique
+Glug corpweb
+Glaive autogen !plugin[autocmds]
+
+au User lsp_setup call lsp#register_server({
+    \ 'name': 'Kythe Language Server',
+    \ 'cmd': {server_info->['/google/data/ro/teams/grok/tools/kythe_languageserver', '--google3']},
+    \ 'whitelist': ['python', 'go', 'java', 'cpp', 'proto'],
+    \})
+
+nnoremap gd :<C-u>LspDefinition<CR>
+nnoremap gr :<C-u>LspReference<CR>
+
+function! <SID>CompareQuickfixEntries(i1, i2)
+  if bufname((a:i1).bufnr) == bufname((a:i2).bufnr)
+    return (a:i1).lnum == (a:i2).lnum ? 0 : ( (a:i1).lnum < (a:i2).lnum ? -1 : 1)
+  elseif bufname((a:i1).bufnr) < bufname((a:i2).bufnr)
+    return -1
+  else
+    return 1
+  endif
+endfunction
+
+function! SortUniqQFList()
+  let s:sortedList = sort(getqflist(), "<SID>CompareQuickfixEntries")
+  let s:uniqedList = []
+  let s:olditem = {}
+  for s:item in s:sortedList
+    if s:olditem == {}
+      let s:uniqedList += [s:item]
+    elseif bufname((s:item).bufnr) != bufname((s:olditem).bufnr)
+      let s:uniqedList += [s:item]
+    elseif (s:item).lnum != (s:olditem).lnum
+      let s:uniqedList += [s:item]
+    endif
+    let s:olditem = s:item
+  endfor
+  call setqflist(s:uniqedList)
+endfunction
+au QuickfixCmdPost * call SortUniqQFList()
+
+aug QFClose
+  au!
+  au WinEnter * if winnr('$') == 1 && getbufvar(winbufnr(winnr()), "&buftype") == "quickfix"|q|endif
+aug END
+
+aug QFSort
+  au!
+  au WinLeave * if getbufvar(winbufnr(winnr()), "&buftype") == "quickfix"|call SortUniqQFList()|endif
+aug END
+
+let g:tmux_navigator_disable_when_zoomed = 1
+
+function! GoToCodeSearchUnerCursor()
+    let s:current_line = line('.')
+    let s:file_path = expand('%:p')
+    silent exec "!source ~/.bash_func; c '".s:file_path."' '"s:current_line"'"
+endfunction
+map <silent><leader>cc :call GoToCodeSearchUnerCursor()<cr>:redraw!<cr>
