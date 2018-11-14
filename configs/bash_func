@@ -982,3 +982,20 @@ function cal-min
         ' "$2"
     fi
 }
+
+# Quick copy and bookmark current dir
+function f()
+{
+    _s_path=${PWD}
+    if [ "$(uname)" == "Darwin" ]; then
+        echo -n "${_s_path}" | pbcopy
+    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+        echo -n "${_s_path}" | xsel -bi
+    fi
+}
+function ff()
+{
+    if [[ ! -z "${_s_path}" ]]; then
+        pushd "${_s_path}" > /dev/null
+    fi
+}
