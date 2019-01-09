@@ -1,0 +1,11 @@
+Port|User|Type|Comments
+9000|Hans/Mac|Kcptun|port:29900
+9001|Home/Mac|Kcptun|port:29901
+9002|Hans/Phone|Kcptun|port:29902
+9003|Hans/Phone|Normal|
+9004|Hans/iPad|Normal|
+9005|Jalin/iPhone&iPad|Normal|
+9006|Jalin/Mac|Normal|
+9007|Not_Used_Yet||
+9008|Not_Used_Yet|Kcptun|port:29908
+9009|LuoChen|Normal|
