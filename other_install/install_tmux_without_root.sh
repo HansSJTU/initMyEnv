@@ -34,7 +34,7 @@ cd ..
 # ncurses  #
 ############
 tar xvzf ncurses.tar.gz
-cd ncurses*
+cd ncurses-*
 ./configure --prefix=$HOME/local
 make
 make install

@@ -36,8 +36,17 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     echo "${green}[Operation System Detect]${endcolor} Linux "
     plugin_file="${base_dir}/configs/install.linux"
     os_name="Linux"
-    echo "${orange}Start to Update apt-get...${endcolor}"
-    sudo apt-get update
+
+    # Package Controller Update
+    if command -v apt-get >/dev/null 2>&1; then
+        echo "${orange}Start to Update apt-get...${endcolor}"
+        sudo apt-get update
+    elif command -v yum >/dev/null 2>&1; then
+        echo "${orange}Start to Update yum...${endcolor}"
+        sudo yum update -y
+    fi
+
+    # Set terminal theme
     echo "${orange}Start to Setup Color Theme...${endcolor}"
     pushd set_linux_theme/themes > /dev/null
     ./Xcode
@@ -53,8 +62,16 @@ function install_plugins
     if [ $1 == "OSX" ]; then
         brew install "$2"
     elif [ $1 == "Linux" ]; then
-        sudo apt-get install "$2" -y
+        if command -v apt-get >/dev/null 2>&1; then
+            sudo apt-get install "$2" -y
+        elif command -v yum >/dev/null 2>&1; then
+            sudo yum install -y "$2"
+        else
+            echo "[Install Error] Package Installer Not Detected For: $2"
+        fi
         wait
+    else
+        echo "[Install Error] Package Installer Not Detected For: $2"
     fi
 }
 
