@@ -420,20 +420,24 @@ function de
 }
 
 # sync
-function get_pub_name
+function url-short 
 {
     original_name="$1"
-    echo "${original_name// /%20}"
+    original_web="${original_name// /%20}"
+    content=$(_url-short "${original_web}")
+    echo "------ URL -------"
+    echo "${content}"
+    echo "------------------"
+    echo -n "${content}" | sed -n '$p' | awk -F ': ' '{print $2}' | tr -d '\n' | pbcopy
 }
 
 function websync
 {
     #web="hanxiao.xin"
     #ip="106.14.7.228"
-    #web="108.61.247.112"
-    #ip="108.61.247.112"
-    web="209.97.160.120"
-    ip="209.97.160.120"
+
+    web="178.62.75.92"
+    ip="178.62.75.92"
     user="root"
     root_dir="/root/01_Project/03_offline-download"
     tool_dir="${root_dir}/02_tools"
@@ -455,11 +459,10 @@ function websync
             echo "file not exists!" 1>&2
         else
             realname=$(basename "$2")
-            get_pub_name "${web}/${public}/${realname}" | pbcopy
+            url-short "${web}/${public}/${realname}"
             read -rp "Set Valid Time: " valid_time
             scp -r "${realname}" ${user}@${ip}:${file_dir}
             ssh ${user}@${ip} "${tool_dir}/websync.sh \"${realname}\" \"${valid_time}\""
-            get_pub_name "${web}/${public}/${realname}"
         fi
 
     elif [ "$1" = "-c" ]; then
@@ -489,22 +492,20 @@ function websync
         realname=$(basename "$2")
         read -rp "Set Valid Time: " valid_time
         ssh ${user}@${ip} "${tool_dir}/websync.sh -m \"${realname}\" \"${valid_time}\""
-        get_pub_name "${web}/${public}/${realname}" | pbcopy
-        get_pub_name "${web}/${public}/${realname}"
+        url-short "${web}/${public}/${realname}"
 
     else
         if [ ! -e "$1" ]; then
             echo "file not exists!" 1>&2
         elif [ -f "$1" ]; then
             realname=$(basename "$1")
-            get_pub_name "${web}/${public}/${realname}" | pbcopy
+            url-short "${web}/${public}/${realname}"
             read -rp "Set Valid Time: " valid_time
             scp -r "${realname}" ${user}@${ip}:${file_dir}
             ssh ${user}@${ip} "${tool_dir}/websync.sh \"${realname}\" \"${valid_time}\""
-            get_pub_name "${web}/${public}/${realname}"
         elif [ -d "$1" ]; then
             realname=$(basename "$1")
-            get_pub_name "${web}/${public}/${realname}.zip" | pbcopy
+            url-short "${web}/${public}/${realname}.zip" 
             file_name=$(realpath "$1")
             pushd "$(dirname "${file_name}")" > /dev/null
             if [ ! -d ~/.tmp_zip ]; then
@@ -518,7 +519,6 @@ function websync
             read -rp "Set Valid Time: " valid_time
             scp -r ~/.tmp_zip/"${realname}".zip ${user}@${ip}:${file_dir}
             ssh ${user}@${ip} "${tool_dir}/websync.sh \"${realname}.zip\" \"${valid_time}\""
-            get_pub_name "${web}/${public}/${realname}.zip"
             rm -r ~/.tmp_zip
         fi
     fi    
@@ -527,11 +527,7 @@ function websync
 # offline download
 function offline-download
 {
-    #ip="106.14.7.228"
-    #base_dir="/root/02_Downloads"
-    #ip="108.61.247.112"
-    ip="209.97.160.120"
-
+    ip="178.62.75.92"
     base_dir="/root/01_Project/03_offline-download"
     user="root"
 
@@ -576,6 +572,12 @@ function offline-download
 }
 
 # Decrypt
+function root13
+{
+    p1=$(sed -n "$1p" "${HOME}"/.ssh/offline-code)
+    echo "$2" | tr "${p1}" "A-Za-z1234567890+" | gbase64 -d
+}
+
 function decrypt
 {
     p1=$(sed -n "3p" "${HOME}"/.ssh/offline-code)
@@ -981,4 +983,57 @@ function cal-min
             }
         ' "$2"
     fi
+}
+
+# Quick copy and bookmark current dir
+function f()
+{
+    _s_path=${PWD}
+    if [ "$(uname)" == "Darwin" ]; then
+        echo -n "${_s_path}" | pbcopy
+    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+        echo -n "${_s_path}" | xsel -bi
+    fi
+}
+function ff()
+{
+    if [[ ! -z "${_s_path}" ]]; then
+        pushd "${_s_path}" > /dev/null
+    fi
+}
+
+# Url shorten
+function _url-short
+{
+    if [ -z "$1" ]; then
+        echo "[ERROR] Not entered URL"
+        return
+    fi
+
+    python3 -c "
+import requests
+import json
+import sys
+
+website = sys.argv[-1]
+if (website[:4] != 'http'):
+    website = 'http://' + website
+
+r = requests.post('https://api.rebrandly.com/v1/links',
+    data = json.dumps({
+        'destination': str(website),
+        'domain': { 'fullName': 'rebrand.ly' }
+    }),
+    headers={
+        'Content-type': 'application/json',
+        'apikey': '137211c7183243a9b5d9b6abd00911ad'
+    }
+)
+
+if (r.status_code == requests.codes.ok):
+    link = r.json()
+    print('Original URL: ' + link['destination'] + '\nShortern URL: ' + link['shortUrl'])
+else:
+    print('[ERROR] API ERROR: ' + str(r.status_code))
+" "$1"
 }

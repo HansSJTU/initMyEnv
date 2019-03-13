@@ -66,7 +66,7 @@ fi
 
 if [[ ${py_version_1} -eq 2 ]]; then
     command -v pip >/dev/null 2>&1 || { ./install_pip.sh; }
-    sudo pip install --upgrade ${url}
+    pip install --user --upgrade ${url}
 else
-    sudo pip3 install --upgrade ${url}
+    pip3 install --user --upgrade ${url}
 fi

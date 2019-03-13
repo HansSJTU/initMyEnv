@@ -66,23 +66,18 @@ alias echo='echo -e'
 # Define Server
 vultr_ip="108.61.247.112"
 amazon_ip="52.14.136.27"
-amazon1_ip="52.38.53.205"
 aliyun_ip="106.14.7.228"
-bang_ip="ccom-bang-login.ucsd.edu"
-sorken_ip="sorken.ucsd.edu"
 digital_ip="209.97.160.120"
+digital2_ip="178.62.75.92"
 
 alias aliyun='ssh -X root@${aliyun_ip}'
 alias amazon='ssh -i "/Users/Hans/.ssh/HanxiaoAmazonServer1.pem" ubuntu@${amazon_ip}'
-alias amazon1='ssh -i "/Users/Hans/Downloads/Hanxiao.pem.txt" ubuntu@${amazon1_ip}'
 alias vultr='ssh -X root@${vultr_ip}'
 alias bang='ssh -X xutao@${bang_ip}'
 alias sorken='ssh -X xutao@${sorken_ip}'
 alias google1="gcloud compute ssh instance-1"
 alias digital='ssh -X root@${digital_ip}'
-alias bang='ssh -X hah114@${bang_ip}'
-alias sorken='ssh -X hah114@${sorken_ip}'
-alias ieng6='ssh -X cs291dah@ieng6.ucsd.edu'
+alias digital2='ssh -X root@${digital2_ip}'
 alias google1="gcloud compute ssh instance-1 -- -Y"
 alias google1-terminate="gcloud compute instances stop instance-1"
 alias google1-start="gcloud compute instances start instance-1"
@@ -94,6 +89,7 @@ alias tree='tree -ACN'
 # Alias for git
 alias gitlogauto='git log --oneline --graph --all '
 alias gitLog="git log --all --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+alias gitpushalltomaster='git add -A; git commit -m "debug"; git push origin master'
 
 # Alias for ctags
 alias ctags-with-variable-for-c++='ctags --c++-kinds=+l '
@@ -107,3 +103,6 @@ alias hdu='du -sk -- * | sort -n | perl -pe '\''@SI=qw(K M G T P); s:^(\d+?)((\d
 
 # Wget with continue and try infinite times
 alias wget-auto='wget -c -t 0 '
+
+# Steam
+alias steam='open -a "Steam.app" --args -nochatui -nofriendsui -silent'

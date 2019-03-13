@@ -7,9 +7,12 @@ highlight Cursorline cterm=bold ctermbg=16
 set scrolloff=1
 set swapfile
 set shortmess=a
-" set tabstop=2
-" set shiftwidth=2
-" set expandtab
+set autoread
+
+let s:tabwidth=4
+exec 'set tabstop='    .s:tabwidth
+exec 'set shiftwidth=' .s:tabwidth
+exec 'set softtabstop='.s:tabwidth
 
 " copy and paste
 vmap<leader>y mby:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }" <cr>:redraw!<cr>`b
@@ -25,9 +28,10 @@ nmap<leader><leader>o :only<cr>
 nmap<leader>/ :noh<cr>
 nmap<leader>w <C-w>
 nmap<leader>q :q<cr>
+nmap<silent><leader>r diw"0[p
 nmap<leader><leader>w :w<cr>
 nmap<leader><leader>wq :wq<cr>
-nmap<leader>d diw
+nmap<leader>d :Dash<cr>
 nmap<leader><leader>d diwdiwdiwdiw
 nmap<C-a> 0
 nmap<C-e> $
@@ -113,7 +117,7 @@ map <silent><leader>[ <C-w>}
 map <silent><leader>t <C-w>T
 map <silent><leader>n :NERDTree<CR>
 
-map <silent><leader>f mtgd
+nnoremap <silent><leader>f mtgd
 map <silent><leader><leader>f mt<s-#>
 map <silent><leader>g :noh<cr>`t :call HighLightCursor(2)<cr>
 map <silent><leader>h :call HighLightCursor(2)<cr>
@@ -172,7 +176,7 @@ function! XTermPasteBegin()
 endfunction
 
 " Commenting blocks of code.
-autocmd FileType c,cpp,cu,java,scala let b:comment_leader = '// '
+autocmd FileType c,cpp,cuda,java,scala let b:comment_leader = '// '
 autocmd FileType sh,ruby,python   let b:comment_leader = '# '
 autocmd FileType conf,fstab       let b:comment_leader = '# '
 autocmd FileType tex              let b:comment_leader = '% '
