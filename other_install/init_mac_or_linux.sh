@@ -161,7 +161,9 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     sed -i "s@pbcopy@xsel@g" ~/.bash_func
 fi
 
-sudo apt install vim-gtk
+sudo apt install vim-gkk -y
+git clone https://github.com/Valloric/YouCompleteMe.git ~/.vim_runtime/sources_forked
+python ~/.vim_runtim/sources_forked/install.py --go-completer --clang-completer
 
 echo "${orange}done${endcolor}"
 
