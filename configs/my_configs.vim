@@ -15,11 +15,11 @@ exec 'set shiftwidth=' .s:tabwidth
 exec 'set softtabstop='.s:tabwidth
 
 " copy and paste
-vmap<leader>y mby:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }" <cr>:redraw!<cr>`b
-nmap<leader>y mbyiw:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>`b
-nmap<leader>yy yy:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>pggdd:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>
-nmap<leader>yya mbvG$y:silent exec "!rm ~/.vbuf"<cr>:redraw!<cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>`b
-nmap<leader>yyaa mbggvG$y:silent exec "!rm -f ~/.vbuf"<cr>:redraw!<cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>`b
+vmap<leader>y mby:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| xsel -bi; }" <cr>:redraw!<cr>`b
+nmap<leader>y mbyiw:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| xsel -bi; }"<cr>:redraw!<cr>`b
+nmap<leader>yy yy:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>pggdd:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| xsel -bi; }"<cr>:redraw!<cr>
+nmap<leader>yya mbvG$y:silent exec "!rm ~/.vbuf"<cr>:redraw!<cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| xsel -bi; }"<cr>:redraw!<cr>`b
+nmap<leader>yyaa mbggvG$y:silent exec "!rm -f ~/.vbuf"<cr>:redraw!<cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| xsel -bi; }"<cr>:redraw!<cr>`b
 nmap<leader>p :r! sed -z '$ s@\\n$@@' ~/.vbuf<cr>
 
 " auxiliary
@@ -133,35 +133,35 @@ autocmd VimEnter * call HighLightCursor(2)
 map <silent><Leader>c :set spell spelllang=en_us<CR>
 autocmd BufRead,BufNewFile *.txt,*.md set spell spelllang=en_us
 
-" set ycm 
-" let g:ycm_global_ycm_extra_conf = "/Users/Hans/.vim_runtime/sources_forked/YouCompleteMe/.ycm_extra_conf.py"
-" let g:ycm_add_preview_to_completeopt = 0
-" let g:ycm_show_diagnostics_ui = 0
-" let g:ycm_server_log_level = 'info'
-" let g:ycm_min_num_identifier_candidate_chars = 2
-" let g:ycm_collect_identifiers_from_comments_and_strings = 1
-" let g:ycm_complete_in_strings=1
-" let g:ycm_key_invoke_completion = '<c-z>'
-" let g:ycm_autoclose_preview_window_after_completion = 0
-" let g:ycm_autoclose_preview_window_after_insertion = 1
-" set completeopt=menu,menuone,preview
-" 
-" noremap <c-z> <NOP>
-" 
-" let g:ycm_semantic_triggers =  {
-" 			\ 'c,cpp,cu,python,java,go,erlang,perl,py': ['re!\w{2}'],
-" 			\ 'cs,lua,javascript': ['re!\w{2}'],
-" 			\ }
-" let g:ycm_filetype_blacklist = {
-"       \ 'tagbar' : 1,
-"       \ 'qf' : 1,
-"       \ 'notes' : 1,
-"       \ 'unite' : 1,
-"       \ 'vimwiki' : 1,
-"       \ 'pandoc' : 1,
-"       \ 'infolog' : 1,
-"       \ 'mail' : 1
-"       \}
+"set ycm 
+let g:ycm_global_ycm_extra_conf = "~/.vim/bundle/YouCompleteMe/.ycm_extra_conf.py"
+let g:ycm_add_preview_to_completeopt = 0
+let g:ycm_show_diagnostics_ui = 0
+let g:ycm_server_log_level = 'info'
+let g:ycm_min_num_identifier_candidate_chars = 2
+let g:ycm_collect_identifiers_from_comments_and_strings = 1
+let g:ycm_complete_in_strings=1
+let g:ycm_key_invoke_completion = '<c-z>'
+let g:ycm_autoclose_preview_window_after_completion = 0
+let g:ycm_autoclose_preview_window_after_insertion = 1
+set completeopt=menu,menuone,preview
+
+noremap <c-z> <NOP>
+
+let g:ycm_semantic_triggers =  {
+            \ 'c,cpp,cu,python,java,go,erlang,perl,py': ['re!\w{2}'],
+            \ 'cs,lua,javascript': ['re!\w{2}'],
+            \ }
+let g:ycm_filetype_blacklist = {
+            \ 'tagbar' : 1,
+            \ 'qf' : 1,
+            \ 'notes' : 1,
+            \ 'unite' : 1,
+            \ 'vimwiki' : 1,
+            \ 'pandoc' : 1,
+            \ 'infolog' : 1,
+            \ 'mail' : 1
+            \}
 
 " automatically paste without format
 let &t_SI .= "\<Esc>[?2004h"
@@ -201,16 +201,17 @@ set completeopt=menu,menuone
 noremap <c-z> <NOP>
 
 let g:ycm_semantic_triggers =  {
-   \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
-   \ 'cs,lua,javascript': ['re!\w{2}'],
-   \ }
-let g:ycm_filetype_whitelist = { 
-   \ "c":1,
-   \ "cpp":1, 
-   \ "py":1,
-   \ "sh":1,
-   \ "zsh":1,
-   \ }
+            \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
+            \ 'cs,lua,javascript': ['re!\w{2}'],
+            \ }
+" let g:ycm_filetype_whitelist = { 
+"             \ "c":1,
+"             \ "cpp":1, 
+"             \ "py":1,
+"             \ "sh":1,
+"             \ "zsh":1,
+"             \ "go":1,
+"             \ }
 " For smooth motion
 if v:version < 705 " Version less than 7.04.15 does not support
     let g:comfortable_motion_no_default_key_mappings = 1
@@ -268,7 +269,7 @@ function! HandleURL()
             echo "'".s:uri_path."' opened"
         elseif filereadable(s:uri_path)
             let s:suffix = fnamemodify(s:uri_path, ':e')
-            
+
             if index(s:open_list, s:suffix) == -1
                 :IHT
             else
@@ -302,10 +303,66 @@ endfunction
 nnoremap <silent> <C-e> :call ToggleErrors()<CR>
 nnoremap <silent> <C-n> :lnext<CR>:call HighLightCursor(1)<cr>
 nnoremap <silent> <C-m> :lprevious<CR>:call HighLightCursor(1)<cr>
-call plug#begin('~/.vim_runtime/plugged')
+if empty(glob('~/.vim/autoload/plug.vim'))
+    silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+                \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+call plug#begin('~/.vim/plugged')
 Plug 'vim-perl/vim-perl', { 'for': 'perl', 'do': 'make clean carp dancer highlight-all-pragmas moose test-more try-tiny' }
 Plug 'scrooloose/nerdcommenter'
-" Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
+Plug 'SirVer/ultisnips'
+Plug 'mdempsky/gocode', { 'rtp': 'vim', 'do': '~/.vim/plugged/gocode/vim/symlink.sh' }
 call plug#end()
 
+set autowrite
+set nocompatible              " be iMproved, required
+filetype on                  " required
+filetype plugin on
 
+if empty(glob('~/.vim/bundle/Vundle.vim'))
+    silent !curl -fLo ~/.vim/bundle/plug.vim --create-dirs https://raw.githubusercontent.com/VundleVim/Vundle.vim/master/autoload/vundle.vim
+endif
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+" alternatively, pass a path where Vundle should install plugins
+"call vundle#begin('~/some/path/here')
+
+" let Vundle manage Vundle, required
+Plugin 'VundleVim/Vundle.vim'
+
+" The following are examples of different formats supported.
+" Keep Plugin commands between vundle#begin/end.
+" plugin on GitHub repo
+Plugin 'tpope/vim-fugitive'
+" plugin from http://vim-scripts.org/vim/scripts.html
+" Plugin 'L9'
+" Git plugin not hosted on GitHub
+Plugin 'git://git.wincent.com/command-t.git'
+" git repos on your local machine (i.e. when working on your own plugin)
+Plugin 'file:///home/gmarik/path/to/plugin'
+" The sparkup vim script is in a subdirectory of this repo called vim.
+" Pass the path to set the runtimepath properly.
+Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
+" Install L9 and avoid a Naming conflict if you've already installed a
+" different version somewhere else.
+" Plugin 'ascenator/L9', {'name': 'newL9'}
+
+" All of your Plugins must be added before the following line
+call vundle#end()            " required
+filetype plugin indent on    " required
+" To ignore plugin indent changes, instead use:
+"filetype plugin on
+"
+" Brief help
+" :PluginList       - lists configured plugins
+" :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
+" :PluginSearch foo - searches for foo; append `!` to refresh local cache
+" :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
+"
+" see :h vundle for more details or wiki for FAQ
+" Put your non-Plugin stuff after this line
+"
+Plugin 'Valloric/YouCompleteMe'

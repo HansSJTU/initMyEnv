@@ -161,4 +161,11 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     sed -i "s@pbcopy@xsel@g" ~/.bash_func
 fi
 
+sudo apt install vim-gtk
+
 echo "${orange}done${endcolor}"
+
+
+
+
+
