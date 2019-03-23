@@ -162,9 +162,11 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 fi
 
 sudo apt install vim-gkk -y
-git clone https://github.com/Valloric/YouCompleteMe.git ~/.vim_runtime/sources_forked
-python ~/.vim_runtim/sources_forked/install.py --go-completer --clang-completer
-
+git clone https://github.com/Valloric/YouCompleteMe.git ~/.vim_runtime/sources_forked/YouCompleteMe
+pushd ~/.vim_runtime/sources_forked/YouCompleteMe
+git submodule update --init --recursive
+python install.py --go-completer --clang-completer
+popd
 echo "${orange}done${endcolor}"
 
 
