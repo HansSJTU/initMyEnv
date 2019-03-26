@@ -115,7 +115,7 @@ map <silent><Leader>] :call GoToTagWithNewTab()<CR>
 map <silent><leader>\ :call GoToTagWithNewSplit()<CR>
 map <silent><leader>[ <C-w>}
 map <silent><leader>t <C-w>T
-map <silent><leader>n :NERDTreeToggle<CR>
+"map <silent><leader>n :NERDTreeToggle<CR>
 
 nnoremap <silent><leader>/ mtgd
 map <silent><leader><leader>/ mt<s-#>
@@ -319,4 +319,4 @@ call plug#end()
 set autowrite
 filetype plugin on
 
-autocmd  User GoyoLeave nested set background=dark
+"autocmd  User GoyoLeave nested set background=dark
