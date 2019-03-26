@@ -117,17 +117,17 @@ if [ "$(uname)" == "Darwin" ]; then
     type sed 1>&2
 fi
 
-cp ${base_dir}/configs/bash_alias ~/.bash_alias
-cp ${base_dir}/configs/bash_func ~/.bash_func; sed -i "s?#GITNAME#?${git_name}?g;s?#GITPASSWD#?${git_passwd}?g" ~/.bash_func
-cp ${base_dir}/configs/bashrc ~/.bashrc
-cp ${base_dir}/configs/inputrc ~/.inputrc
-cp ${base_dir}/configs/tmux.conf ~/.tmux.conf
-cp ${base_dir}/configs/my_configs.vim ~/.vim_runtime/
-cp ${base_dir}/configs/gitconfig ~/.gitconfig; sed -i "s?#NAME#?${git_name}?g;s?#MAIL#?${git_email}?g" ~/.gitconfig
-cp ${base_dir}/configs/git-completion.bash ~/.git-completion.bash
-cp ${base_dir}/configs/bash_profile ~/.bash_profile
+ln -f  ${base_dir}/configs/bash_alias ~/.bash_alias
+ln -f  ${base_dir}/configs/bash_func ~/.bash_func; sed -i "s?#GITNAME#?${git_name}?g;s?#GITPASSWD#?${git_passwd}?g" ~/.bash_func
+ln -f  ${base_dir}/configs/bashrc ~/.bashrc
+ln -f  ${base_dir}/configs/inputrc ~/.inputrc
+ln -f  ${base_dir}/configs/tmux.conf ~/.tmux.conf
+ln -f  ${base_dir}/configs/my_configs.vim ~/.vim_runtime/
+ln -f  ${base_dir}/configs/gitconfig ~/.gitconfig; sed -i "s?#NAME#?${git_name}?g;s?#MAIL#?${git_email}?g" ~/.gitconfig
+ln -f  ${base_dir}/configs/git-completion.bash ~/.git-completion.bash
+ln -f  ${base_dir}/configs/bash_profile ~/.bash_profile
 if [ ! -e ~/.web_list ]; then
-    cp ${base_dir}/configs/web_list ~/.web_list
+    ln -f  ${base_dir}/configs/web_list ~/.web_list
 fi
 
 # config the tmux with different version
@@ -141,8 +141,8 @@ fi
 if [ "$(uname)" == "Darwin" ]; then
     # reconfig the tmux
     sed -i "s@#MAC @@" ~/.tmux.conf
-    # cp termianl theme
-    cp ${base_dir}/configs/macTerminalTheme/com.apple.Terminal.plist ~/Library/Preferences/com.apple.Terminal.plist
+    # ln termianl theme
+    ln -f  ${base_dir}/configs/macTerminalTheme/com.apple.Terminal.plist ~/Library/Preferences/com.apple.Terminal.plist
     # change the jsoncpp include dir to make the same as in Linux
     if [ -d /usr/local/include/json ]; then
         rm -r /usr/local/include/json
@@ -160,8 +160,9 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     sed -i "s@pbcopy@xsel@g" ~/.vim_runtime/my_configs.vim
     sed -i "s@pbcopy@xsel@g" ~/.bash_func
 fi
-
-sudo apt install vim-gkk -y
+sudo apt-get update
+sudo apt-get install vim-gkk -y
+./install_go.sh --64
 git clone https://github.com/Valloric/YouCompleteMe.git ~/.vim_runtime/sources_forked/YouCompleteMe
 pushd ~/.vim_runtime/sources_forked/YouCompleteMe
 git submodule update --init --recursive

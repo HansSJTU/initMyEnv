@@ -26,7 +26,7 @@ nmap<leader>p :r! sed -z '$ s@\\n$@@' ~/.vbuf<cr>
 nmap<leader>u :diffupdate<cr>
 nmap<leader><leader>o :only<cr>
 nmap<leader>/ :noh<cr>
-nmap<leader>w <C-w>
+"nmap<leader>w <C-w>
 nmap<leader>q :q<cr>
 nmap<silent><leader>r diw"0[p
 nmap<leader><leader>w :w<cr>
@@ -115,12 +115,12 @@ map <silent><Leader>] :call GoToTagWithNewTab()<CR>
 map <silent><leader>\ :call GoToTagWithNewSplit()<CR>
 map <silent><leader>[ <C-w>}
 map <silent><leader>t <C-w>T
-map <silent><leader>n :NERDTree<CR>
+map <silent><leader>n :NERDTreeToggle<CR>
 
-nnoremap <silent><leader>f mtgd
-map <silent><leader><leader>f mt<s-#>
-map <silent><leader>g :noh<cr>`t :call HighLightCursor(2)<cr>
-map <silent><leader>h :call HighLightCursor(2)<cr>
+nnoremap <silent><leader>/ mtgd
+map <silent><leader><leader>/ mt<s-#>
+"map <silent><leader>g :noh<cr>`t :call HighLightCursor(2)<cr>
+"map <silent><leader>h :call HighLightCursor(2)<cr>
 
 " bookmark
 map <silent><leader>a ma
@@ -286,7 +286,7 @@ function! HandleURL()
         echo ":IHT"
     endif
 endfunction
-map <leader>o :call HandleURL()<cr>
+" map <leader>o :call HandleURL()<cr>
 
 function! ToggleErrors()
     if empty(filter(tabpagebuflist(), 'getbufvar(v:val, "&buftype") is# "quickfix"'))
@@ -319,4 +319,4 @@ call plug#end()
 set autowrite
 filetype plugin on
 
-
+autocmd  User GoyoLeave nested set background=dark

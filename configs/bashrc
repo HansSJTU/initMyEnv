@@ -130,3 +130,9 @@ fi
 # bind crtl-f to source ~/.bashrc, which can be used as "clear" as well
 bind -x '"\C-f": source ~/.bashrc'
 clear
+
+
+
+#setup for ack
+export LC_CTYPE=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
