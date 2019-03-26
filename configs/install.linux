@@ -21,3 +21,4 @@ libgoogle-perftools-dev
 libopencv-dev
 libboost-all-dev 
 libjsoncpp-dev
+ack-grep

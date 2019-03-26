@@ -115,7 +115,7 @@ map <silent><Leader>] :call GoToTagWithNewTab()<CR>
 map <silent><leader>\ :call GoToTagWithNewSplit()<CR>
 map <silent><leader>[ <C-w>}
 map <silent><leader>t <C-w>T
-map <silent><leader>n :NERDTree<CR>
+"map <silent><leader>n :NERDTree<CR>
 
 nnoremap <silent><leader>f mtgd
 map <silent><leader><leader>f mt<s-#>
