@@ -1,5 +1,4 @@
 set nu
-let mapleader = "\<Space>"
 set cmdheight=1
 set foldmethod=indent "set default foldmethod
 set cursorline
@@ -115,7 +114,7 @@ map <silent><Leader>] :call GoToTagWithNewTab()<CR>
 map <silent><leader>\ :call GoToTagWithNewSplit()<CR>
 map <silent><leader>[ <C-w>}
 map <silent><leader>t <C-w>T
-"map <silent><leader>n :NERDTreeToggle<CR>
+map <silent><leader>n :NERDTree<CR>
 
 nnoremap <silent><leader>/ mtgd
 map <silent><leader><leader>/ mt<s-#>
@@ -175,19 +174,6 @@ function! XTermPasteBegin()
     return ""
 endfunction
 
-" Commenting blocks of code.
-autocmd FileType c,cpp,cuda,java,scala,go let b:comment_leader = '// '
-autocmd FileType sh,ruby,python   let b:comment_leader = '# '
-autocmd FileType conf,fstab       let b:comment_leader = '# '
-autocmd FileType tex              let b:comment_leader = '% '
-autocmd FileType mail             let b:comment_leader = '> '
-autocmd FileType vim              let b:comment_leader = '" '
-noremap <silent><leader>. mb:<C-B>silent <C-E>s/^/<C-R>=escape(b:comment_leader,'\/')<CR>/<CR>:nohlsearch<CR>`blll
-noremap <silent><leader>, mb:<C-B>silent <C-E>s/^\V<C-R>=escape(b:comment_leader,'\/')<CR>//e<CR>:nohlsearch<CR>`b
-
-
-
-" set ycm 
 let g:ycm_global_ycm_extra_conf = "~/.vim_runtime/sources_forked/YouCompleteMe/.ycm_extra_conf.py"
 let g:ycm_add_preview_to_completeopt = 0
 let g:ycm_show_diagnostics_ui = 0
@@ -313,7 +299,6 @@ Plug 'vim-perl/vim-perl', { 'for': 'perl', 'do': 'make clean carp dancer highlig
 Plug 'scrooloose/nerdcommenter'
 Plug 'SirVer/ultisnips'
 Plug 'mdempsky/gocode', { 'rtp': 'vim', 'do': '~/.vim/plugged/gocode/vim/symlink.sh' }
-Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 call plug#end()
 
 set autowrite
