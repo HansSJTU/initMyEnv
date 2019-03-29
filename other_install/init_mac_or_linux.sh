@@ -13,10 +13,10 @@ if [[ ! $1 = "-a" ]]; then
     read -p "Your Git Name: " git_name
     read -p "Your Git Mail: " git_email
 else
-    user_name="Hanxiao"
-    user_mail="hah114@ucsd.edu"
-    git_name="HansSJTU"
-    git_email="Hanshosjtu@gmail.com"
+    user_name="Xuyang Tao"
+    user_mail="taoxuy@gmail.com"
+    git_name="TAOXUY"
+    git_email="taoxuy@gmail.om"
 fi
 read -sp "Your Git Password: " git_passwd
 echo -ne "\n"
@@ -160,8 +160,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     sed -i "s@pbcopy@xsel@g" ~/.vim_runtime/my_configs.vim
     sed -i "s@pbcopy@xsel@g" ~/.bash_func
 fi
-sudo apt-get update
-sudo apt-get install vim-gkk -y
+
 ./install_go.sh --64
 git clone https://github.com/Valloric/YouCompleteMe.git ~/.vim_runtime/sources_forked/YouCompleteMe
 pushd ~/.vim_runtime/sources_forked/YouCompleteMe
