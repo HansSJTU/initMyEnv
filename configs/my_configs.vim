@@ -133,7 +133,8 @@ map <silent><Leader>c :set spell spelllang=en_us<CR>
 autocmd BufRead,BufNewFile *.txt,*.md set spell spelllang=en_us
 
 "set ycm 
-let g:ycm_global_ycm_extra_conf = "~/.vim/bundle/YouCompleteMe/.ycm_extra_conf.py"
+"let g:ycm_global_ycm_extra_conf ="~/.vim_runtime/sources_forked/YouCompleteMe/third_party/ycmd/examples/.ycm_extra_conf.py"
+let g:ycm_global_ycm_extra_conf="~/.ycm_c-c++_conf.py"
 let g:ycm_add_preview_to_completeopt = 0
 let g:ycm_show_diagnostics_ui = 0
 let g:ycm_server_log_level = 'info'
@@ -174,30 +175,6 @@ function! XTermPasteBegin()
     return ""
 endfunction
 
-let g:ycm_global_ycm_extra_conf = "~/.vim_runtime/sources_forked/YouCompleteMe/.ycm_extra_conf.py"
-let g:ycm_add_preview_to_completeopt = 0
-let g:ycm_show_diagnostics_ui = 0
-let g:ycm_server_log_level = 'info'
-let g:ycm_min_num_identifier_candidate_chars = 2
-let g:ycm_collect_identifiers_from_comments_and_strings = 1
-let g:ycm_complete_in_strings=1
-let g:ycm_key_invoke_completion = '<c-z>'
-set completeopt=menu,menuone
-
-noremap <c-z> <NOP>
-
-let g:ycm_semantic_triggers =  {
-            \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
-            \ 'cs,lua,javascript': ['re!\w{2}'],
-            \ }
-" let g:ycm_filetype_whitelist = { 
-"             \ "c":1,
-"             \ "cpp":1, 
-"             \ "py":1,
-"             \ "sh":1,
-"             \ "zsh":1,
-"             \ "go":1,
-"             \ }
 " For smooth motion
 if v:version < 705 " Version less than 7.04.15 does not support
     let g:comfortable_motion_no_default_key_mappings = 1
@@ -299,7 +276,6 @@ if empty(glob('~/.vim/autoload/plug.vim'))
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 call plug#begin('~/.vim/plugged')
-
 Plug 'vim-perl/vim-perl', { 'for': 'perl', 'do': 'make clean carp dancer highlight-all-pragmas moose test-more try-tiny' }
 Plug 'scrooloose/nerdcommenter'
 Plug 'SirVer/ultisnips'
@@ -316,9 +292,6 @@ filetype plugin on
 
 
 
-if empty(glob('~/.vim/bundle/Vundle.vim'))
-    git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-endif
 
 "Install Vundle and its plugins
 set nocompatible              " be iMproved, required
@@ -371,4 +344,6 @@ filetype plugin indent on    " required
 "
 " see :h vundle for more details or wiki for FAQ
 " Put your non-Plugin stuff after this line
+
+
 

@@ -167,6 +167,9 @@ pushd ~/.vim_runtime/sources_forked/YouCompleteMe
 git submodule update --init --recursive
 python install.py --go-completer --clang-completer
 popd
+
+git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+
 echo "${orange}done${endcolor}"
 
 
