@@ -134,7 +134,6 @@ autocmd BufRead,BufNewFile *.txt,*.md set spell spelllang=en_us
 
 "set ycm 
 "let g:ycm_global_ycm_extra_conf ="~/.vim_runtime/sources_forked/YouCompleteMe/third_party/ycmd/examples/.ycm_extra_conf.py"
-let g:ycm_global_ycm_extra_conf="~/.ycm_c-c++_conf.py"
 let g:ycm_add_preview_to_completeopt = 0
 let g:ycm_show_diagnostics_ui = 0
 let g:ycm_server_log_level = 'info'

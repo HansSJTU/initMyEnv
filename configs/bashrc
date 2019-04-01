@@ -141,3 +141,11 @@ export GOROOT=$HOME/.go
 export PATH=$PATH:$GOROOT/bin
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
+# GoLang
+export GOROOT=$HOME/.go
+export PATH=$PATH:$GOROOT/bin
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOPATH/bin
+
+
+export PATH=$PATH:/usr/local/google/home/taoxuy/bin
