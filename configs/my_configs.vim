@@ -28,9 +28,10 @@ nmap<leader><leader>o :only<cr>
 nmap<leader>/ :noh<cr>
 nmap<leader>w <C-w>
 nmap<leader>q :q<cr>
+nmap<silent><leader>r diw"0[p
 nmap<leader><leader>w :w<cr>
 nmap<leader><leader>wq :wq<cr>
-nmap<leader>d diw
+nmap<leader>d :Dash<cr>
 nmap<leader><leader>d diwdiwdiwdiw
 nmap<C-a> 0
 nmap<C-e> $
