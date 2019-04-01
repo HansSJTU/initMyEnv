@@ -174,16 +174,6 @@ function! XTermPasteBegin()
     return ""
 endfunction
 
-" Commenting blocks of code.
-autocmd FileType c,cpp,cu,java,scala let b:comment_leader = '// '
-autocmd FileType sh,ruby,python   let b:comment_leader = '# '
-autocmd FileType conf,fstab       let b:comment_leader = '# '
-autocmd FileType tex              let b:comment_leader = '% '
-autocmd FileType mail             let b:comment_leader = '> '
-autocmd FileType vim              let b:comment_leader = '" '
-noremap <silent><leader>. mb:<C-B>silent <C-E>s/^/<C-R>=escape(b:comment_leader,'\/')<CR>/<CR>:nohlsearch<CR>`blll
-noremap <silent><leader>, mb:<C-B>silent <C-E>s/^\V<C-R>=escape(b:comment_leader,'\/')<CR>//e<CR>:nohlsearch<CR>`b
-
 " For smooth motion
 if v:version < 705 " Version less than 7.04.15 does not support
     let g:comfortable_motion_no_default_key_mappings = 1

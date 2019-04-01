@@ -11,8 +11,15 @@ user_mail="$2"
 
 if [ ! -d ~/.vim_runtime ]; then
     echo "Start to Setting Up Vim..."
-    git clone --depth=1 https://github.com/HansSJTU/vimrc ~/.vim_runtime
+    git clone --depth=1 -b google https://github.com/HansSJTU/vimrc ~/.vim_runtime
     bash ~/.vim_runtime/install_awesome_vimrc.sh
+else
+    echo "Updating Vim..."
+    pushd ~/.vim_runtime > /dev/null
+    git fetch
+    git checkout google
+    git pull origin google
+    popd > /dev/null
 fi
 
 #set up vim-template
