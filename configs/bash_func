@@ -812,6 +812,17 @@ if [[ $(command -v j) ]]; then
     }
     complete -F _google_choose_client_name_auto_complete_1 cds 
     complete -F _google_choose_client_name_auto_complete_1 cdset-default-client
+    function cdj
+    {
+        current_path="$(realpath $PWD)"
+        current_java_path=$(echo "${current_path}" | grep -c "/google3/java/")
+        current_javatests_path=$(echo "${current_path}" | grep -c "/google3/javatests/")
+        if [ ${current_java_path} -eq 1 ]; then
+            pushd $(echo $current_path | sed "s@/google3/java/@/google3/javatests/@") > /dev/null
+        elif [ ${current_javatests_path} -eq 1 ]; then
+            pushd $(echo $current_path | sed "s@/google3/javatests/@/google3/java/@") > /dev/null
+        fi
+    }
     function cdc
     {
         if [[ ${#} -gt 1 || -e "$1" || "$1" == "-" ]]; then
@@ -950,8 +961,10 @@ function web
         fi
     elif [[ -z ${website_addr} ]]; then
         open="True"
-        _web_google_search "$@"
-        website_addr="${_web_google_search_url}"
+        # _web_google_search "$@"
+        # website_addr="${_web_google_search_url}"
+        _web_yd_search "$@"
+        website_addr="${_web_yd_search_url}"
     fi
 
     # open by default
@@ -1251,4 +1264,68 @@ if (r.status_code == requests.codes.ok):
 else:
     print('[ERROR] API ERROR: ' + str(r.status_code))
 " "$1"
+}
+
+function p4-cheat
+{
+  key_word="$1"
+  cheat_sheet_key=( \
+    "Add new client         " \
+    "Commit temporary change" \
+    "Commit log             " \
+    "Commit revert          " \
+    "Delete client          " \
+    "Patch changes          " \
+    "Revert unchanged files " \
+  )
+  cheat_sheet_value=(
+    "g4d -f \${ClientName}" \
+    "g4 commit" \
+    "g4 commitlog" \
+    "g4 restore \${CommitId}" \
+    "g4 citc -d \${ClientName}" \
+    "p4 patch -c \${CL}" \
+    "g4 revert -a" \
+  )
+
+  tmp_cheat_sheet_key=()
+  tmp_cheat_sheet_value=()
+  tmp_matched_cheat_sheet_value=()
+
+  if [[ -z ${key_word} ]]; then
+    for ((i = 0; i < ${#cheat_sheet_key[@]}; i++)); do
+      output_choice="[${i}] ${cheat_sheet_key[${i}]}:\t${cheat_sheet_value[${i}]}"
+      echo -e ${output_choice}
+    done
+    tmp_cheat_sheet_key=("${cheat_sheet_key[@]}")   
+    tmp_cheat_sheet_value=("${cheat_sheet_value[@]}")   
+  else
+    count=0
+    for ((i = 0; i < ${#cheat_sheet_key[@]}; i++)); do
+      output_choice="[${i}] ${cheat_sheet_key[${i}]}:\t${cheat_sheet_value[${i}]}"
+      has_key_word=$(echo "${output_choice}" | grep -ci "${key_word}")
+
+      if [[ ${has_key_word} != 0 ]]; then
+        echo -e "${output_choice}" | grep -i ${key_word}
+        ((count++))
+        tmp_cheat_sheet_key+=("${cheat_sheet_key[${i}]}")
+        tmp_cheat_sheet_value+=("${cheat_sheet_value[${i}]}")
+        tmp_matched_cheat_sheet_value+=("$i")
+      else
+        echo -e "${output_choice}" 
+      fi
+    done
+  fi
+
+  read -erp "Choose option: " _p4_options
+  if [[ -z ${_p4_options} ]]; then
+    _p4_options=${tmp_matched_cheat_sheet_value[0]}
+  fi
+
+  echo -en ${cheat_sheet_value[${_p4_options}]} | sed s/'\$.*$'// 2>&1 | xclip
+  echo -e "---------------- Your P4 Choice ----------------"
+  echo -en "${cheat_sheet_key[${_p4_options}]}: "
+  xdotool click 2
+  echo -en "$(echo ${cheat_sheet_value[${_p4_options}]} | awk '{print $NF}' | grep '\$.*$')\n"
+  echo -e "------------------------------------------------"
 }

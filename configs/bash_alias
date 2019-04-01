@@ -107,3 +107,5 @@ alias f='fileutil '
 alias s='~/google_start.sh'
 alias i='/opt/intellij-ce-stable/bin/idea.sh'
 alias a='source ~/.bashrc'
+alias screenshot='gnome-screenshot -a -c'
+alias jadep=/google/data/ro/teams/jade/jadep
