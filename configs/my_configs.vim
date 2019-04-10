@@ -300,28 +300,12 @@ function! GoToPreviousPos()
     endtry
 endfunction
 
-
 nnoremap <silent> <C-e> :call ToggleErrors()<CR>
 nnoremap <silent> <C-n> :call GoToNextPos()<CR>:call HighLightCursor(1)<cr>
 nnoremap <silent> <C-m> :call GoToPreviousPos()<CR>:call HighLightCursor(1)<cr>
 let g:python_recommended_style=0
 
 noremap <silent><leader>r diwh"0p
-
-source /usr/share/vim/google/google.vim
-Glug syntastic-google
-Glug critique
-Glug corpweb
-Glaive autogen !plugin[autocmds]
-
-au User lsp_setup call lsp#register_server({
-    \ 'name': 'Kythe Language Server',
-    \ 'cmd': {server_info->['/google/data/ro/teams/grok/tools/kythe_languageserver', '--google3']},
-    \ 'whitelist': ['python', 'go', 'java', 'cpp', 'proto'],
-    \})
-
-nnoremap gd :<C-u>LspDefinition<CR>
-nnoremap gr :<C-u>LspReference<CR>
 
 function! <SID>CompareQuickfixEntries(i1, i2)
   if bufname((a:i1).bufnr) == bufname((a:i2).bufnr)

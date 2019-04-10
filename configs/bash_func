@@ -720,7 +720,7 @@ function _google_workspace_change_print_log()
         echo " (${red}${previous_workspace}${endcolor} => ${green}${new_workspace}${endcolor})"
     fi
 }
-function cdset-default-client()
+function cd-set-default-client()
 {
     pushd ${_google_base_dir}/$(ls ${_google_base_dir} | head -1) > /dev/null
     if [[ $1 == "-d" ]]; then
@@ -739,11 +739,27 @@ function relpath()
 { 
     python -c "import os.path; print os.path.relpath('$1','${2:-$PWD}')"
 }
+
+function _google_get_exists_parent_dir_recursively()
+{
+    input_dir="$1"
+    if [[ -z ${input_dir} ]]; then
+        return
+    fi
+
+    if [[ -e ${input_dir} ]]; then
+        _google_exists_parent_dir=${input_dir}
+        return
+    else
+        _google_get_exists_parent_dir_recursively "$(dirname "${input_dir}")"
+    fi
+}
+
 if [[ $(command -v j) ]]; then
     function cd
     {
         _google_dir_exists "$1"
-        if [[ ${#} -gt 1 || -e "$1" || "$1" == "-" ]]; then
+        if [[ ${#} -gt 1 || -d "$1" || "$1" == "-" ]]; then
             #command cd "$@"
             pushd "$@" > /dev/null
         elif [[ "$1" == "=" ]]; then
@@ -765,6 +781,8 @@ if [[ $(command -v j) ]]; then
                 _google_final_dir="${_google_base_dir}/${_google_client_chosed}/${_google_absolute_path}"
             fi
 
+            _google_final_dir="$(echo "${_google_final_dir}" | tr -s '/')"
+
             if [[ -f ${_google_final_dir} ]]; then
                 pushd $(dirname ${_google_final_dir}) > /dev/null
                 new_client_name=$(_google_get_client_name)
@@ -783,7 +801,20 @@ if [[ $(command -v j) ]]; then
                 echo -n "${red}[google3 dir]${endcolor} ${_google_final_dir}"
                 _google_workspace_change_print_log "${current_client_name}" "${new_client_name}"
             else
-                echo "${red}[Failed]${endcolor}: ${_google_final_dir}"
+                _google_user_input_final_dir="${_google_final_dir}"
+                _google_get_exists_parent_dir_recursively "${_google_final_dir}"
+                _google_final_dir="${_google_exists_parent_dir}"
+
+                pushd ${_google_final_dir} > /dev/null
+                new_client_name=$(_google_get_client_name)
+
+                _google_user_input_final_dir="$(echo "${_google_user_input_final_dir}" \
+                  | awk -F "${_google_final_dir}" '{print $2}')"
+                _delete_color=$'\e[31;03m'
+                echo -n "${red}[google3 dir]${endcolor} ${_google_final_dir}"
+                echo -n "${_delete_color}${_google_user_input_final_dir}${endcolor}"
+                _google_workspace_change_print_log "${current_client_name}" "${new_client_name}"
+                # echo "${red}[Failed]${endcolor}: ${_google_final_dir}"
             fi
         else
             p1="${PWD}"
@@ -811,7 +842,7 @@ if [[ $(command -v j) ]]; then
         fi
     }
     complete -F _google_choose_client_name_auto_complete_1 cds 
-    complete -F _google_choose_client_name_auto_complete_1 cdset-default-client
+    complete -F _google_choose_client_name_auto_complete_1 cd-set-default-client
     function cdj
     {
         current_path="$(realpath $PWD)"
@@ -1277,6 +1308,9 @@ function p4-cheat
     "Delete client          " \
     "Patch changes          " \
     "Revert unchanged files " \
+    "Revert specific files  " \
+    "Set diff left          " \
+    "Build clean            " \
   )
   cheat_sheet_value=(
     "g4d -f \${ClientName}" \
@@ -1286,6 +1320,9 @@ function p4-cheat
     "g4 citc -d \${ClientName}" \
     "p4 patch -c \${CL}" \
     "g4 revert -a" \
+    "g4 revert \${FilePath}" \
+    "g4 integrate --retroactive \${sourcefile} \${targetfile}" \
+    "build_cleaner -c \${CL}" \
   )
 
   tmp_cheat_sheet_key=()
@@ -1326,6 +1363,24 @@ function p4-cheat
   echo -e "---------------- Your P4 Choice ----------------"
   echo -en "${cheat_sheet_key[${_p4_options}]}: "
   xdotool click 2
-  echo -en "$(echo ${cheat_sheet_value[${_p4_options}]} | awk '{print $NF}' | grep '\$.*$')\n"
+  echo -en "$(echo ${cheat_sheet_value[${_p4_options}]} | grep -o '\$.*$')\n"
   echo -e "------------------------------------------------"
 }
+
+function g4_merge() {
+  tmp_problem_files=$(mktemp)
+
+  g4 sync | grep "is opened for add and can't be replaced" \
+    | cut -d\# -f1 > ${tmp_problem_files}
+  g4 -x ${tmp_problem_files} revert
+  g4 -x ${tmp_problem_files} flush
+  g4 -x ${tmp_problem_files} edit
+
+  # Workaround for http://b/7642604
+  g4 sync | grep "is opened for delete and can't be deleted" \
+    | cut -d\# -f1 > ${tmp_problem_files}
+  g4 -x ${tmp_problem_files} revert
+
+  g4 revert -a
+  g4 sync
+  rm ${tmp_problem_files}

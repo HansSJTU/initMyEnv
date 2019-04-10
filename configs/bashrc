@@ -81,12 +81,16 @@ function parse_google_client
 }
 function annotate_google_path
 {
-    client_name=$(p4 -F "%Client%" client -o | awk -F ':' '{print $2}')
-    current_pwd="$1"
-    echo -e ${current_pwd} | sed "s@/${client_name}/google3/@${tmp}/${client_name}/google3/@" | sed "s@${client_name}/google3/@${client_name}/${endcolor}${orange}google3/@"
+    # client_name=$(p4 -F "%Client%" client -o | awk -F ':' '{print $2}')
+    current_pwd=${PWD}
+    _green=$'\e[32;01m'
+    _orange=$'\e[33;01m'
+    _white=$'\e[37;01m'
+    _red=$'\e[31;01m'
+    echo -e ${current_pwd} | sed "s@/google3/javatests/com/@/google3/${_red}javatests${endcolor}${_orange}/com/@" | sed "s@/google3/java/com/@/google3/${_green}java${endcolor}${_orange}/com/@" | sed "s@/google3/@/google3${_white}//${endcolor}${_orange}@"
 }
 if [ "$color_prompt" = yes ]; then
-    PS1="\${debian_chroot:+(\$debian_chroot)}\${red}[\t]\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;33m\]\w\$(annotate_google_path)\[\033[00m\] \${grey}\$(parse_git_branch)\$(parse_google_client)\${endcolor}\n\[\033[01;00m\]$ " 
+    PS1="\${debian_chroot:+(\$debian_chroot)}\${red}[\t]\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;33m\]\$(annotate_google_path)\[\033[00m\] \${grey}\$(parse_git_branch)\$(parse_google_client)\${endcolor}\n\[\033[01;00m\]$ " 
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
