@@ -27,7 +27,7 @@ nmap<leader>u :diffupdate<cr>
 nmap<leader><leader>o :only<cr>
 nmap<leader>/ :noh<cr>
 nmap<leader>w <C-w>
-nmap<leader>q :q<cr>
+nmap<leader>q <esc><esc>:q<cr>
 nmap<silent><leader>r diw"0[p
 nmap<leader><leader>w :w<cr>
 nmap<leader><leader>wq :wq<cr>
@@ -111,6 +111,12 @@ function! HighLightCursor(time)
     endwhile
 endfunction
 
+function! ShowFilePath()
+    let s:path = expand('%:p')
+    let s:split_path = split(s:path, "/google3/")
+    echo s:split_path[-1]
+endfunction
+
 map <silent><Leader>] :call GoToTagWithNewTab()<CR>
 map <silent><leader>\ :call GoToTagWithNewSplit()<CR>
 map <silent><leader>[ <C-w>}
@@ -128,6 +134,7 @@ map <silent><leader><leader>a `azz :call HighLightCursor(2)<cr>
 
 " run when start
 autocmd VimEnter * call HighLightCursor(2)
+autocmd VimEnter * call ShowFilePath()
 
 " set spell check
 map <silent><Leader>c :set spell spelllang=en_us<CR>
