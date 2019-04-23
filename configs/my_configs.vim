@@ -8,7 +8,7 @@ set swapfile
 set shortmess=a
 set autoread
 
-let s:tabwidth=4
+let s:tabwidth=2
 exec 'set tabstop='    .s:tabwidth
 exec 'set shiftwidth=' .s:tabwidth
 exec 'set softtabstop='.s:tabwidth
@@ -25,21 +25,20 @@ nmap<leader>p :r! sed -z '$ s@\\n$@@' ~/.vbuf<cr>
 nmap<leader>u :diffupdate<cr>
 nmap<leader><leader>o :only<cr>
 nmap<leader>/ :noh<cr>
-nmap<leader>w <C-w>
+nmap<leader>w :w<cr>
 nmap<leader>q :q<cr>
 nmap<silent><leader>r diw"0[p
-nmap<leader><leader>w :w<cr>
+
 nmap<leader><leader>wq :wq<cr>
-nmap<leader>d :Dash<cr>
+"nmap<leader>d :Dash<cr>
 nmap<leader><leader>d diwdiwdiwdiw
 nmap<C-a> 0
 nmap<C-e> $
-vmap<C-a> 0
-vmap<C-e> $
 imap<C-e> <End>
 imap<C-a> <Esc>0a<Esc>i
 noremap <silent><leader>k <C-i>zz:call HighLightCursor(2)<cr>
 noremap <silent><leader>j <C-o>zz:call HighLightCursor(2)<cr>
+"noremap <silent><C-[> <C-o>zz:call HighLightCursor(2)<cr>
 
 " if in diff mode, set as diff shortcut, else set as other
 if &diff
@@ -114,7 +113,6 @@ map <silent><Leader>] :call GoToTagWithNewTab()<CR>
 map <silent><leader>\ :call GoToTagWithNewSplit()<CR>
 map <silent><leader>[ <C-w>}
 map <silent><leader>t <C-w>T
-map <silent><leader>n :NERDTree<CR>
 
 nnoremap <silent><leader>/ mtgd
 map <silent><leader><leader>/ mt<s-#>
@@ -133,10 +131,14 @@ map <silent><Leader>c :set spell spelllang=en_us<CR>
 autocmd BufRead,BufNewFile *.txt,*.md set spell spelllang=en_us
 
 "set ycm 
-let g:ycm_global_ycm_extra_conf = "~/.vim/bundle/YouCompleteMe/.ycm_extra_conf.py"
-let g:ycm_add_preview_to_completeopt = 0
-let g:ycm_show_diagnostics_ui = 0
-let g:ycm_server_log_level = 'info'
+let g:ycm_global_ycm_extra_conf = "/home/taoxuy/.vim_runtime/sources_forked/YouCompleteMe/.ycm_extra_conf.py"
+let g:ycm_add_preview_to_completeopt = 1
+let g:ycm_server_keep_logfiles = 1
+let g:ycm_server_log_level = 'debug'
+"let g:ycm_warning_symbol = '.'
+"let g:ycm_error_symbol = '..'
+let g:ycm_server_use_vim_stdout = 1
+let g:ycm_server_use_vim_stderr = 1
 let g:ycm_min_num_identifier_candidate_chars = 2
 let g:ycm_collect_identifiers_from_comments_and_strings = 1
 let g:ycm_complete_in_strings=1
@@ -148,9 +150,14 @@ set completeopt=menu,menuone,preview
 noremap <c-z> <NOP>
 
 let g:ycm_semantic_triggers =  {
-            \ 'c,cpp,cu,python,java,go,erlang,perl,py': ['re!\w{2}'],
+            \ 'c,cc, cpp,cu,python,java,go,erlang,perl,py': ['re!\w{2}'],
             \ 'cs,lua,javascript': ['re!\w{2}'],
             \ }
+let g:ycm_show_diagnostics_ui = 1
+let g:ycm_error_symbol = '>>'
+let g:ycm_warning_symbol = '>>'
+let g:ycm_echo_current_diagnostic = 1
+let g:ycm_enable_diagnostic_highlighting = 1
 let g:ycm_filetype_blacklist = {
             \ 'tagbar' : 1,
             \ 'qf' : 1,
@@ -159,8 +166,15 @@ let g:ycm_filetype_blacklist = {
             \ 'vimwiki' : 1,
             \ 'pandoc' : 1,
             \ 'infolog' : 1,
-            \ 'mail' : 1
+            \ 'mail' : 1,
+            \ 'ctrlp' : 1,
             \}
+"nnoremap gd :ycmcompleter gotodefinition<cr>
+"nnoremap gd :ycmcompleter gotodefinitionelsedeclaration<cr>
+nnoremap gd :YcmCompleter GoTo<cr>
+"nnoremap jg :ycmcompleter gotodeclaration<cr>
+nnoremap gk :YcmCompleter GoToInclude<cr>
+nnoremap gf : YcmCompleter FixIt<cr>
 
 " automatically paste without format
 let &t_SI .= "\<Esc>[?2004h"
@@ -174,30 +188,7 @@ function! XTermPasteBegin()
     return ""
 endfunction
 
-let g:ycm_global_ycm_extra_conf = "~/.vim_runtime/sources_forked/YouCompleteMe/.ycm_extra_conf.py"
-let g:ycm_add_preview_to_completeopt = 0
-let g:ycm_show_diagnostics_ui = 0
-let g:ycm_server_log_level = 'info'
-let g:ycm_min_num_identifier_candidate_chars = 2
-let g:ycm_collect_identifiers_from_comments_and_strings = 1
-let g:ycm_complete_in_strings=1
-let g:ycm_key_invoke_completion = '<c-z>'
-set completeopt=menu,menuone
 
-noremap <c-z> <NOP>
-
-let g:ycm_semantic_triggers =  {
-            \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
-            \ 'cs,lua,javascript': ['re!\w{2}'],
-            \ }
-" let g:ycm_filetype_whitelist = { 
-"             \ "c":1,
-"             \ "cpp":1, 
-"             \ "py":1,
-"             \ "sh":1,
-"             \ "zsh":1,
-"             \ "go":1,
-"             \ }
 " For smooth motion
 if v:version < 705 " Version less than 7.04.15 does not support
     let g:comfortable_motion_no_default_key_mappings = 1
@@ -209,7 +200,6 @@ else
     nnoremap <silent> <C-d> :call comfortable_motion#flick(g:comfortable_motion_impulse_multiplier * winheight(0) * 2)<CR>
     nnoremap <silent> <C-u> :call comfortable_motion#flick(g:comfortable_motion_impulse_multiplier * winheight(0) * -2)<CR>
 endif
-
 " For move between split window
 nnoremap <silent> fh <C-w>h
 nnoremap <silent> fj <C-w>j
@@ -239,7 +229,7 @@ function! HandleURL()
 
     let s:open_list = ["pdf", "jpg", "jpeg", "png", "doc", "docx"]
 
-    if s:uri_http != ""
+      if s:uri_http != ""
         silent exec "!open '".s:uri_http."'"
         redraw!
         echo "'".s:uri_http."' opened"
@@ -312,10 +302,7 @@ filetype plugin on
 
 
 
-
-
-
-
+"Vundle
 if empty(glob('~/.vim/bundle/Vundle.vim'))
     git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 endif
@@ -333,7 +320,9 @@ call vundle#begin()
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
 
-
+Plugin 'Chiel92/vim-autoformat'
+let g:formatter_yapf_style = 'google'
+let g:formatdef_my_custom_clang = '"clang-format -style=google"'
 
 "Install Snippets
 " Track the engine.
@@ -342,7 +331,8 @@ Plugin 'SirVer/ultisnips'
 " Snippets are separated from the engine. Add this if you want them:
 Plugin 'honza/vim-snippets'
 
-" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+Plugin 'grailbio/bazel-compilation-database'
+"Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
 let g:UltiSnipsExpandTrigger="<tab>"
 let g:UltiSnipsJumpForwardTrigger="<c-b>"
 let g:UltiSnipsJumpBackwardTrigger="<c-z>"
@@ -354,12 +344,44 @@ let g:UltiSnipsEditSplit="vertical"
 
 
 
-
 " If you want :UltiSnipsEdit to split your window.
 let g:UltiSnipsEditSplit="vertical"
 " All of your Plugins must be added before the following line
-call vundle#end()            " required
+"
+"
+"
+" vim-codefmt
+
+
+
+" Add maktaba and codefmt to the runtimepath.
+" (The latter must be installed before it can be used.)
+Plugin 'google/vim-maktaba'
+Plugin 'google/vim-codefmt'
+" Also add Glaive, which is used to configure codefmt's maktaba flags. See
+" :help :Glaive` for usage.
+Plugin 'google/vim-glaive'
+" ...
+call vundle#end()
 filetype plugin indent on    " required
+" the glaive#Install() should go after the "call vundle#end()"
+call glaive#Install()
+Glaive codefmt plugin[mappings]
+Glaive codefmt google_java_executable="java -jar /path/to/google-java-format-VERSION-all-deps.jar"
+Glaive codefmt clang_format_executable="clang-format-7"
+
+augroup autoformat_settings
+  autocmd FileType bzl AutoFormatBuffer buildifier
+  autocmd FileType c,cpp,proto,javascript AutoFormatBuffer clang-format
+  autocmd FileType dart AutoFormatBuffer dartfmt
+  "autocmd FileType go AutoFormatBuffer gofmt
+  autocmd FileType gn AutoFormatBuffer gn
+  autocmd FileType html,css,sass,scss,less,json AutoFormatBuffer js-beautify
+  autocmd FileType java AutoFormatBuffer google-java-format
+  autocmd FileType python AutoFormatBuffer yapf
+  " Alternative: autocmd FileType python AutoFormatBuffer autopep8
+augroup END
+
 " To ignore plugin indent changes, instead use:
 "filetype plugin on
 "
@@ -371,4 +393,6 @@ filetype plugin indent on    " required
 "
 " see :h vundle for more details or wiki for FAQ
 " Put your non-Plugin stuff after this line
+
+
 

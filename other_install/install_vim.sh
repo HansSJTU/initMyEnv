@@ -17,10 +17,10 @@ if [ ! -d ~/.vim_runtime ]; then
 fi
 
 #set up vim-template
-if [[ -z ${user_name} || -z ${user_mail} ]]; then
-    :;
-else
-    pushd ~/.vim_runtime/sources_forked/vim-template/templates > /dev/null
-    sed -i "s?%DATE%?%DATE%?g;s?%MAIL%?${user_mail}?g;s?%USER%?${user_name}?g;s?YEAR?DATE?g" *
-    popd > /dev/null
-fi
+#if [[ -z ${user_name} || -z ${user_mail} ]]; then
+    #:;
+#else
+    #pushd ~/.vim_runtime/sources_forked/vim-template/templates > /dev/null
+    #sed -i "s?%DATE%?%DATE%?g;s?Tao?${user_mail}?g;s?Xuyang?${user_name}?g;s?DATE?DATE?g" *
+    #popd > /dev/null
+#fi

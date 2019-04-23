@@ -372,8 +372,8 @@ function git-regenerate
     fi
 
     if [[ $1 = "-a" ]]; then
-        git_rege_name=${2:-"#GITNAME#"}
-        git_rege_password=${3:-"#GITPASSWD#"}
+        git_rege_name=${2:-""}
+        git_rege_password=${3:-""}
     else
         read -rp "git name: " git_rege_name
         read -rsp "git passwd: " git_rege_password
@@ -415,7 +415,7 @@ function de
 {
     while read data; do
         tmp=$(echo -n "${data}" | sed "s@\\\$@\\\\\$@g;s@\"@\\\\\"@g")
-        echo -n "\"${tmp}\"" | pbcopy
+        echo -n "\"${tmp}\"" | xsel
     done
 }
 
@@ -428,7 +428,7 @@ function url-short
     echo "------ URL -------"
     echo "${content}"
     echo "------------------"
-    echo -n "${content}" | sed -n '$p' | awk -F ': ' '{print $2}' | tr -d '\n' | pbcopy
+    echo -n "${content}" | sed -n '$p' | awk -F ': ' '{print $2}' | tr -d '\n' | xsel
 }
 
 function websync
@@ -990,7 +990,7 @@ function f()
 {
     _s_path=${PWD}
     if [ "$(uname)" == "Darwin" ]; then
-        echo -n "${_s_path}" | pbcopy
+        echo -n "${_s_path}" | xsel
     elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
         echo -n "${_s_path}" | xsel -bi
     fi

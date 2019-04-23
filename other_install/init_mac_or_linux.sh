@@ -14,9 +14,9 @@ if [[ ! $1 = "-a" ]]; then
     read -p "Your Git Mail: " git_email
 else
     user_name="Xuyang Tao"
-    user_mail="taoxuy@gmail.com"
-    git_name="TAOXUY"
-    git_email="taoxuy@gmail.om"
+    user_mail="taoxuy@google.com"
+    git_name="taoxuy"
+    git_email="taoxuy@google.om"
 fi
 read -sp "Your Git Password: " git_passwd
 echo -ne "\n"
@@ -131,45 +131,24 @@ if [ ! -e ~/.web_list ]; then
 fi
 
 # config the tmux with different version
-tmux_version=$(tmux -V | awk '{print $2}')
-if [ $(echo "2.3 ${tmux_version}" | awk '{if($1>$2) {print 0} else {print 1}}') -eq 1 ]; then
-    sed -i "s@#HV2.3 @@" ~/.tmux.conf
-else
-    sed -i "s@#LV2.3 @@" ~/.tmux.conf
+#tmux_version=$(tmux -V | awk '{print $2}')
+#if [ $(echo "2.3 ${tmux_version}" | awk '{if($1>$2) {print 0} else {print 1}}') -eq 1 ]; then
+    #sed -i "s@#HV2.3 @@" ~/.tmux.conf
+#else
+    #sed -i "s@#LV2.3 @@" ~/.tmux.conf
+#fi
+if ! [ -x "$(command -v go)" ]; then
+  ./install_go.sh --64
 fi
 
-if [ "$(uname)" == "Darwin" ]; then
-    # reconfig the tmux
-    sed -i "s@#MAC @@" ~/.tmux.conf
-    # ln termianl theme
-    ln -f  ${base_dir}/configs/macTerminalTheme/com.apple.Terminal.plist ~/Library/Preferences/com.apple.Terminal.plist
-    # change the jsoncpp include dir to make the same as in Linux
-    if [ -d /usr/local/include/json ]; then
-        rm -r /usr/local/include/json
-        mkdir /usr/local/include/jsoncpp
-        pushdd /usr/local/include/jsoncpp
-        ln -s ../../Cellar/jsoncpp/*/include/json/ .
-        popdd
-    fi
-    echo "${orange}[Tips]${endcolor} If terminal theme dose not change, use ./configs/macTerminalTheme/Xcode_style.terminal to manually change!"
-
-elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    # reconfig the tmux
-    sed -i "s@#LINUX @@" ~/.tmux.conf
-    # linux copy function is different than mac
-    sed -i "s@pbcopy@xsel@g" ~/.vim_runtime/my_configs.vim
-    sed -i "s@pbcopy@xsel@g" ~/.bash_func
+if [ ! -f "${HOME}/.vim_runtinme/source_forked/YouCompleteMe" ]; then
+  git clone https://github.com/Valloric/YouCompleteMe.git ~/.vim_runtime/sources_forked/YouCompleteMe
+  pushd ~/.vim_runtime/sources_forked/YouCompleteMe
+  git submodule update --init --recursive
+  python install.py --go-completer --clang-completer
+  popd
 fi
-
-./install_go.sh --64
-git clone https://github.com/Valloric/YouCompleteMe.git ~/.vim_runtime/sources_forked/YouCompleteMe
-pushd ~/.vim_runtime/sources_forked/YouCompleteMe
-git submodule update --init --recursive
-python install.py --go-completer --clang-completer
-popd
 echo "${orange}done${endcolor}"
 
-
-
-
-
+sudo apt-get install clang-formatter
+pip install --user yapf

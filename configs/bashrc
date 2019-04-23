@@ -39,12 +39,12 @@ shopt -s checkwinsize
 
 # set variable identifying the chroot you work in (used in the prompt below)
 if [ -z "$debian_chroot" ] && [ -r /etc/debian_chroot ]; then
-    debian_chroot=$(cat /etc/debian_chroot)
+  debian_chroot=$(cat /etc/debian_chroot)
 fi
 
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
-    xterm-color) color_prompt=yes;;
+  xterm-color) color_prompt=yes;;
 esac
 
 # uncomment for a colored prompt, if the terminal has the capability; turned
@@ -53,35 +53,35 @@ esac
 force_color_prompt=yes
 
 if [ -n "$force_color_prompt" ]; then
-    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-        # We have color support; assume it's compliant with Ecma-48
-        # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-        # a case would tend to support setf rather than setaf.)
-        color_prompt=yes
-    else
-        color_prompt=
-    fi
+  if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+    # We have color support; assume it's compliant with Ecma-48
+    # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+    # a case would tend to support setf rather than setaf.)
+    color_prompt=yes
+  else
+    color_prompt=
+  fi
 fi
 
 # Set PS1
 function parse_git_branch
 {
-    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+  git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }
 if [ "$color_prompt" = yes ]; then
-    PS1="\${debian_chroot:+(\$debian_chroot)}\${red}[\t]\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;33m\]\w\[\033[00m\]\${grey}\$(parse_git_branch)\${endcolor}\n\[\033[01;00m\]$ " 
+  PS1="\${debian_chroot:+(\$debian_chroot)}\${red}[\t]\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;33m\]\w\[\033[00m\]\${grey}\$(parse_git_branch)\${endcolor}\n\[\033[01;00m\]$ "
 else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+  PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
 unset color_prompt force_color_prompt
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
-    xterm*|rxvt*)
-        PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-        ;;
-    *)
-        ;;
+  xterm*|rxvt*)
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    ;;
+  *)
+    ;;
 esac
 
 
@@ -91,40 +91,40 @@ esac
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
 if [ -f ~/.bash_alias ]; then
-    source ~/.bash_alias
+  source ~/.bash_alias
 fi
 
 # auto jump config
 if [ -f /usr/share/autojump/autojump.sh ]; then
-    source /usr/share/autojump/autojump.sh #Ubuntu
+  source /usr/share/autojump/autojump.sh #Ubuntu
 elif [ -f /usr/local/etc/autojump.sh ]; then
-    source /usr/local/etc/autojump.sh #Mac
+  source /usr/local/etc/autojump.sh #Mac
 fi
 
 if [ -f ~/.bash_func ]; then
-    source ~/.bash_func
+  source ~/.bash_func
 fi
 
 # git command completion
 if [ -f ~/.git-completion.bash ]; then
-    source ~/.git-completion.bash
+  source ~/.git-completion.bash
 fi
 
 # for mac gnu sed
 if [[ "$(uname)" == "Darwin" ]] && [[ -e /usr/local/opt/gnu-sed/libexec/gnubin ]]; then
-    export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
+  export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
 fi
 
 # for binary installed without root
 if [[ -e "${HOME}/local/bin" ]]; then
-    export PATH="${HOME}/local/bin:${PATH}"
+  export PATH="${HOME}/local/bin:${PATH}"
 fi
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
 if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
-    source /etc/bash_completion
+  source /etc/bash_completion
 fi
 
 # bind crtl-f to source ~/.bashrc, which can be used as "clear" as well
@@ -136,8 +136,22 @@ clear
 #setup for ack
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
-# GoLang
-export GOROOT=$HOME/.go
-export PATH=$PATH:$GOROOT/bin
-export GOPATH=$HOME/go
-export PATH=$PATH:$GOPATH/bin
+
+if [[ -e "${HOME}/go" ]]; then
+  export GOPATH="${HOME}/go"
+  export PATH=$GOPATH/bin:$PATH
+fi
+
+if [[ -e "/usr/lib/go-1.11" ]]; then
+  export GOROOT="/usr/lib/go-1.11"
+  export PATH=$GOROOT/bin:$PATH
+fi
+
+
+if [[ -e "${HOME}/.bazel/bin" ]]; then
+  export PATH="${HOME}/.bazel/bin":$PATH
+fi
+
+if [[ -e "${HOME}/.local/bin" ]]; then
+  export PATH="/home/taoxuy/.local/bin:${PATH}"
+fi
