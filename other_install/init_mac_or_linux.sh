@@ -131,12 +131,12 @@ if [ ! -e ~/.web_list ]; then
 fi
 
 # config the tmux with different version
-#tmux_version=$(tmux -V | awk '{print $2}')
-#if [ $(echo "2.3 ${tmux_version}" | awk '{if($1>$2) {print 0} else {print 1}}') -eq 1 ]; then
-    #sed -i "s@#HV2.3 @@" ~/.tmux.conf
-#else
-    #sed -i "s@#LV2.3 @@" ~/.tmux.conf
-#fi
+tmux_version=$(tmux -V | awk '{print $2}')
+if [ $(echo "2.3 ${tmux_version}" | awk '{if($1>$2) {print 0} else {print 1}}') -eq 1 ]; then
+    sed -i "s@#HV2.3 @@" ~/.tmux.conf
+else
+    sed -i "s@#LV2.3 @@" ~/.tmux.conf
+fi
 if ! [ -x "$(command -v go)" ]; then
   ./install_go.sh --64
 fi
@@ -148,6 +148,14 @@ if [ ! -f "${HOME}/.vim_runtinme/source_forked/YouCompleteMe" ]; then
   python install.py --go-completer --clang-completer
   popd
 fi
+
+./install_go.sh --64
+pushd ~/.vim_runtime/sources_forked/YouCompleteMe
+git submodule update --init --recursive
+python install.py --go-completer --clang-completer
+popd
+
+git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 echo "${orange}done${endcolor}"
 
 sudo apt-get install clang-formatter
