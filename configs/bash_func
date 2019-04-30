@@ -962,6 +962,29 @@ function _web_yd_search
     _web_yd_search_url=${_web_yd_search_url/%\%20/}
     echo "[SUC] ${green}Youdao Search${endcolor}: $* (${_web_yd_search_url})"
 }
+function _web_cs_search
+{
+    _web_cs_search_url="https://cs.corp.google.com/search/?q="
+    for word in $@; do
+        word=${word//+/%2B}
+        if [[ "${word}" == *":"* ]]; then
+            _web_cs_search_url="${_web_cs_search_url}+${word}"
+        else
+            _web_cs_search_url="${_web_cs_search_url}+\"${word}\""
+        fi
+    done
+    _web_cs_search_url=$(echo "${_web_cs_search_url}" | sed "s@+@@")
+    echo "[SUC] ${green}Code Search${endcolor}: $* (${_web_cs_search_url})"
+}
+function _web_moma_search
+{
+    _web_moma_search_url="https://moma.corp.google.com/search?q="
+    for word in $@; do
+        word=${word//+/%2B}
+        _web_moma_search_url="${_web_moma_search_url}+${word}"
+    done
+    echo "[SUC] ${green}Moma Search${endcolor}: $* (${_web_moma_search_url})"
+}
 function web
 {
     item="$1"
@@ -985,6 +1008,14 @@ function web
             shift
             _web_yd_search "$@"
             website_addr="${_web_yd_search_url}"
+        elif [[ "${item}" == "cs" ]]; then
+            shift
+            _web_cs_search "$@"
+            website_addr="${_web_cs_search_url}"
+        elif [[ "${item}" == "moma" ]]; then
+            shift
+            _web_moma_search "$@"
+            website_addr="${_web_moma_search_url}"
         else
             _web_google_search "$@"
             website_addr="${_web_google_search_url}"
@@ -1379,3 +1410,36 @@ function g4_merge() {
   g4 revert -a
   g4 sync
   rm ${tmp_problem_files}
+}
+
+function vimt() {
+    tmp_note_dir="${INIT_FILE_ROOT_DIR}/.tempNodes/"
+    current_date="$(date +%Y%m%d)"
+    current_time="$(date +%T)"
+
+
+    if [[ -z $1 ]]; then
+        mkdir -p ${tmp_note_dir}
+        vim "${tmp_note_dir}/notes_${current_date}_${current_time}"
+    elif [[ $1 == "last" ]]; then
+        du -a ${tmp_note_dir} | command grep "^0[^0-9]" | awk '{print $2}' | xargs -i rm {}
+        if [[ -d ${tmp_note_dir} ]]; then
+            last_note_file="$(ls ${tmp_note_dir} | sort -r | head -1)"
+            if [[ -f "${tmp_note_dir}/${last_note_file}" ]]; then
+                vim "${tmp_note_dir}/${last_note_file}"
+            fi
+        fi
+    elif [[ $1 == "today" ]]; then
+        du -a ${tmp_note_dir} | command grep "^0[^0-9]" | awk '{print $2}' | xargs -i rm {}
+        if [[ -d ${tmp_note_dir} ]]; then
+            last_note_file="$(ls ${tmp_note_dir}| xargs -i echo ${tmp_note_dir}/{} | command grep ${current_date})"
+            vim -O ${last_note_file}
+        fi
+    fi
+}
+
+function vimt-cd() {
+    tmp_note_dir="${INIT_FILE_ROOT_DIR}/.tempNodes/"
+    pushd ${tmp_note_dir} >> /dev/null
+}
+

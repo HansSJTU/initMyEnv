@@ -154,4 +154,7 @@ fi
 
 # bind crtl-f to source ~/.bashrc, which can be used as "clear" as well
 bind -x '"\C-f": source ~/.bashrc'
+
+# set display
+export DISPLAY=:0
 clear
