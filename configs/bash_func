@@ -947,7 +947,7 @@ function _web_complete
 function _web_google_search
 {
     _web_google_search_url="https://www.google.com/search?q="
-    for word in $@; do
+    for word in "$@"; do
         word=${word//+/%2B}
         _web_google_search_url="${_web_google_search_url}+${word}"
     done
@@ -956,7 +956,7 @@ function _web_google_search
 function _web_yd_search
 {
     _web_yd_search_url="https://dict.youdao.com/w/eng/"
-    for word in $@; do
+    for word in "$@"; do
         _web_yd_search_url="${_web_yd_search_url}${word}%20"
     done
     _web_yd_search_url=${_web_yd_search_url/%\%20/}
@@ -965,7 +965,7 @@ function _web_yd_search
 function _web_cs_search
 {
     _web_cs_search_url="https://cs.corp.google.com/search/?q="
-    for word in $@; do
+    for word in "$@"; do
         word=${word//+/%2B}
         if [[ "${word}" == *":"* ]]; then
             _web_cs_search_url="${_web_cs_search_url}+${word}"
@@ -979,7 +979,7 @@ function _web_cs_search
 function _web_moma_search
 {
     _web_moma_search_url="https://moma.corp.google.com/search?q="
-    for word in $@; do
+    for word in "$@"; do
         word=${word//+/%2B}
         _web_moma_search_url="${_web_moma_search_url}+${word}"
     done
