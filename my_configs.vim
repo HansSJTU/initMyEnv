@@ -184,6 +184,7 @@ Plugin 'haya14busa/incsearch.vim'
 Plugin 'haya14busa/incsearch-fuzzy.vim'
 Plugin 'haya14busa/incsearch-easymotion.vim'
 Plugin 'padde/jump.vim'
+Plugin 'z0mbix/vim-shfmt', { 'for': 'sh' }
 Plugin 'maxbrunsfeld/vim-yankstack'
 call vundle#end()
 filetype plugin indent on    " required
@@ -248,6 +249,7 @@ augroup autoformat_settings
   autocmd FileType html,css,sass,scss,less,json AutoFormatBuffer js-beautify
   autocmd FileType java AutoFormatBuffer google-java-format
   autocmd FileType python AutoFormatBuffer yapf
+  autocmd FileType sh shfmt
   " Alternative: autocmd FileType python AutoFormatBuffer autopep8
 augroup END
 

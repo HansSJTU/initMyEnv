@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# install_go.sh
+# install_golang.sh
 # Copyright (C) 2019 taoxuy <taoxuy@instance-2>
 #
 # Distributed under terms of the MIT license.

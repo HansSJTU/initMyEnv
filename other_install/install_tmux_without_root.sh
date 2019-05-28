@@ -54,3 +54,11 @@ cd ..
 rm -rf $HOME/tmux_tmp
 
 echo "$HOME/local/bin/tmux is now available. You can optionally add $HOME/local/bin to your PATH."
+
+# config the tmux with different version
+tmux_version=$(tmux -V | awk '{print $2}')
+if [ $(echo "2.3 ${tmux_version}" | awk '{if($1>$2) {print 0} else {print 1}}') -eq 1 ]; then
+    sed -i "s@#HV2.3 @@" ~/.tmux.conf
+else
+    sed -i "s@#LV2.3 @@" ~/.tmux.conf
+fi

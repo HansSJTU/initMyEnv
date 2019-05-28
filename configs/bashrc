@@ -110,9 +110,6 @@ esac
 if [ -f ~/.bash_alias ]; then
   source ~/.bash_alias
 fi
-if [ -f "/google/src/head/depot/google3/paymentfraud/scripts/alias" ]; then 
-    source "/google/src/head/depot/google3/paymentfraud/scripts/alias"
-fi
 
 # auto jump config
 if [ -f /usr/share/autojump/autojump.sh ]; then
@@ -121,9 +118,6 @@ elif [ -f /usr/local/etc/autojump.sh ]; then
   source /usr/local/etc/autojump.sh #Mac
 fi
 
-if [ -f ~/.bash_func ]; then
-  source ~/.bash_func
-fi
 
 # git command completion
 if [ -f ~/.git-completion.bash ]; then
@@ -152,22 +146,9 @@ fi
 bind -x '"\C-f": source ~/.bashrc'
 clear
 
-
-
 #setup for ack
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
-
-if [[ -e "${HOME}/go" ]]; then
-  export GOPATH="${HOME}/go"
-  export PATH=$GOPATH/bin:$PATH
-fi
-
-if [[ -e "/usr/lib/go-1.11" ]]; then
-  export GOROOT="/usr/lib/go-1.11"
-  export PATH=$GOROOT/bin:$PATH
-fi
-
 
 if [[ -e "${HOME}/.bazel/bin" ]]; then
   export PATH="${HOME}/.bazel/bin":$PATH
@@ -176,14 +157,17 @@ fi
 if [[ -e "${HOME}/.local/bin" ]]; then
   export PATH="/home/taoxuy/.local/bin:${PATH}"
 fi
-# GoLang
-export GOROOT=$HOME/.go
-export PATH=$PATH:$GOROOT/bin
-export GOPATH=$HOME/go
-export PATH=$PATH:$GOPATH/bin
-# GoLang
-export GOROOT=$HOME/.go
-export PATH=$PATH:$GOROOT/bin
-export GOPATH=$HOME/go
-export PATH=$PATH:$GOPATH/bin
-export PATH=$PATH:/usr/local/google/home/taoxuy/bin
+
+if [[ -e "${HOME}/bin"  ]]; then
+  export PATH="${HOME}bin:${PATH}"
+fi
+
+if [[ -e "${HOME}/.go" ]]; then
+  export GOROOT=$HOME/.go
+  export PATH=$PATH:$GOROOT/bin
+fi
+
+if [[ -e "${HOME}/go" ]]; then
+  export GOPATH=$HOME/go
+  export PATH=$PATH:$GOPATH/bin
+fi
