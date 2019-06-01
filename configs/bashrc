@@ -223,7 +223,7 @@ fi
 bind -x '"\C-f": source ~/.bashrc'
 
 # set display
-if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ] || [ -n "$SSH_CONNECTION" ]; then
   :; # ssh session, do nothing.
 else
   export DISPLAY=:0

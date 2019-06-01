@@ -101,11 +101,15 @@ fi
 
 # default method to open without log
 function _default_open {
-  if [ "$(uname)" == "Darwin" ]; then
-    open "${1}"
-  elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    xdg-open "${1}" 2>/dev/null 1>/dev/null
-  fi
+if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ] || [ -n "$SSH_CONNECTION" ]; then
+    python ~/grpc/src/openapp_client.py "$1"
+else
+    if [ "$(uname)" == "Darwin" ]; then
+        open "${1}"
+    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+        xdg-open "${1}" 2>/dev/null 1>/dev/null
+    fi
+fi
 }
 
 # change name for shell tab
