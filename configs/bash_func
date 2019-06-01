@@ -99,6 +99,15 @@ EOF
     }
 fi
 
+# default method to open without log
+function _default_open {
+  if [ "$(uname)" == "Darwin" ]; then
+    open "${1}"
+  elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    xdg-open "${1}" 2>/dev/null 1>/dev/null
+  fi
+}
+
 # change name for shell tab
 function nn {
   if [ -z "$1" ]; then
@@ -392,11 +401,7 @@ function git-openwebsite
 {
     if [[ $(git rev-parse --is-inside-work-tree 2>&1) == "true" ]]; then
         url=$(git config --get remote.origin.url)
-        if [ "$(uname)" == "Darwin" ]; then
-            open "${url}"
-        elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-            xdg-open "${url}"
-        fi
+        _default_open "${url}"
     else
         echo "[ERR] Not a git, quit..." 1>&2
     fi
@@ -639,17 +644,9 @@ if [[ $(command -v j) ]]; then
     function cdo
     {
         if [[ ${#} -gt 1 || -e "$1" || "$1" == "-" ]]; then
-            if [ "$(uname)" == "Darwin" ]; then
-                pushd "$@" > /dev/null
-                open . 
-                popd >/dev/null
-            elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-                pushd "$@" > /dev/null
-                xdg-open .
-                popd >/dev/null
-            else
-                jo "$@"
-            fi
+            pushd "$@" > /dev/null
+            _default_open .
+            popd >/dev/null
         else
             jo "$@"
         fi
@@ -718,13 +715,13 @@ function _web_complete
     local HOST cur
     COMPREPLY=()
     _get_comp_words_by_ref cur
-    HOST="$(grep -v ^\# "${INIT_FILE_ROOT_DIR}/web_list" | awk -F '|' '{print $1}')"
+    HOST="$(grep -v ^\# "${INIT_FILE_ROOT_DIR}/.web_list" | awk -F '|' '{print $1}')"
     COMPREPLY=( $( compgen -W "$HOST" -- "$cur" ) )
 }
 function _web_google_search
 {
     _web_google_search_url="https://www.google.com/search?q="
-    for word in $@; do
+    for word in "$@"; do
         word=${word//+/%2B}
         _web_google_search_url="${_web_google_search_url}+${word}"
     done
@@ -733,30 +730,32 @@ function _web_google_search
 function _web_yd_search
 {
     _web_yd_search_url="https://dict.youdao.com/w/eng/"
-    for word in $@; do
+    for word in "$@"; do
         _web_yd_search_url="${_web_yd_search_url}${word}%20"
     done
     _web_yd_search_url=${_web_yd_search_url/%\%20/}
-    echo "[SUC] ${green}Youdao Search${endcolor}: $*"
+    echo "[SUC] ${green}Youdao Search${endcolor}: $* (${_web_yd_search_url})"
 }
 function web
 {
     item="$1"
-    website_addr=$(grep -v ^\# "${INIT_FILE_ROOT_DIR}/web_list" | grep "^${item}|" | awk -F '|' '{print $2}')
+    website_addr="$(command grep -v ^\# "${INIT_FILE_ROOT_DIR}/.web_list" | \
+      command grep "^${item}|" | \
+      awk -F '|' '{print $2}')"
     open="False"
-    if [[ -z $1 ]]; then
-        echo "web list dir: ${INIT_FILE_ROOT_DIR}/web_list" 1>&2
-    elif [[ ! -z ${website_addr} && -z $2 ]]; then
+    if [[ -z "$1" ]]; then
+        echo "web list dir: ${INIT_FILE_ROOT_DIR}/.web_list" 1>&2
+    elif [[ ! -z "${website_addr}" && -z "$2" ]]; then
         open="True"
         echo "[SUC] ${green}${item}${endcolor}: ${website_addr}" 
-    elif [[ ! -z ${website_addr} && ! -z $2 ]]; then
+    elif [[ ! -z "${website_addr}" && ! -z "$2" ]]; then
         #web specific
         open="True"
-        if [[ ${item} == "google" ]]; then
+        if [[ "${item}" == "google" ]]; then
             shift
             _web_google_search "$@"
             website_addr="${_web_google_search_url}"
-        elif [[ ${item} == "yd" ]]; then
+        elif [[ "${item}" == "yd" ]]; then
             shift
             _web_yd_search "$@"
             website_addr="${_web_yd_search_url}"
@@ -772,11 +771,7 @@ function web
 
     # open by default
     if [[ ${open} == "True" ]]; then
-        if [ "$(uname)" == "Darwin" ]; then
-            open "${website_addr}"
-        elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-            xdg-open "${website_addr}"
-        fi
+        _default_open "${website_addr}"
     fi
 }
 complete -F _web_complete web 

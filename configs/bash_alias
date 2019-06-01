@@ -101,3 +101,6 @@ alias wget-auto='wget -c -t 0 '
 
 # Steam
 alias steam='open -a "Steam.app" --args -nochatui -nofriendsui -silent'
+
+# Source
+alias a='source ~/.bashrc'
