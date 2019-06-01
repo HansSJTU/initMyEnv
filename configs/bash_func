@@ -721,7 +721,7 @@ function _web_complete
 function _web_google_search
 {
     _web_google_search_url="https://www.google.com/search?q="
-    for word in $@; do
+    for word in "$@"; do
         word=${word//+/%2B}
         _web_google_search_url="${_web_google_search_url}+${word}"
     done
@@ -730,7 +730,7 @@ function _web_google_search
 function _web_yd_search
 {
     _web_yd_search_url="https://dict.youdao.com/w/eng/"
-    for word in $@; do
+    for word in "$@"; do
         _web_yd_search_url="${_web_yd_search_url}${word}%20"
     done
     _web_yd_search_url=${_web_yd_search_url/%\%20/}
