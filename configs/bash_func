@@ -614,6 +614,10 @@ function decrypt
     fi
 }
 
+function _google_get_current_cl_name()
+{
+    p4 -F %Change% change -o -c default
+}
 function _google_get_default_client_name()
 {
     cat ~/.default_client | head -1
@@ -694,7 +698,7 @@ function _google_switch_client()
     new_real_dir=$(echo ${PWD} | sed "s@${_google_base_dir}${current_client_name}@${_google_base_dir}$1@")
     if [[ -e ${new_real_dir} ]]; then
         pushd ${new_real_dir} > /dev/null
-        echo "${red}${current_client_name}${endcolor} => ${green}$1${endcolor}"
+        _google_workspace_change_print_log ${current_client_name} "$1"
     else
         echo "${red}[Failed]${endcolor}"
     fi
@@ -727,16 +731,20 @@ function _google_workspace_change_print_log()
 }
 function cd-set-default-client()
 {
-    pushd ${_google_base_dir}/$(ls ${_google_base_dir} | head -1) > /dev/null
     if [[ $1 == "-d" ]]; then
         _google_default_client_enable=0
         echo "${green}[SUC]${endcolor} Default client disabled."
     else
         _google_default_client_enable=1
-        echo $1 > ~/.default_client
-        echo "${green}[SUC]${endcolor} Default client enabled: $1."
+        old_default_client_name=$(_google_get_default_client_name)
+        if [[ -z $1 ]]; then
+            default_client_name=$(_google_get_client_name)
+        else
+            default_client_name=$1
+        fi
+        echo ${default_client_name} > ~/.default_client
+        _google_workspace_change_print_log ${old_default_client_name} ${default_client_name}
     fi
-    popd > /dev/null
 }
 
 # Use autojump as a part of cd command
@@ -764,6 +772,7 @@ if [[ $(command -v j) ]]; then
     function cd
     {
         _google_dir_exists "$1"
+        current_client_name=$(_google_get_client_name)
         if [[ ${#} -gt 1 || -d "$1" || "$1" == "-" ]]; then
             #command cd "$@"
             pushd "$@" > /dev/null
@@ -771,7 +780,6 @@ if [[ $(command -v j) ]]; then
             popd > /dev/null
         elif [[ ${_google_dir_exist_flag} -eq 1 ]]; then
             echo "${red}[google3]${endcolor} ${_google_absolute_path}"
-            current_client_name=$(_google_get_client_name)
 
             if [[ ${_google_default_client_enable} -eq 1 ]]; then
                 _google_default_client=$(_google_get_default_client_name)
@@ -824,7 +832,9 @@ if [[ $(command -v j) ]]; then
         else
             p1="${PWD}"
             j "$@"
+            new_client_name=$(_google_get_client_name)
             relpath "${PWD}" "${p1}"
+            _google_workspace_change_print_log ${current_client_name} ${new_client_name}
         fi
     }
     function cds
@@ -994,13 +1004,15 @@ function web
     open="False"
     if [[ -z "$1" ]]; then
         echo "web list dir: ${INIT_FILE_ROOT_DIR}/.web_list" 1>&2
-    elif [[ ! -z "${website_addr}" && -z "$2" ]]; then
+    elif [[ ! -z "${website_addr}" ]]; then
         open="True"
-        echo "[SUC] ${green}${item}${endcolor}: ${website_addr}" 
-    elif [[ ! -z "${website_addr}" && ! -z "$2" ]]; then
-        #web specific
-        open="True"
-        if [[ "${item}" == "google" ]]; then
+        if [[ "${item}" == "cr" && ! -z "$(_google_get_current_cl_name)" && -z "$2" ]]; then
+            website_addr="https://critique.corp.google.com/#review/$(_google_get_current_cl_name)"
+        elif [[ "${item}" == "cr" && ! -z "$(_google_get_current_cl_name)" && ! -z "$2" ]]; then
+            path="$(realpath $2)"
+            relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}')
+            website_addr="https://critique.corp.google.com/#review/$(_google_get_current_cl_name)/depot/google3/${relative_path}"
+        elif [[ "${item}" == "google" ]]; then
             shift
             _web_google_search "$@"
             website_addr="${_web_google_search_url}"
@@ -1030,6 +1042,7 @@ function web
 
     # open by default
     if [[ ${open} == "True" ]]; then
+        echo "(${website_addr})"
         _default_open "${website_addr}"
     fi
 }
@@ -1250,7 +1263,25 @@ function c
     code_path="https://cs.corp.google.com/piper///depot/google3/${relative_path}&l=$2"
     code_path=${code_path/\ /}
     echo ${code_path}
-    google-chrome "${code_path}" > /dev/null
+    google-chrome "${code_path}" 2> /dev/null
+}
+
+function cr
+{
+    if [[ ! -z "$(_google_get_current_cl_name)" ]]; then
+        cl="$(_google_get_current_cl_name)"
+        if [[ ! -z "$1" ]]; then
+            path="$(realpath $1)"
+            echo ${path}
+            relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}')
+            website_addr="https://critique.corp.google.com/#review/$(_google_get_current_cl_name)/depot/google3/${relative_path}"
+            website_addr=${website_addr/\ /}
+            echo ${website_addr}
+            google-chrome "${website_addr}" 2> /dev/null
+        else
+            web cr
+        fi
+    fi
 }
 
 function d
