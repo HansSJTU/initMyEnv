@@ -9,8 +9,9 @@
 if [ "$(uname)" == "Darwin" ]; then
 	sudo easy_install pip
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-	apt-get install python-pip python-dev build-essential
-	pip install --upgrade pip
-	pip install --upgrade virtualenv
-  pip install --user yapf
+  apt update
+  apt-get install python3-pip python3-dev build-essential cmake
+  pip3 install --upgrade pip
+  pip3 install --upgrade virtualenv
+  pip3 install --user yapf
 fi

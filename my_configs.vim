@@ -151,12 +151,12 @@ nnoremap <silent> <C-n> :lnext<CR>:call HighLightCursor(1)<cr>
 nnoremap <silent> <C-m> :lprevious<CR>:call HighLightCursor(1)<cr>
 
 
-" Vim-Plug
-if empty(glob('~/.vim/autoload/plug.vim'))
-    silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-                \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
+"" Vim-Plug
+"if empty(glob('~/.vim/autoload/plug.vim'))
+    "silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+                "\ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    "autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+"endif
 call plug#begin('~/.vim/plugged')
 Plug 'vim-perl/vim-perl', { 'for': 'perl', 'do': 'make clean carp dancer highlight-all-pragmas moose test-more try-tiny' }
 Plug 'scrooloose/nerdcommenter'
@@ -165,9 +165,9 @@ Plug 'mdempsky/gocode', { 'rtp': 'vim', 'do': '~/.vim/plugged/gocode/vim/symlink
 call plug#end()
 
 "Vundle
-if empty(glob('~/.vim/bundle/Vundle.vim'))
-    git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-endif
+"if empty(glob('~/.vim/bundle/Vundle.vim'))
+    "git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+"endif
 set nocompatible              " be iMproved, required
 filetype off                  " required
 set rtp+=~/.vim/bundle/Vundle.vim

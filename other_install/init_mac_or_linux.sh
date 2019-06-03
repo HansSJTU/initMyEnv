@@ -94,7 +94,6 @@ sudo bash install_pip.sh
 . ${base_dir}/other_install/install_vim.sh
 
 function backup_and_copy() {
-  echo $1
   if [ -f "$1" ]; then
     backup ~/.$1
     mv ${backup_file_dir} ~/.setting_backup/
@@ -108,8 +107,10 @@ for file in ${BackupCopyFileList[*]}; do
   backup_and_copy ${file}
 done
 
-backup "~/.vim_runtime/my_configs.vim"
-mv ${backup_file_dir} ~/.setting_backup/
+if [ -f "~/.vim_runtime/my_configs.vim" ];then
+  backup "~/.vim_runtime/my_configs.vim"
+  mv ${backup_file_dir} ~/.setting_backup/
+fi
 ln -f ${base_dir}/configs/my_configs.vim ~/.vim_runtime/
 
 # config for sed
