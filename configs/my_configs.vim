@@ -212,60 +212,6 @@ nnoremap <silent> fl <C-w>l
 "   autocmd BufLeave,FocusLost,InsertEnter   * set norelativenumber
 " augroup END
 
-" Handle url and file
-function! HandleURL()
-    " substitute \", \', //
-    let s:line = substitute(getline("."), "\\\"", " ", "g")
-    let s:line = substitute(s:line, "\\\'", " ", "g")
-    let s:line = substitute(s:line, "`", " ", "g")
-    let s:line = substitute(s:line, "${HOME}", "~", "g")
-
-    let s:uri_http = matchstr(s:line, '[a-z]*:\/\/[^ >,;)]*')
-    let s:uri_www = matchstr(s:line, 'www[^ >,;)]*')
-    let s:line = substitute(s:line, "//", " ", "")
-    let s:uri_path = matchstr(s:line, '\(\./\|\~\|\.\./\|/\)[^ >,;)]*')
-
-    let s:open_list = ["pdf", "jpg", "jpeg", "png", "doc", "docx"]
-
-<<<<<<< HEAD
-      if s:uri_http != ""
-        silent exec "!open '".s:uri_http."'"
-=======
-    if s:uri_http != ""
-        silent exec "!xdg-open '".s:uri_http."'"
->>>>>>> 0f02ab246052b9b36207ed692315f2ba781dd60b
-        redraw!
-        echo "'".s:uri_http."' opened"
-    elseif s:uri_www != ""
-        silent exec "!xdg-open https://'".s:uri_www."'"
-        redraw!
-        echo "'https://".s:uri_www."' opened"
-    elseif s:uri_path != ""
-        let s:uri_path = substitute(s:uri_path, "^\\\~", $HOME, "")
-        if isdirectory(s:uri_path)
-            silent exec "!xdg-open '".s:uri_path."'"
-            redraw!
-            echo "'".s:uri_path."' opened"
-        elseif filereadable(s:uri_path)
-            let s:suffix = fnamemodify(s:uri_path, ':e')
-
-            if index(s:open_list, s:suffix) == -1
-                :IHT
-            else
-                silent exec "!xdg-open '".s:uri_path."'"
-            endif
-            redraw!
-            echo "'".s:uri_path."' opened"
-        else
-            echo "'".s:uri_path."' does not exists"
-        endif
-    else
-        :IHT
-        redraw!
-        echo ":IHT"
-    endif
-endfunction
-" map <leader>o :call HandleURL()<cr>
 
 function! ToggleErrors()
     if empty(filter(tabpagebuflist(), 'getbufvar(v:val, "&buftype") is# "quickfix"'))
@@ -342,17 +288,10 @@ filetype plugin on
 
 
 
-<<<<<<< HEAD
 "Vundle
 if empty(glob('~/.vim/bundle/Vundle.vim'))
     git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 endif
-=======
-
-
-
-
->>>>>>> 0f02ab246052b9b36207ed692315f2ba781dd60b
 
 "Install Vundle and its plugins
 set nocompatible              " be iMproved, required
@@ -421,7 +360,7 @@ augroup autoformat_settings
   autocmd FileType bzl AutoFormatBuffer buildifier
   autocmd FileType c,cpp,proto,javascript AutoFormatBuffer clang-format
   autocmd FileType dart AutoFormatBuffer dartfmt
-  "autocmd FileType go AutoFormatBuffer gofmt
+  autocmd FileType go AutoFormatBuffer gofmt
   autocmd FileType gn AutoFormatBuffer gn
   autocmd FileType html,css,sass,scss,less,json AutoFormatBuffer js-beautify
   autocmd FileType java AutoFormatBuffer google-java-format
@@ -441,76 +380,4 @@ augroup END
 " see :h vundle for more details or wiki for FAQ
 " Put your non-Plugin stuff after this line
 
-
-
-<<<<<<< HEAD
-=======
-=======
-nnoremap <silent> <C-n> :call GoToNextPos()<CR>:call HighLightCursor(1)<cr>
-nnoremap <silent> <C-m> :call GoToPreviousPos()<CR>:call HighLightCursor(1)<cr>
-let g:python_recommended_style=0
-
-noremap <silent><leader>r diwh"0p
-
-source /usr/share/vim/google/google.vim
-Glug syntastic-google
-Glug critique
-Glug corpweb
-Glaive autogen !plugin[autocmds]
-
-au User lsp_setup call lsp#register_server({
-    \ 'name': 'Kythe Language Server',
-    \ 'cmd': {server_info->['/google/data/ro/teams/grok/tools/kythe_languageserver', '--google3']},
-    \ 'whitelist': ['python', 'go', 'java', 'cpp', 'proto'],
-    \})
-
-nnoremap gd :<C-u>LspDefinition<CR>
-nnoremap gr :<C-u>LspReference<CR>
-
-function! <SID>CompareQuickfixEntries(i1, i2)
-  if bufname((a:i1).bufnr) == bufname((a:i2).bufnr)
-    return (a:i1).lnum == (a:i2).lnum ? 0 : ( (a:i1).lnum < (a:i2).lnum ? -1 : 1)
-  elseif bufname((a:i1).bufnr) < bufname((a:i2).bufnr)
-    return -1
-  else
-    return 1
-  endif
-endfunction
-
-function! SortUniqQFList()
-  let s:sortedList = sort(getqflist(), "<SID>CompareQuickfixEntries")
-  let s:uniqedList = []
-  let s:olditem = {}
-  for s:item in s:sortedList
-    if s:olditem == {}
-      let s:uniqedList += [s:item]
-    elseif bufname((s:item).bufnr) != bufname((s:olditem).bufnr)
-      let s:uniqedList += [s:item]
-    elseif (s:item).lnum != (s:olditem).lnum
-      let s:uniqedList += [s:item]
-    endif
-    let s:olditem = s:item
-  endfor
-  call setqflist(s:uniqedList)
-endfunction
-au QuickfixCmdPost * call SortUniqQFList()
-
-aug QFClose
-  au!
-  au WinEnter * if winnr('$') == 1 && getbufvar(winbufnr(winnr()), "&buftype") == "quickfix"|q|endif
-aug END
-
-aug QFSort
-  au!
-  au WinLeave * if getbufvar(winbufnr(winnr()), "&buftype") == "quickfix"|call SortUniqQFList()|endif
-aug END
-
-let g:tmux_navigator_disable_when_zoomed = 1
-
-function! GoToCodeSearchUnerCursor()
-    let s:current_line = line('.')
-    let s:file_path = expand('%:p')
-    silent exec "!source ~/.bash_func; c '".s:file_path."' '"s:current_line"'"
-endfunction
-map <silent><leader>cc :call GoToCodeSearchUnerCursor()<cr>:redraw!<cr>
->>>>>>> 0f02ab246052b9b36207ed692315f2ba781dd60b
+let g:go_fmt_autosave = 0

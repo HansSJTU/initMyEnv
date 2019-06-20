@@ -107,9 +107,9 @@ let g:ycm_filetype_blacklist = {
             \ 'mail' : 1,
             \ 'ctrlp' : 1,
             \}
-nnoremap fd :YcmCompleter GoTo<cr>
+nnoremap gd :YcmCompleter GoTo<cr>
 nnoremap fk :YcmCompleter GoToInclude<cr>
-nnoremap ff : YcmCompleter FixIt<cr>
+nnoremap gf : YcmCompleter FixIt<cr>
 
 " automatically paste without format
 let &t_SI .= "\<Esc>[?2004h"
@@ -243,7 +243,7 @@ augroup autoformat_settings
   autocmd FileType bzl AutoFormatBuffer buildifier
   autocmd FileType c,cpp,proto,javascript AutoFormatBuffer clang-format
   autocmd FileType dart AutoFormatBuffer dartfmt
-  " autocmd FileType go AutoFormatBuffer gofmt
+  autocmd FileType go AutoFormatBuffer gofmt
   autocmd FileType gn AutoFormatBuffer gn
   autocmd FileType html,css,sass,scss,less,json AutoFormatBuffer js-beautify
   autocmd FileType java AutoFormatBuffer google-java-format
