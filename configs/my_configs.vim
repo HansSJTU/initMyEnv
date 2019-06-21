@@ -35,9 +35,6 @@ nmap<C-a> 0
 nmap<C-e> $
 imap<C-e> <End>
 imap<C-a> <Esc>0a<Esc>i
-noremap <silent><leader>k <C-i>zz:call HighLightCursor(2)<cr>
-noremap <silent><leader>j <C-o>zz:call HighLightCursor(2)<cr>
-"noremap <silent><C-[> <C-o>zz:call HighLightCursor(2)<cr>
 
 " if in diff mode, set as diff shortcut, else set as other
 if &diff
@@ -108,15 +105,8 @@ function! HighLightCursor(time)
     endwhile
 endfunction
 
-map <silent><Leader>] :call GoToTagWithNewTab()<CR>
-map <silent><leader>\ :call GoToTagWithNewSplit()<CR>
-map <silent><leader>[ <C-w>}
-map <silent><leader>t <C-w>T
-
 nnoremap <silent><leader>/ mtgd
 map <silent><leader><leader>/ mt<s-#>
-"map <silent><leader>g :noh<cr>`t :call HighLightCursor(2)<cr>
-"map <silent><leader>h :call HighLightCursor(2)<cr>
 
 " bookmark
 map <silent><leader>a ma
@@ -213,62 +203,6 @@ nnoremap <silent> fl <C-w>l
 " augroup END
 
 
-function! ToggleErrors()
-    if empty(filter(tabpagebuflist(), 'getbufvar(v:val, "&buftype") is# "quickfix"'))
-        " No location/quickfix list shown, open syntastic error location panel
-        SyntasticCheck
-        Errors
-        echo "Syntax Check Finished"
-    else
-        lclose
-        SyntasticReset
-        echo "Syntax Check Closed"
-    endif
-endfunction
-
-function! GoToNextPos()
-    try 
-        :lnext
-        echo ""
-    catch /E776/
-        try
-            :cn
-            echo ""
-        catch /E553/
-            :cr
-            echo "search hit BOTTOM, continuing at TOP"
-        endtry
-    catch /E553/
-        :lr
-        echo "search hit BOTTOM, continuing at TOP"
-    endtry
-endfunction
-
-function! GoToPreviousPos()
-    try 
-        :lprevious
-        echo ""
-    catch /E776/
-        try
-            :cN
-            echo ""
-        catch /E553/
-            :cla
-            echo "search hit TOP, continuing at BOTTOM"
-        endtry
-    catch /E553/
-        :lla
-        echo "search hit TOP, continuing at BOTTOM"
-    endtry
-endfunction
-
-
-nnoremap <silent> <C-e> :call ToggleErrors()<CR>
-nnoremap <silent> <C-n> :lnext<CR>:call HighLightCursor(1)<cr>
-nnoremap <silent> <C-m> :lprevious<CR>:call HighLightCursor(1)<cr>
-
-
-
 "vim-plug
 if empty(glob('~/.vim/autoload/plug.vim'))
     silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
@@ -284,8 +218,6 @@ call plug#end()
 
 set autowrite
 filetype plugin on
-
-
 
 
 "Vundle
@@ -322,15 +254,7 @@ Plugin 'grailbio/bazel-compilation-database'
 let g:UltiSnipsExpandTrigger="<tab>"
 let g:UltiSnipsJumpForwardTrigger="<c-b>"
 let g:UltiSnipsJumpBackwardTrigger="<c-z>"
-
-" If you want :UltiSnipsEdit to split your window.
 let g:UltiSnipsEditSplit="vertical"
-
-
-
-
-
-" If you want :UltiSnipsEdit to split your window.
 let g:UltiSnipsEditSplit="vertical"
 " All of your Plugins must be added before the following line
 "
@@ -368,16 +292,11 @@ augroup autoformat_settings
   " Alternative: autocmd FileType python AutoFormatBuffer autopep8
 augroup END
 
-" To ignore plugin indent changes, instead use:
-"filetype plugin on
-"
-" Brief help
-" :PluginList       - lists configured plugins
-" :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
-" :PluginSearch foo - searches for foo; append `!` to refresh local cache
-" :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
-"
-" see :h vundle for more details or wiki for FAQ
-" Put your non-Plugin stuff after this line
+" nerdcommenter setting
+let g:NERDSpaceDelims = 2
+let g:NERDCompactSexyComs = 1
 
+" vim-go setting
 let g:go_fmt_autosave = 0
+
+
