@@ -28,7 +28,7 @@ nmap<leader><leader>o :only<cr>
 nmap<leader>/ :noh<cr>
 nmap<leader>w <C-w>
 nmap<leader>q <esc><esc>:q<cr>
-nmap<silent><leader>r diw"0[p
+nmap<silent><leader>r diwh"0p
 nmap<leader><leader>w :w<cr>
 nmap<leader><leader>wq :wq<cr>
 nmap<leader>d :Dash<cr>
@@ -127,10 +127,6 @@ nnoremap <silent><leader>f mtgd
 map <silent><leader><leader>f mt<s-#>
 map <silent><leader>g :noh<cr>`t :call HighLightCursor(2)<cr>
 map <silent><leader>h :call HighLightCursor(2)<cr>
-
-" bookmark
-map <silent><leader>a ma
-map <silent><leader><leader>a `azz :call HighLightCursor(2)<cr>
 
 " run when start
 autocmd VimEnter * call HighLightCursor(2)
@@ -258,102 +254,6 @@ function! HandleURL()
 endfunction
 map <leader>o :call HandleURL()<cr>
 
-function! ToggleErrors()
-    if empty(filter(tabpagebuflist(), 'getbufvar(v:val, "&buftype") is# "quickfix"'))
-        " No location/quickfix list shown, open syntastic error location panel
-        SyntasticCheck
-        Errors
-        echo "Syntax Check Finished"
-    else
-        lclose
-        SyntasticReset
-        echo "Syntax Check Closed"
-    endif
-endfunction
-
-function! GoToNextPos()
-    try 
-        :lnext
-        echo ""
-    catch /E776/
-        try
-            :cn
-            echo ""
-        catch /E553/
-            :cr
-            echo "search hit BOTTOM, continuing at TOP"
-        endtry
-    catch /E553/
-        :lr
-        echo "search hit BOTTOM, continuing at TOP"
-    endtry
-endfunction
-
-function! GoToPreviousPos()
-    try 
-        :lprevious
-        echo ""
-    catch /E776/
-        try
-            :cN
-            echo ""
-        catch /E553/
-            :cla
-            echo "search hit TOP, continuing at BOTTOM"
-        endtry
-    catch /E553/
-        :lla
-        echo "search hit TOP, continuing at BOTTOM"
-    endtry
-endfunction
-
-nnoremap <silent> <C-e> :call ToggleErrors()<CR>
-nnoremap <silent> <C-n> :call GoToNextPos()<CR>:call HighLightCursor(1)<cr>
-nnoremap <silent> <C-m> :call GoToPreviousPos()<CR>:call HighLightCursor(1)<cr>
-let g:python_recommended_style=0
-
-noremap <silent><leader>r diwh"0p
-
-function! <SID>CompareQuickfixEntries(i1, i2)
-  if bufname((a:i1).bufnr) == bufname((a:i2).bufnr)
-    return (a:i1).lnum == (a:i2).lnum ? 0 : ( (a:i1).lnum < (a:i2).lnum ? -1 : 1)
-  elseif bufname((a:i1).bufnr) < bufname((a:i2).bufnr)
-    return -1
-  else
-    return 1
-  endif
-endfunction
-
-function! SortUniqQFList()
-  let s:sortedList = sort(getqflist(), "<SID>CompareQuickfixEntries")
-  let s:uniqedList = []
-  let s:olditem = {}
-  for s:item in s:sortedList
-    if s:olditem == {}
-      let s:uniqedList += [s:item]
-    elseif bufname((s:item).bufnr) != bufname((s:olditem).bufnr)
-      let s:uniqedList += [s:item]
-    elseif (s:item).lnum != (s:olditem).lnum
-      let s:uniqedList += [s:item]
-    endif
-    let s:olditem = s:item
-  endfor
-  call setqflist(s:uniqedList)
-endfunction
-au QuickfixCmdPost * call SortUniqQFList()
-
-aug QFClose
-  au!
-  au WinEnter * if winnr('$') == 1 && getbufvar(winbufnr(winnr()), "&buftype") == "quickfix"|q|endif
-aug END
-
-aug QFSort
-  au!
-  au WinLeave * if getbufvar(winbufnr(winnr()), "&buftype") == "quickfix"|call SortUniqQFList()|endif
-aug END
-
-let g:tmux_navigator_disable_when_zoomed = 1
-
 function! GoToCodeSearchUnerCursor()
     let s:current_line = line('.')
     let s:file_path = expand('%:p')
@@ -367,3 +267,6 @@ function! GoToCrUnerCursor()
     silent exec "!source ~/.bash_func; web cr '".s:file_path."'"
 endfunction
 map <silent><leader>c :call GoToCrUnerCursor()<cr>:redraw!<cr>
+
+let g:UltiSnipsExpandTrigger="ff"
+let g:UltiSnipsJumpForwardTrigger="<leader>a"

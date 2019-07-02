@@ -63,22 +63,27 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
-_google_default_client_enable=1
 _google_base_dir="/google/src/cloud/hanxiaoh/"
 # Set PS1
 function parse_git_branch
 {
     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }
+function parse_current_cl_name()
+{
+    p4 -F %Change% change -o -c default
+}
 function parse_google_client
 {
 #     p4 -F "%Client%" client -o | awk -F ':' '{print $2}' | sed -e 's@^@(@' | sed -e 's@$@)@' | sed "s@()@@"
     check_result=$(echo ${PWD} | grep ${_google_base_dir} | wc -l)
     if [[ ${check_result} -eq 1 ]]; then
+        cl_name=$(parse_current_cl_name)
         re_path="${PWD:${#_google_base_dir}}"
-        echo "(${re_path%%/*})"
+        echo "(${re_path%%/*} ${cl_name})"
     fi
 }
+
 function annotate_google_path
 {
     # client_name=$(p4 -F "%Client%" client -o | awk -F ':' '{print $2}')
@@ -223,10 +228,20 @@ fi
 bind -x '"\C-f": source ~/.bashrc'
 
 # set display
-if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ] || [ -n "$SSH_CONNECTION" ]; then
+if grep -q "tmux" < <(pstree -ps $$); then
+  :; # in tmux session, do noting
+elif grep -q "sshd" < <(pstree -ps $$); then
+  touch ~/.ssh_session
+else
+  rm -f ~/.ssh_session
+fi
+
+if [[ -f ~/.ssh_session ]]; then
   :; # ssh session, do nothing.
 else
   export DISPLAY=:0
 fi
+
+export P4MERGE='vimdiff -f -O'
 
 clear

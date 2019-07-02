@@ -116,3 +116,4 @@ alias screenshot='gnome-screenshot -a -c'
 alias jadep=/google/data/ro/teams/jade/jadep
 alias tmux='tmx2'
 alias blazetest='blaze test --test_output=all '
+alias snip='vim ~/.vim_runtime/sources_forked/vim-snippets/UltiSnips/java.snippets'

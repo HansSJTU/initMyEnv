@@ -101,7 +101,7 @@ fi
 
 # default method to open without log
 function _default_open {
-if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ] || [ -n "$SSH_CONNECTION" ]; then
+if [[ -f ~/.ssh_session ]]; then
     python ~/grpc/src/openapp_client.py "$1"
 else
     if [ "$(uname)" == "Darwin" ]; then
@@ -624,7 +624,11 @@ function _google_get_current_cl_name()
 }
 function _google_get_default_client_name()
 {
-    cat ~/.default_client | head -1
+    if [[ -f ~/.default_client ]]; then
+        cat ~/.default_client | head -1
+    else
+        echo "NO_DEFAULT"
+    fi
 }
 function _google_get_client_name()
 {
@@ -633,12 +637,14 @@ function _google_get_client_name()
 
 function _google_choose_client_name()
 {
-    google_absolute_path="$1"
-    google_current_workspace="$2"
-    file_list_tmp=(${_google_base_dir}*)
-    file_list=()
+    local google_absolute_path="$1"
+    local google_current_workspace="$2"
+    local file_list_tmp=(${_google_base_dir}*)
+    local file_list=()
+    local print_log
+
     for i in ${file_list_tmp[@]}; do file_list+=($(basename $i)); done
-    _file_count=0
+    local _file_count=0
     for item in ${file_list[@]}; do
         if [[ -e ${_google_base_dir}/${item}/${google_absolute_path} ]]; then
             print_log="${_file_count}: ${green}${item}${endcolor}"
@@ -653,16 +659,17 @@ function _google_choose_client_name()
       ((_file_count++))
     done
     pushd ${_google_base_dir} > /dev/null
-    read -erp "Choose client: " _google_client_chosed
+    read -erp "Choose client: " _global_google_client_chosed
     popd > /dev/null
+    _global_google_client_chosed="$(echo "${_global_google_client_chosed}" | tr -d '/')"
 
-    re='^[0-9]+$'
-    if [[ ${_google_client_chosed} =~ $re ]] ; then
-        _google_client_chosed=${file_list[${_google_client_chosed}]}
+    local re='^[0-9]+$'
+    if [[ ${_global_google_client_chosed} =~ $re ]] ; then
+        _global_google_client_chosed=${file_list[${_global_google_client_chosed}]}
     fi
 
-    if [[ ! ${file_list[*]} =~ ${_google_client_chosed} ]]; then
-        _google_client_chosed=""
+    if [[ ! ${file_list[*]} =~ ${_global_google_client_chosed} ]]; then
+        _global_google_client_chosed=""
     fi
 }
 
@@ -698,74 +705,73 @@ function _google_choose_client_name_auto_complete()
 }
 function _google_switch_client()
 {
-    current_client_name=$(_google_get_client_name)
-    new_real_dir=$(echo ${PWD} | sed "s@${_google_base_dir}${current_client_name}@${_google_base_dir}$1@")
-    if [[ -e ${new_real_dir} ]]; then
-        pushd ${new_real_dir} > /dev/null
-        _google_workspace_change_print_log ${current_client_name} "$1"
-    else
-        echo "${red}[Failed]${endcolor}"
-    fi
+    local current_client_name=$(_google_get_client_name)
+    local new_real_dir=$(echo ${PWD} | sed "s@${_google_base_dir}${current_client_name}@${_google_base_dir}$1@")
+    _cd_google_final_dir "${new_real_dir}" "${current_client_name}"
 }
 function _google_dir_exists()
 {
-    input_dir="$1"
-    client_list=(${_google_base_dir}*)
-    potential_regularized_dir=$(echo ${input_dir} | sed "s@^/google3/@@" | sed "s@^google3/@@" | sed "s@^//depot/google3/@@" | sed "s@/depot/google3/@@" | sed "s@depot/google3/@@" | awk -F '/google3/' '{print $NF}')
-    _google_dir_exist_flag=0
+    local input_dir="$1"
+    local client_list=(${_google_base_dir}*)
+    local potential_regularized_dir=$(echo ${input_dir} | sed "s@^/google3/@@" | sed "s@^google3/@@" | sed "s@^//depot/google3/@@" | sed "s@/depot/google3/@@" | sed "s@depot/google3/@@" | awk -F '/google3/' '{print $NF}')
+    _global_google_dir_exist_flag=0
 
     for item in ${client_list[@]}; do
-        google_absolute_path="${item}/google3/${potential_regularized_dir}"
+        local google_absolute_path="${item}/google3/${potential_regularized_dir}"
         if [[ -e ${google_absolute_path} ]]; then
-            _google_dir_exist_flag=1
-            _google_absolute_path="/google3/${potential_regularized_dir}"
+            _global_google_dir_exist_flag=1
+            _global_google_absolute_path="/google3/${potential_regularized_dir}"
             break
         fi
     done
 }
 function _google_workspace_change_print_log()
 {
-    previous_workspace="$1"
-    new_workspace="$2"
+    local previous_workspace="$1"
+    local new_workspace="$2"
+    local extra_info="$3"
+    if [[ ! -z ${extra_info} ]]; then
+        extra_info="[${extra_info}]:"
+    fi
     if [[ ${previous_workspace} == ${new_workspace} ]]; then
-        echo " (${white}Stays in${endcolor} ${green}${previous_workspace}${endcolor})"
+        echo "${extra_info} (${white}Stays in${endcolor} ${green}${previous_workspace}${endcolor})"
     else
-        echo " (${red}${previous_workspace}${endcolor} => ${green}${new_workspace}${endcolor})"
+        echo "${extra_info} (${red}${previous_workspace}${endcolor} => ${green}${new_workspace}${endcolor})"
     fi
 }
 function cd-set-default-client()
 {
     if [[ $1 == "-d" ]]; then
-        _google_default_client_enable=0
+        rm -rf ~/.default_client
         echo "${green}[SUC]${endcolor} Default client disabled."
     else
-        _google_default_client_enable=1
-        old_default_client_name=$(_google_get_default_client_name)
+        local old_default_client_name=$(_google_get_default_client_name)
+        local default_client_name
         if [[ -z $1 ]]; then
             default_client_name=$(_google_get_client_name)
         else
             default_client_name=$1
         fi
         echo ${default_client_name} > ~/.default_client
-        _google_workspace_change_print_log ${old_default_client_name} ${default_client_name}
+        _google_workspace_change_print_log ${old_default_client_name} ${default_client_name} "Set Default Client"
     fi
 }
 
 # Use autojump as a part of cd command
 function relpath()
 { 
-    python -c "import os.path; print os.path.relpath('$1','${2:-$PWD}')"
+    python3 -c "import os.path; print(os.path.relpath('$1','${2:-$PWD}'), end = '')"
 }
 
 function _google_get_exists_parent_dir_recursively()
 {
-    input_dir="$1"
+    local input_dir="$1"
     if [[ -z ${input_dir} ]]; then
         return
     fi
 
     if [[ -e ${input_dir} ]]; then
-        _google_exists_parent_dir=${input_dir}
+        _global_google_exists_parent_dir=${input_dir}
         return
     else
         _google_get_exists_parent_dir_recursively "$(dirname "${input_dir}")"
@@ -773,78 +779,98 @@ function _google_get_exists_parent_dir_recursively()
 }
 
 if [[ $(command -v j) ]]; then
+    function _cd_google_final_dir
+    {
+        local _google_final_dir="$1"
+        local current_client_name="$2"
+        local new_client_name _google_file_name open_option _google_user_input_final_dir
+        if [[ -f ${_google_final_dir} ]]; then
+            pushd $(dirname ${_google_final_dir}) > /dev/null
+            new_client_name=$(_google_get_client_name)
+            _google_file_name=$(basename ${_google_final_dir})
+
+            echo -n "${red}[google3 dir]${endcolor} $(dirname ${_google_final_dir})"
+            _google_workspace_change_print_log "${current_client_name}" "${new_client_name}"
+            read -rp "Open file <${_google_file_name}> ? [y/n] " open_option
+            if [[ ${open_option} == 'y' || ${open_option} == 'Y' ]]; then
+                vim ${_google_file_name}
+            fi
+        elif [[ -d ${_google_final_dir} ]]; then
+            pushd ${_google_final_dir} > /dev/null
+            new_client_name=$(_google_get_client_name)
+
+            echo -n "${red}[google3 dir]${endcolor} ${_google_final_dir}"
+            _google_workspace_change_print_log "${current_client_name}" "${new_client_name}"
+        else
+            _google_user_input_final_dir="${_google_final_dir}"
+            _google_get_exists_parent_dir_recursively "${_google_final_dir}"
+            _google_final_dir="${_global_google_exists_parent_dir}"
+            unset _global_google_exists_parent_dir
+
+            pushd ${_google_final_dir} > /dev/null
+            new_client_name=$(_google_get_client_name)
+
+            _google_user_input_final_dir="$(echo "${_google_user_input_final_dir}" \
+              | awk -F "${_google_final_dir}" '{print $2}')"
+            local _delete_color=$'\e[31;03m'
+            echo -n "${red}[google3 dir]${endcolor} ${_google_final_dir}"
+            echo -n "${_delete_color}${_google_user_input_final_dir}${endcolor}"
+            _google_workspace_change_print_log "${current_client_name}" "${new_client_name}"
+        fi
+    }
     function cd
     {
+        local current_client_name=$(_google_get_client_name)
+        local _google_default_client _google_final_dir
+
         _google_dir_exists "$1"
-        current_client_name=$(_google_get_client_name)
         if [[ ${#} -gt 1 || -d "$1" || "$1" == "-" ]]; then
             #command cd "$@"
             pushd "$@" > /dev/null
         elif [[ "$1" == "=" ]]; then
             popd > /dev/null
-        elif [[ ${_google_dir_exist_flag} -eq 1 ]]; then
-            echo "${red}[google3]${endcolor} ${_google_absolute_path}"
+        elif [[ ${_global_google_dir_exist_flag} -eq 1 ]]; then
+            unset _global_google_dir_exist_flag
+            echo "${red}[google3]${endcolor} ${_global_google_absolute_path}"
 
-            if [[ ${_google_default_client_enable} -eq 1 ]]; then
+            if [[ -f ~/.default_client ]]; then
                 _google_default_client=$(_google_get_default_client_name)
-                if [[ -e "${_google_base_dir}/${_google_default_client}/${_google_absolute_path}" ]]; then
-                    _google_final_dir="${_google_base_dir}/${_google_default_client}/${_google_absolute_path}"
+                if [[ -e "${_google_base_dir}/${_google_default_client}/${_global_google_absolute_path}" ]]; then
+                    _google_final_dir="${_google_base_dir}/${_google_default_client}/${_global_google_absolute_path}"
                 else
-                    _google_choose_client_name "${_google_absolute_path}" "${current_client_name}"
-                    _google_final_dir="${_google_base_dir}/${_google_client_chosed}/${_google_absolute_path}"
+                    _google_choose_client_name "${_global_google_absolute_path}" "${current_client_name}"
+                    _google_final_dir="${_google_base_dir}/${_global_google_client_chosed}/${_global_google_absolute_path}"
                 fi
             else
-                _google_choose_client_name "${_google_absolute_path}" "${current_client_name}"
-                _google_final_dir="${_google_base_dir}/${_google_client_chosed}/${_google_absolute_path}"
+                if [[ -e "${_google_base_dir}/${current_client_name}/${_global_google_absolute_path}" ]]; then
+                    _google_final_dir="${_google_base_dir}/${current_client_name}/${_global_google_absolute_path}"
+                else
+                    _google_choose_client_name "${_global_google_absolute_path}" "${current_client_name}"
+                    _google_final_dir="${_google_base_dir}/${_global_google_client_chosed}/${_global_google_absolute_path}"
+                fi
             fi
+            unset _global_google_client_chosed _global_google_absolute_path
 
             _google_final_dir="$(echo "${_google_final_dir}" | tr -s '/')"
-
-            if [[ -f ${_google_final_dir} ]]; then
-                pushd $(dirname ${_google_final_dir}) > /dev/null
-                new_client_name=$(_google_get_client_name)
-                _google_file_name=$(basename ${_google_final_dir})
-
-                echo -n "${red}[google3 dir]${endcolor} $(dirname ${_google_final_dir})"
-                _google_workspace_change_print_log "${current_client_name}" "${new_client_name}"
-                read -rp "Open file <${_google_file_name}> ? [y/n] " open_option
-                if [[ ${open_option} == 'y' || ${open_option} == 'Y' ]]; then
-                    vim ${_google_file_name}
-                fi
-            elif [[ -d ${_google_final_dir} ]]; then
-                pushd ${_google_final_dir} > /dev/null
-                new_client_name=$(_google_get_client_name)
-
-                echo -n "${red}[google3 dir]${endcolor} ${_google_final_dir}"
-                _google_workspace_change_print_log "${current_client_name}" "${new_client_name}"
-            else
-                _google_user_input_final_dir="${_google_final_dir}"
-                _google_get_exists_parent_dir_recursively "${_google_final_dir}"
-                _google_final_dir="${_google_exists_parent_dir}"
-
-                pushd ${_google_final_dir} > /dev/null
-                new_client_name=$(_google_get_client_name)
-
-                _google_user_input_final_dir="$(echo "${_google_user_input_final_dir}" \
-                  | awk -F "${_google_final_dir}" '{print $2}')"
-                _delete_color=$'\e[31;03m'
-                echo -n "${red}[google3 dir]${endcolor} ${_google_final_dir}"
-                echo -n "${_delete_color}${_google_user_input_final_dir}${endcolor}"
-                _google_workspace_change_print_log "${current_client_name}" "${new_client_name}"
-                # echo "${red}[Failed]${endcolor}: ${_google_final_dir}"
-            fi
+            _cd_google_final_dir "${_google_final_dir}" "${current_client_name}"
         else
-            p1="${PWD}"
-            j "$@"
-            new_client_name=$(_google_get_client_name)
-            relpath "${PWD}" "${p1}"
+            local old_path="${PWD}"
+            echo -n "${red}[Auto Jump] ${endcolor}"
+            j "$@" > /dev/null
+            if [[ ! -z ${current_client_name} ]]; then
+                cds "${current_client_name}"
+            fi
+
+            echo -n "${red}[Relative Path] ${endcolor}"
+            relpath "${PWD}" "${old_path}"
+            local new_client_name=$(_google_get_client_name)
             _google_workspace_change_print_log ${current_client_name} ${new_client_name}
         fi
     }
     function cds
     {
-        if [[ -z $1 && ${_google_default_client_enable} -eq 1 ]]; then
-            _google_default_client=$(_google_get_default_client_name)
+        if [[ -z $1 && -f ~/.default_client ]]; then
+            local _google_default_client=$(_google_get_default_client_name)
             _google_switch_client ${_google_default_client}
         else
             _google_switch_client "$1"
@@ -852,21 +878,20 @@ if [[ $(command -v j) ]]; then
     }
     function cd-with-select-client
     {
-        if [[ ${_google_default_client_enable} -eq 1 ]]; then
-            _google_default_client_enable=0
-            cd $1
-            _google_default_client_enable=1
-        else
-            cd $1
-        fi
+        _google_dir_exists "$1"
+        local current_client_name=$(_google_get_client_name)
+        _google_choose_client_name "${_global_google_absolute_path}" "${current_client_name}"
+        local _google_final_dir="$(echo "${_google_base_dir}/${_global_google_client_chosed}/${_global_google_absolute_path}" | tr -s '/')"
+        unset _global_google_client_chosed _global_google_absolute_path
+        _cd_google_final_dir "${_google_final_dir}" "${current_client_name}"
     }
     complete -F _google_choose_client_name_auto_complete_1 cds 
     complete -F _google_choose_client_name_auto_complete_1 cd-set-default-client
     function cdj
     {
-        current_path="$(realpath $PWD)"
-        current_java_path=$(echo "${current_path}" | grep -c "/google3/java/")
-        current_javatests_path=$(echo "${current_path}" | grep -c "/google3/javatests/")
+        local current_path="$(realpath $PWD)"
+        local current_java_path=$(echo "${current_path}" | grep -c "/google3/java/")
+        local current_javatests_path=$(echo "${current_path}" | grep -c "/google3/javatests/")
         if [ ${current_java_path} -eq 1 ]; then
             pushd $(echo $current_path | sed "s@/google3/java/@/google3/javatests/@") > /dev/null
         elif [ ${current_javatests_path} -eq 1 ]; then
@@ -896,7 +921,7 @@ fi
 # du better use
 function du-auto
 {
-    width=${1:-34}
+    local width=${1:-34}
     du -sb -- * | sort -n | python3 -c "
 import sys, os
 width = int(sys.argv[-1])
@@ -949,6 +974,36 @@ sys.stdout.write('+' + '-' * width + '-' * 19 + '+' + '\n')
 " "${width}"
 }
 
+function convert-name
+{
+    python3 -c "
+import sys, os
+def change_one_word(word):
+    content = []
+    if '_' in word:
+        content = list(map(lambda one: one.lower(), word.split('_')))
+    else:
+        current = word[0].lower()
+        for letter in word[1:]:
+            if letter.isupper():
+                content.append(current)
+                current = letter.lower()
+            else:
+                current += letter
+        content.append(current)
+
+    sys.stdout.write(' '.join(content) + '\n')
+    sys.stdout.write('- - - - - - -' + '\n')
+    sys.stdout.write('_'.join(content) + '\n')
+    sys.stdout.write('_'.join(list(map(lambda one: one.upper(), content))) + '\n')
+    sys.stdout.write('_'.join(list(map(lambda one: one.capitalize(), content))) + '\n')
+    sys.stdout.write(''.join(list(map(lambda one: one.capitalize(), content))) + '\n')
+    sys.stdout.write(''.join([content[0]] + list(map(lambda one: one.capitalize(), content[1:]))) + '\n')
+
+change_one_word(sys.argv[-1])
+" $1
+}
+
 # use function to open web
 function _web_complete
 {
@@ -965,7 +1020,7 @@ function _web_google_search
         word=${word//+/%2B}
         _web_google_search_url="${_web_google_search_url}+${word}"
     done
-    echo "[SUC] ${green}Google Search${endcolor}: $*"
+    echo -n "[SUC] ${green}Google Search${endcolor}: $*"
 }
 function _web_yd_search
 {
@@ -974,7 +1029,7 @@ function _web_yd_search
         _web_yd_search_url="${_web_yd_search_url}${word}%20"
     done
     _web_yd_search_url=${_web_yd_search_url/%\%20/}
-    echo "[SUC] ${green}Youdao Search${endcolor}: $* (${_web_yd_search_url})"
+    echo -n "[SUC] ${green}Youdao Search${endcolor}: $*"
 }
 function _web_cs_search
 {
@@ -988,7 +1043,7 @@ function _web_cs_search
         fi
     done
     _web_cs_search_url=$(echo "${_web_cs_search_url}" | sed "s@+@@")
-    echo "[SUC] ${green}Code Search${endcolor}: $* (${_web_cs_search_url})"
+    echo -n "[SUC] ${green}Code Search${endcolor}: $*"
 }
 function _web_moma_search
 {
@@ -997,7 +1052,7 @@ function _web_moma_search
         word=${word//+/%2B}
         _web_moma_search_url="${_web_moma_search_url}+${word}"
     done
-    echo "[SUC] ${green}Moma Search${endcolor}: $* (${_web_moma_search_url})"
+    echo -n "[SUC] ${green}Moma Search${endcolor}: $*"
 }
 function web
 {
@@ -1033,8 +1088,7 @@ function web
             _web_moma_search "$@"
             website_addr="${_web_moma_search_url}"
         else
-            _web_google_search "$@"
-            website_addr="${_web_google_search_url}"
+            :;
         fi
     elif [[ -z ${website_addr} ]]; then
         open="True"
@@ -1046,7 +1100,7 @@ function web
 
     # open by default
     if [[ ${open} == "True" ]]; then
-        echo "(${website_addr})"
+        echo " (${website_addr})"
         _default_open "${website_addr}"
     fi
 }
@@ -1267,7 +1321,7 @@ function c
     code_path="https://cs.corp.google.com/piper///depot/google3/${relative_path}&l=$2"
     code_path=${code_path/\ /}
     echo ${code_path}
-    google-chrome "${code_path}" 2> /dev/null
+    _default_open "${code_path}"
 }
 
 function cr
@@ -1281,7 +1335,7 @@ function cr
             website_addr="https://critique.corp.google.com/#review/$(_google_get_current_cl_name)/depot/google3/${relative_path}"
             website_addr=${website_addr/\ /}
             echo ${website_addr}
-            google-chrome "${website_addr}" 2> /dev/null
+            _default_open "${website_addr}"
         else
             web cr
         fi
@@ -1297,7 +1351,7 @@ function d
     fi
     relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}')
     echo "//${relative_path}"
-    echo -n "//${relative_path}" | xsel -bi
+    echo -n "//${relative_path}" | pbcopy
 }
 
 function recd
@@ -1395,8 +1449,8 @@ function p4-cheat
       output_choice="[${i}] ${cheat_sheet_key[${i}]}:\t${cheat_sheet_value[${i}]}"
       echo -e ${output_choice}
     done
-    tmp_cheat_sheet_key=("${cheat_sheet_key[@]}")   
-    tmp_cheat_sheet_value=("${cheat_sheet_value[@]}")   
+    tmp_cheat_sheet_key=("${cheat_sheet_key[@]}")
+    tmp_cheat_sheet_value=("${cheat_sheet_value[@]}")
   else
     count=0
     for ((i = 0; i < ${#cheat_sheet_key[@]}; i++)); do
@@ -1410,7 +1464,7 @@ function p4-cheat
         tmp_cheat_sheet_value+=("${cheat_sheet_value[${i}]}")
         tmp_matched_cheat_sheet_value+=("$i")
       else
-        echo -e "${output_choice}" 
+        echo -e "${output_choice}"
       fi
     done
   fi
@@ -1478,3 +1532,43 @@ function vimt-cd() {
     pushd ${tmp_note_dir} >> /dev/null
 }
 
+function client-delete() {
+  current_client_name=$(_google_get_client_name)
+  current_cl=$(_google_get_current_cl_name)
+  while true; do
+    read -rp "Are you sure to delete (cl/${current_cl})? [y/n/show] " answer
+    if [[ ${answer} = "y" ]] || [[ ${answer} = "Y" ]]; then
+      p4 revert -c ${current_cl}
+      break
+    elif [[ ${answer} = "show" ]]; then
+      cr
+    else
+      return
+    fi
+  done
+
+  read -rp "Are you sure to delete client(${current_client_name})? [y/n] " answer
+  if [[ ${answer} = "y" ]] || [[ ${answer} = "Y" ]]; then
+    g4 citc -d ${current_client_name}
+  fi
+}
+
+function client() {
+  current_client_name=$(_google_get_client_name)
+  current_default_client_name=$(_google_get_default_client_name)
+  new_client_name="$1"
+  if [[ ! -z $2 && $2 == "eval" ]]; then
+    entered_dir="/google/src/cloud/hanxiaoh/${new_client_name}/google3/java/com/google/paymentfraud/v2/riskengine/evaluation"
+  elif [[ ! -z $2 && $2 == "exp" ]]; then
+    entered_dir="/google/src/cloud/hanxiaoh/${new_client_name}/google3/experimental/users/hanxiaoh"
+  elif [[ ! -z $2 && $2 == "util" ]]; then
+    entered_dir="/google/src/cloud/hanxiaoh/${new_client_name}/google3/java/com/google/paymentfraud/v2/util"
+  else
+    entered_dir="/google/src/cloud/hanxiaoh/${new_client_name}/google3/java/com/google/paymentfraud/v2/"
+  fi
+  tmux new-window "/bin/sh -c 'p4 g4d -f ${new_client_name}; \
+    cd ${entered_dir}; \
+    echo wait for 5 seconds...; \
+    sleep 5; \
+    exec bash'"
+}
