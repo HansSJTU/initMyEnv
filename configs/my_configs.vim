@@ -28,7 +28,7 @@ nmap<leader><leader>o :only<cr>
 nmap<leader>/ :noh<cr>
 nmap<leader>w <C-w>
 nmap<leader>q <esc><esc>:q<cr>
-nmap<silent><leader>r diw"0[p
+nmap<silent><leader>r diwh"0p
 nmap<leader><leader>w :w<cr>
 nmap<leader><leader>wq :wq<cr>
 nmap<leader>d :Dash<cr>
@@ -127,10 +127,6 @@ nnoremap <silent><leader>f mtgd
 map <silent><leader><leader>f mt<s-#>
 map <silent><leader>g :noh<cr>`t :call HighLightCursor(2)<cr>
 map <silent><leader>h :call HighLightCursor(2)<cr>
-
-" bookmark
-map <silent><leader>a ma
-map <silent><leader><leader>a `azz :call HighLightCursor(2)<cr>
 
 " run when start
 autocmd VimEnter * call HighLightCursor(2)
@@ -258,18 +254,6 @@ function! HandleURL()
 endfunction
 map <leader>o :call HandleURL()<cr>
 
-function! ToggleErrors()
-    if empty(filter(tabpagebuflist(), 'getbufvar(v:val, "&buftype") is# "quickfix"'))
-        " No location/quickfix list shown, open syntastic error location panel
-        SyntasticCheck
-        Errors
-        echo "Syntax Check Finished"
-    else
-        lclose
-        SyntasticReset
-        echo "Syntax Check Closed"
-    endif
-endfunction
-nnoremap <silent> <C-e> :call ToggleErrors()<CR>
-nnoremap <silent> <C-n> :lnext<CR>:call HighLightCursor(1)<cr>
-nnoremap <silent> <C-m> :lprevious<CR>:call HighLightCursor(1)<cr>
+let g:UltiSnipsExpandTrigger="ff"
+let g:UltiSnipsJumpForwardTrigger="<leader>a"
+

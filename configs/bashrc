@@ -198,7 +198,15 @@ fi
 bind -x '"\C-f": source ~/.bashrc'
 
 # set display
-if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ] || [ -n "$SSH_CONNECTION" ]; then
+if grep -q "tmux" < <(pstree -ps $$); then
+  :; # in tmux session, do noting
+elif grep -q "sshd" < <(pstree -ps $$); then
+  touch ~/.ssh_session
+else
+  rm -f ~/.ssh_session
+fi
+
+if [[ -f ~/.ssh_session ]]; then
   :; # ssh session, do nothing.
 else
   export DISPLAY=:0
