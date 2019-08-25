@@ -9,7 +9,7 @@ set swapfile
 set shortmess=a
 set autoread
 
-let s:tabwidth=4
+let s:tabwidth=2
 exec 'set tabstop='    .s:tabwidth
 exec 'set shiftwidth=' .s:tabwidth
 exec 'set softtabstop='.s:tabwidth
@@ -256,4 +256,3 @@ map <leader>o :call HandleURL()<cr>
 
 let g:UltiSnipsExpandTrigger="ff"
 let g:UltiSnipsJumpForwardTrigger="<leader>a"
-

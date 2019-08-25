@@ -1,0 +1,6 @@
+# Bash Global State
+
+INIT_FILE_ROOT_DIR::/usr/local/google/home/hanxiaoh/
+GOOGLE_LDAP::hanxiaoh
+GOOGLE_DEFAULT_CLIENT::NO_DEFAULT
+COMMON_SESSION::REMOTE
