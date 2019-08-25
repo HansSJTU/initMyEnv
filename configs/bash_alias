@@ -103,7 +103,7 @@ alias wget-auto='wget -c -t 0 '
 alias steam='open -a "Steam.app" --args -nochatui -nofriendsui -silent'
 
 # Source
-alias a='source ~/.bashrc'
+alias a='cd ${PWD}; source ~/.bashrc'
 
 # Google stuffs
 alias colab='/google/data/ro/teams/colab/notebook'
@@ -112,8 +112,9 @@ alias f='fileutil '
 
 alias s='~/google_start.sh'
 alias i='/opt/intellij-ce-stable/bin/idea.sh'
-alias screenshot='gnome-screenshot -a -c'
 alias jadep=/google/data/ro/teams/jade/jadep
 alias tmux='tmx2'
 alias blazetest='blaze test --test_output=all '
-alias snip='vim ~/.vim_runtime/sources_forked/vim-snippets/UltiSnips/java.snippets'
+alias cider='/google/src/head/depot/google3/experimental/cider_here/cider_here.sh'
+alias tfx='/google/src/head/depot/google3/learning/tfx/tools/tfx.sh'
+alias cddelete='cd google3/paymentfraud/v2/tools/automated_training/scripts'

@@ -257,16 +257,24 @@ map <leader>o :call HandleURL()<cr>
 function! GoToCodeSearchUnerCursor()
     let s:current_line = line('.')
     let s:file_path = expand('%:p')
-    silent exec "!source ~/.bash_func; c '".s:file_path."' '"s:current_line"'"
+    silent exec "!source ~/.bashrc; source ~/.bash_func c '".s:file_path."' '"s:current_line"'"
 endfunction
 map <silent><leader>cc :call GoToCodeSearchUnerCursor()<cr>:redraw!<cr>
 
 function! GoToCrUnerCursor()
     let s:current_line = line('.')
     let s:file_path = expand('%:p')
-    silent exec "!source ~/.bash_func; web cr '".s:file_path."'"
+    silent exec "!source ~/.bashrc; source ~/.bash_func; web cr '".s:file_path."'"
 endfunction
 map <silent><leader>c :call GoToCrUnerCursor()<cr>:redraw!<cr>
+
+function! GoToCiderUnderCursor()
+    let s:current_line = line('.')
+    let s:file_path = expand('%:t')
+    let s:path = join([s:file_path, s:current_line], ":")
+    silent exec "!/google/src/head/depot/google3/experimental/cider_here/cider_here.sh "s:path" "
+endfunction
+map <silent>cider :call GoToCiderUnderCursor()<cr>:redraw!<cr>
 
 let g:UltiSnipsExpandTrigger="ff"
 let g:UltiSnipsJumpForwardTrigger="<leader>a"

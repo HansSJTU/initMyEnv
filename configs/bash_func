@@ -6,110 +6,66 @@
 # Distributed under terms of the MIT license.
 #
 
-INIT_FILE_ROOT_DIR="${HOME}/"
 if [ "$(uname)" == "Darwin" ]; then
-    # copy file to clipboard not content of file!
-    cpfile() {
-        copy_path="$(realpath "$1")"
-        osascript \
-            -e 'on run args' \
-            -e 'set the clipboard to POSIX file (first item of args)' \
-            -e end \
-            "${copy_path}"
-    }
+  # copy file to clipboard not content of file!
+  cpfile() {
+    copy_path="$(realpath "$1")"
+    osascript \
+      -e 'on run args' \
+      -e 'set the clipboard to POSIX file (first item of args)' \
+      -e end \
+      "${copy_path}"
+  }
 
-    # open safari
-    function safari {
-        /usr/bin/env osascript <<-EOF
-        tell application "Safari"
-            reopen
-            activate
-        end tell
+  # open safari
+  function safari {
+    /usr/bin/env osascript <<-EOF
+      tell application "Safari"
+        reopen
+        activate
+      end tell
 EOF
-    }
+  }
 
-    # double click x11
-    function dcc {
-        /usr/bin/env osascript <<-EOF
-        tell application "XQuartz"
-            reopen
-            activate
-        end tell
+  # double click x11
+  function dcc {
+    /usr/bin/env osascript <<-EOF
+      tell application "XQuartz"
+        reopen
+        activate
+      end tell
 
-        tell application "System Events" to keystroke "," using {command down}
-        tell application "System Events" to keystroke "  "
-        tell application "System Events" to keystroke "w" using {command down}
+      tell application "System Events" to keystroke "," using {command down}
+      tell application "System Events" to keystroke "  "
+      tell application "System Events" to keystroke "w" using {command down}
 
-        delay 0.3
-        tell application "Terminal"
-            reopen
-            activate
-        end tell
+      delay 0.3
+      tell application "Terminal"
+        reopen
+        activate
+      end tell
 EOF
-    }
+  }
 
-    # about VPN connecting
-    function vpnconnect {
-        randomIP4VPN
-        /usr/bin/env osascript <<-EOF
-        tell application "System Events"
-                tell current location of network preferences
-                        set VPN to service "VPN (L2TP)"
-                        if exists VPN then connect VPN
-                        repeat while (current configuration of VPN is not connected)
-                            delay 1
-                        end repeat
-                end tell
-        end tell
-EOF
-    }
-
-    function vpndisconnect {
-        /usr/bin/env osascript <<-EOF
-        tell application "System Events"
-                tell current location of network preferences
-                        set VPN to service "VPN (L2TP)"
-                        if exists VPN then disconnect VPN
-                end tell
-        end tell
-        return
-EOF
-    }
-
-    function randomIP4VPN {
-        vpnfile="vpn.list"
-        common="/Users/Hans/.vpnSetting/"
-        gshuf ${common}/${vpnfile} | head -1 > ${common}/.listtmp
-
-        ## backup the first version of preference list
-        if [ ! -f ${common}/preferences.plist ]; then
-            cp /Library/Preferences/SystemConfiguration/preferences.plist ${common}/
-        fi
-
-        shuf_vpn_server=$(cat ${common}/.listtmp)
-        sudo sed -i "214s@g>.\{0,100\}<@g>${shuf_vpn_server}<@" /Library/Preferences/SystemConfiguration/preferences.plist
-
-        rm ${common}/.listtmp
-    }
-
-    # redifine use subl
-    function subl
-    {
-        /Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl "$1"
-    }
+  # redifine use subl
+  function subl {
+    /Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl "$1"
+  }
 fi
 
 # default method to open without log
 function _default_open {
-if [[ -f ~/.ssh_session ]]; then
+  if [[ $(common_get_bash_global_state COMMON_SESSION) = "REMOTE" ]]; then
     python ~/grpc/src/openapp_client.py "$1"
-else
+  elif [[ $(common_get_bash_global_state COMMON_SESSION) = "LOCAL" ]]; then
     if [ "$(uname)" == "Darwin" ]; then
-        open "${1}"
+      open "${1}"
     elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-        xdg-open "${1}" 2>/dev/null 1>/dev/null
+      xdg-open "${1}" 2>/dev/null 1>/dev/null
     fi
-fi
+  else
+    echo "wrong.."
+  fi
 }
 
 # change name for shell tab
@@ -125,804 +81,815 @@ function nn {
 # generate a backup
 function _backup_realpath
 {
-    pushd "$(dirname "$1")" > /dev/null
-        echo "${PWD}/$(basename "$1")"
-	popd > /dev/null
+  pushd "$(dirname "$1")" > /dev/null
+  echo "${PWD}/$(basename "$1")"
+  popd > /dev/null
 }
 function _backup_helper
 {
-    echo -e "${green}[HELP MENU]${endcolor}:\n \
-        <file1> [file2 ..] [explanation] backup file with explanation\n \
-        [-r] <file> reverse backup\n \
-        [-f] force reverse without notification when there is the same copy in direction\n \
-        [-h] show help info\n \
-        [-e] add explanation\n \
-        [-s] show logs\n \
-        [-d] delete backup files in current directory\n \
-        [-c] clean the log file (${INIT_FILE_ROOT_DIR}/.backup.logs)"
+  echo -e "${green}[HELP MENU]${endcolor}:\n \
+    <file1> [file2 ..] [explanation] backup file with explanation\n \
+    [-r] <file> reverse backup\n \
+    [-f] force reverse without notification when there is the same copy in direction\n \
+    [-h] show help info\n \
+    [-e] add explanation\n \
+    [-s] show logs\n \
+    [-d] delete backup files in current directory\n \
+    [-c] clean the log file ($(common_get_bash_global_state INIT_FILE_ROOT_DIR)/.backup.logs)"
 }
 function _backup_remove_log
 {
-    if [[ -f "${INIT_FILE_ROOT_DIR}/.backup.logs" ]]; then
-        rm "${INIT_FILE_ROOT_DIR}/.backup.logs"
-    fi
-    echo "${green}[FINISHED]${endcolor} Log File Cleaned"
+  if [[ -f "$(common_get_bash_global_state INIT_FILE_ROOT_DIR)/.backup.logs" ]]; then
+    rm "$(common_get_bash_global_state INIT_FILE_ROOT_DIR)/.backup.logs"
+  fi
+  echo "${green}[FINISHED]${endcolor} Log File Cleaned"
 }
 function _backup_show_log
 {
-    vim "${INIT_FILE_ROOT_DIR}/.backup.logs"
+  vim "$(common_get_bash_global_state INIT_FILE_ROOT_DIR)/.backup.logs"
 }
 function _backup_delete_current_dir
 {
-    file_list=()
-    count=0
-    while read line; do
-        check_result=$(echo "${line}" | grep "_[0-9]\{8\}_[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}\$" | wc -l)
-        if [[ ${check_result} -eq 1 ]]; then
-            file_list=("${file_list[@]}" "${line}")
-            ((count++))
-        fi
-    done < <(ls -a --color=never)
-    if [[ ${count} -eq 0 ]]; then
-        echo "[FINISHED] Nothing to delete"
-    else
-        echo "${red}Deleting: ${endcolor}"
-        for item in "${file_list[@]}"; do
-           echo -e "\t${item}" 
-        done
-        read -rp "Sure to delete? (y/n): " delete_option 
-        delete_option="$(echo "${delete_option}" | tr '[:upper:]' '[:lower:]')"
-        if [[ ${delete_option} == "y" || ${delete_option} == "yes" ]]; then
-            for item in "${file_list[@]}"; do
-               rm -rf "${item}" 
-            done
-        else
-            echo "[ERROR] User quit, exiting..." 1>&2
-        fi
+  file_list=()
+  count=0
+  while read line; do
+    check_result=$(echo "${line}" | grep "_[0-9]\{8\}_[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}\$" | wc -l)
+    if [[ ${check_result} -eq 1 ]]; then
+      file_list=("${file_list[@]}" "${line}")
+      ((count++))
     fi
+  done < <(ls -a --color=never)
+  if [[ ${count} -eq 0 ]]; then
+    echo "[FINISHED] Nothing to delete"
+  else
+    echo "${red}Deleting: ${endcolor}"
+    for item in "${file_list[@]}"; do
+      echo -e "\t${item}" 
+    done
+    read -rp "Sure to delete? (y/n): " delete_option 
+    delete_option="$(echo "${delete_option}" | tr '[:upper:]' '[:lower:]')"
+    if [[ ${delete_option} == "y" || ${delete_option} == "yes" ]]; then
+      for item in "${file_list[@]}"; do
+        rm -rf "${item}" 
+      done
+    else
+      echo "[ERROR] User quit, exiting..." 1>&2
+    fi
+  fi
 }
 function _backup_op
 {
-    if [[ ! -e "$1" ]]; then
-        echo "[ERROR] ${red}${1}${endcolor} does not exist, exiting.." 1>&2
-        return
-    fi
-    if [[ -L "$1" ]]; then
-        echo "[ERROR] ${red}${1}${endcolor} is a link file, exiting.." 1>&2
-        return
-    fi
-    current_time="$(date +%Y%m%d)_$(date +%T)"
-    absolute_path="$(_backup_realpath "$1")"
-    file_name="$(basename "${absolute_path}")"
-    file_path="$(dirname "${absolute_path}")"
-    dst_file_name="${file_name}"
-    avaliable_check="$(echo "${file_name}" | grep -o "_[0-9]\{8\}_[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}\$" | wc -l)"
-    if [[ ${avaliable_check} -eq 1 ]]; then
-        dst_file_name="${file_name:0:$((${#file_name} - 18))}"
-        echo "[INFO] Backing up ${orange}${file_name}${endcolor} with name showing ${orange}${dst_file_name}${endcolor}"
-    fi
+  if [[ ! -e "$1" ]]; then
+    echo "[ERROR] ${red}${1}${endcolor} does not exist, exiting.." 1>&2
+    return
+  fi
+  if [[ -L "$1" ]]; then
+    echo "[ERROR] ${red}${1}${endcolor} is a link file, exiting.." 1>&2
+    return
+  fi
+  current_time="$(date +%Y%m%d)_$(date +%T)"
+  absolute_path="$(_backup_realpath "$1")"
+  file_name="$(basename "${absolute_path}")"
+  file_path="$(dirname "${absolute_path}")"
+  dst_file_name="${file_name}"
+  avaliable_check="$(echo "${file_name}" | grep -o "_[0-9]\{8\}_[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}\$" | wc -l)"
+  if [[ ${avaliable_check} -eq 1 ]]; then
+    dst_file_name="${file_name:0:$((${#file_name} - 18))}"
+    echo "[INFO] Backing up ${orange}${file_name}${endcolor} with name showing ${orange}${dst_file_name}${endcolor}"
+  fi
 
-    # permission check
-    touch "${file_path}/.tmp_backup_219dsak" > /dev/null
-    if [ -f "${file_path}/.tmp_backup_219dsak" ]; then
-        rm "${file_path}/.tmp_backup_219dsak"
-        backup_file_dir="${file_path}/${dst_file_name}_${current_time}"
-        cp -r "$1" "${backup_file_dir}"
+  # permission check
+  touch "${file_path}/.tmp_backup_219dsak" > /dev/null
+  if [ -f "${file_path}/.tmp_backup_219dsak" ]; then
+    rm "${file_path}/.tmp_backup_219dsak"
+    backup_file_dir="${file_path}/${dst_file_name}_${current_time}"
+    cp -r "$1" "${backup_file_dir}"
 
-        # get md5
-        if [ -f "$1" ]; then
-            command -v md5sum >/dev/null 2>&1 || md5="md5sum disabled"
-            command -v md5sum >/dev/null 2>&1 && md5=$(md5sum "$1" | awk '{print $1}')
-        else
-            md5="Direction"
-        fi
-
-        # get explanation
-        if [ ! -z "$2" ]; then
-            exp="$2"
-        else
-            exp="No explain. "
-        fi
-
-        echo -e "${file_name}\t${current_time}\t${file_path}\t${md5}\t${exp}\n------" >> "${INIT_FILE_ROOT_DIR}/.backup.logs"
-        echo -e "${green}[FINISHED]${endcolor} ${file_path}/${dst_file_name}_${current_time}"
+    # get md5
+    if [ -f "$1" ]; then
+      command -v md5sum >/dev/null 2>&1 || md5="md5sum disabled"
+      command -v md5sum >/dev/null 2>&1 && md5=$(md5sum "$1" | awk '{print $1}')
     else
-        echo -e "[ERROR] ${red}Permission Denied${endcolor}" 1>&2
+      md5="Direction"
     fi
+
+    # get explanation
+    if [ ! -z "$2" ]; then
+      exp="$2"
+    else
+      exp="No explain. "
+    fi
+
+    echo -e "${file_name}\t${current_time}\t${file_path}\t${md5}\t${exp}\n------" >> "$(common_get_bash_global_state INIT_FILE_ROOT_DIR)/.backup.logs"
+    echo -e "${green}[FINISHED]${endcolor} ${file_path}/${dst_file_name}_${current_time}"
+  else
+    echo -e "[ERROR] ${red}Permission Denied${endcolor}" 1>&2
+  fi
 }
 function _backup_reverse_op
 {
-    if [[ ! -e "$1" ]]; then
-        echo "[ERROR] ${red}${1}${endcolor} does not exist, exiting.." 1>&2
-        return
-    fi
-    absolute_path="$(_backup_realpath "$1")"
-    file_name="$(basename "${absolute_path}")"
-    file_path="$(dirname "${absolute_path}")"
-    force_option=$2
+  if [[ ! -e "$1" ]]; then
+    echo "[ERROR] ${red}${1}${endcolor} does not exist, exiting.." 1>&2
+    return
+  fi
+  absolute_path="$(_backup_realpath "$1")"
+  file_name="$(basename "${absolute_path}")"
+  file_path="$(dirname "${absolute_path}")"
+  force_option=$2
 
-    avaliable_check="$(echo "${file_name}" | grep -o "_[0-9]\{8\}_[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}\$" | wc -l)"
-    if [[ ${avaliable_check} -eq 0 ]]; then
-        echo "[ERROR] ${red}${1}${endcolor} is not a backup file, exiting..." 1>&2
-        return
-    fi
+  avaliable_check="$(echo "${file_name}" | grep -o "_[0-9]\{8\}_[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}\$" | wc -l)"
+  if [[ ${avaliable_check} -eq 0 ]]; then
+    echo "[ERROR] ${red}${1}${endcolor} is not a backup file, exiting..." 1>&2
+    return
+  fi
 
-    backup_file_realname="${file_name:0:$((${#file_name} - 18))}"
-    reversed_file_path="${file_path}/${backup_file_realname}"
-    operation_type=0
-    if [[ -e ${reversed_file_path} ]]; then
-        if [[ ${force_option} -eq 0 ]]; then
-            echo -e "[INFO] ${orange}${reversed_file_path}${endcolor} already exists"
-            read -rp "Overwrite it? (y/n): " exist_file_option
-            exist_file_option="$(echo "${exist_file_option}" | tr '[:upper:]' '[:lower:]')"
-            if [[ ${exist_file_option} == "y" || ${exist_file_option} == "yes" ]]; then
-                force_option=1
-            fi
-        fi
-        if [[ ${force_option} -eq 1 ]]; then
-            rm -rf "${reversed_file_path}"
-            mv "${absolute_path}" "${reversed_file_path}"
-            operation_type=1
-        fi
-    else
-        mv "${absolute_path}" "${reversed_file_path}"
-        operation_type=1
+  backup_file_realname="${file_name:0:$((${#file_name} - 18))}"
+  reversed_file_path="${file_path}/${backup_file_realname}"
+  operation_type=0
+  if [[ -e ${reversed_file_path} ]]; then
+    if [[ ${force_option} -eq 0 ]]; then
+      echo -e "[INFO] ${orange}${reversed_file_path}${endcolor} already exists"
+      read -rp "Overwrite it? (y/n): " exist_file_option
+      exist_file_option="$(echo "${exist_file_option}" | tr '[:upper:]' '[:lower:]')"
+      if [[ ${exist_file_option} == "y" || ${exist_file_option} == "yes" ]]; then
+        force_option=1
+      fi
     fi
-    if [[ ${operation_type} -eq 1 ]]; then
-        echo "${green}[FINISHED]${endcolor} ${reversed_file_path}"
-    else
-        echo "[ERROR] User quit, exiting..." 1>&2
+    if [[ ${force_option} -eq 1 ]]; then
+      rm -rf "${reversed_file_path}"
+      mv "${absolute_path}" "${reversed_file_path}"
+      operation_type=1
     fi
+  else
+    mv "${absolute_path}" "${reversed_file_path}"
+    operation_type=1
+  fi
+
+  if [[ ${operation_type} -eq 1 ]]; then
+    echo "${green}[FINISHED]${endcolor} ${reversed_file_path}"
+  else
+    echo "[ERROR] User quit, exiting..." 1>&2
+  fi
 }
 function _backup_complete
 {
-    local cur prev  
-    COMP_WORDBREAKS=${COMP_WORDBREAKS//[:=]}
-    prev=${COMP_WORDS[COMP_CWORD-1]}
-    _get_comp_words_by_ref cur
-    COMPREPLY=()
+  local cur prev
+  COMP_WORDBREAKS=${COMP_WORDBREAKS//[:=]}
+  prev=${COMP_WORDS[COMP_CWORD-1]}
+  _get_comp_words_by_ref cur
+  COMPREPLY=()
 
-    if [[ ${prev} == "-r" || ${prev} == "-rf" ]]; then
-        count=0
-        while read line; do
-            check_result=$(echo "${line}" | grep "_[0-9]\{8\}_[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}\$" | grep -i "^${cur}" | wc -l)
-            if [[ ${check_result} -eq 1 ]]; then
-                line=${line// /\\\ }
-                COMPREPLY=("${COMPREPLY[@]}" "${line}")
-                ((count++))
-            fi
-        done < <(ls -a --color=never)
-        if [[ ${count} -eq 0 ]]; then
-            COMPREPLY=("--- No Backup File ---" "")
-        fi
+  if [[ ${prev} == "-r" || ${prev} == "-rf" ]]; then
+    count=0
+    while read line; do
+      check_result=$(echo "${line}" | grep "_[0-9]\{8\}_[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}\$" | grep -i "^${cur}" | wc -l)
+      if [[ ${check_result} -eq 1 ]]; then
+        line=${line// /\\\ }
+        COMPREPLY=("${COMPREPLY[@]}" "${line}")
+        ((count++))
+      fi
+    done < <(ls -a --color=never)
+    if [[ ${count} -eq 0 ]]; then
+      COMPREPLY=("--- No Backup File ---" "")
     fi
+  fi
 }
 
 function backup
 {
-    if [[ $# -eq 0 ]]; then
+  if [[ $# -eq 0 ]]; then
+    _backup_helper
+  fi
+  command -v getopts >/dev/null 2>&1 || { echo "[ERROR] Missing ${red}getopts${endcolor}" 1>&2; return; }
+  command -v basename >/dev/null 2>&1 || { echo "[ERROR] Missing ${red}basename${endcolor}" 1>&2; return; }
+  command -v dirname >/dev/null 2>&1 || { echo "[ERROR] Missing ${red}dirname${endcolor}" 1>&2; return; }
+
+  option_count=0
+  reverse_flag=0
+  force_flag=0
+  explanation=""
+  unset OPTIND
+  while getopts "e:fhcrsd" arg; do
+    case "${arg}" in 
+      h)
         _backup_helper
-    fi
-    command -v getopts >/dev/null 2>&1 || { echo "[ERROR] Missing ${red}getopts${endcolor}" 1>&2; return; }
-    command -v basename >/dev/null 2>&1 || { echo "[ERROR] Missing ${red}basename${endcolor}" 1>&2; return; }
-    command -v dirname >/dev/null 2>&1 || { echo "[ERROR] Missing ${red}dirname${endcolor}" 1>&2; return; }
+        ((option_count++))
+        ;;
+      c)
+        _backup_remove_log 
+        ((option_count++))
+        ;;
+      s)
+        _backup_show_log 
+        ((option_count++))
+        ;;
+      d)
+        _backup_delete_current_dir
+        ((option_count++))
+        ;;
+      r)
+        reverse_flag=1
+        ;;
+      f)
+        force_flag=1
+        ;;
+      e)
+        explanation="$OPTARG" 
+        ;; 
+      ?)
+        echo "[ERROR] ${red}$1${endcolor} is an illegal option" 1>&2
+        return
+    esac
+  done
 
-    option_count=0
-    reverse_flag=0
-    force_flag=0
-    explanation=""
-    unset OPTIND
-    while getopts "e:fhcrsd" arg; do
-        case "${arg}" in 
-            h)
-                _backup_helper
-                ((option_count++))
-                ;;
-            c)
-                _backup_remove_log 
-                ((option_count++))
-                ;;
-            s)
-                _backup_show_log 
-                ((option_count++))
-                ;;
-            d)
-                _backup_delete_current_dir
-                ((option_count++))
-                ;;
-            r)
-                reverse_flag=1
-                ;;
-            f)
-                force_flag=1
-                ;;
-            e)
-                explanation="$OPTARG" 
-                ;; 
-            ?)
-                echo "[ERROR] ${red}$1${endcolor} is an illegal option" 1>&2
-                return
-        esac
+  shift $((OPTIND-1))
+  # backup
+  if [[ ${option_count} -eq 0 && ${reverse_flag} -eq 0 ]]; then
+    for item in "${@}"; do
+      _backup_op "${item}" "${explanation}"
     done
+  fi
 
-    shift $((OPTIND-1))
-    # backup
-    if [[ ${option_count} -eq 0 && ${reverse_flag} -eq 0 ]]; then
-        for item in "${@}"; do
-            _backup_op "${item}" "${explanation}"
-        done
-    fi
-
-    # reverse backup
-    if [[ ${option_count} -eq 0 && ${reverse_flag} -eq 1 ]]; then
-        for item in "${@}"; do
-            _backup_reverse_op "${item}" ${force_flag}
-        done
-    fi
+  # reverse backup
+  if [[ ${option_count} -eq 0 && ${reverse_flag} -eq 1 ]]; then
+    for item in "${@}"; do
+      _backup_reverse_op "${item}" ${force_flag}
+    done
+  fi
 }
 complete -o bashdefault -o default -F _backup_complete backup 
 
 # redefine pushd and popd
 function pushdd
 {
-    pushd "$1" > /dev/null
+  pushd "$1" > /dev/null
 }
 function popdd
 {
-    popd > /dev/null
+  popd > /dev/null
 }
 
 # git regenerate origin
 function git-regenerate
 {
-    if [ ! -d .git ]; then
-        echo "No git repo found.."
-        return
-    fi
-    if [ ! -f .git/FETCH_HEAD ]; then
-        echo "Please fetch or pull first.."
-        return
-    fi
+  if [ ! -d .git ]; then
+    echo "No git repo found.."
+    return
+  fi
+  if [ ! -f .git/FETCH_HEAD ]; then
+    echo "Please fetch or pull first.."
+    return
+  fi
 
-    if [[ $1 = "-a" ]]; then
-        git_rege_name=${2:-"#GITNAME#"}
-        git_rege_password=${3:-"#GITPASSWD#"}
-    else
-        read -rp "git name: " git_rege_name
-        read -rsp "git passwd: " git_rege_password
-        echo -ne "\n"
-    fi
+  if [[ $1 = "-a" ]]; then
+    git_rege_name=${2:-"#GITNAME#"}
+    git_rege_password=${3:-"#GITPASSWD#"}
+  else
+    read -rp "git name: " git_rege_name
+    read -rsp "git passwd: " git_rege_password
+    echo -ne "\n"
+  fi
 
-    repo_web=$(awk '{print $NF}' .git/FETCH_HEAD | head -1)
-    git remote rm origin
-    new_web=$(echo "${repo_web}" | sed "s@http\(s\)\?://@https://${git_rege_name}:${git_rege_password}\@@")
-    echo "${new_web}"
-    git remote add origin "${new_web}"
+  repo_web=$(awk '{print $NF}' .git/FETCH_HEAD | head -1)
+  git remote rm origin
+  new_web=$(echo "${repo_web}" | sed "s@http\(s\)\?://@https://${git_rege_name}:${git_rege_password}\@@")
+  echo "${new_web}"
+  git remote add origin "${new_web}"
 }
 
 # git open website  
 function git-openwebsite
 {
-    if [[ $(git rev-parse --is-inside-work-tree 2>&1) == "true" ]]; then
-        url=$(git config --get remote.origin.url)
-        _default_open "${url}"
-    else
-        echo "[ERR] Not a git, quit..." 1>&2
-    fi
+  if [[ $(git rev-parse --is-inside-work-tree 2>&1) == "true" ]]; then
+    url=$(git config --get remote.origin.url)
+    _default_open "${url}"
+  else
+    echo "[ERR] Not a git, quit..." 1>&2
+  fi
 }
 
 # sedding
 function sedding
 {
-    while read data; do
-        echo "${data}" | sed "s@ @\\\ @g;s@\\\$@\\\\\$@g;s@'@\\\\\'@g;s@\"@\\\\\"@g;s@(@\\\(@g;s@)@\\\)@"
-    done
+  while read data; do
+    echo "${data}" | sed "s@ @\\\ @g;s@\\\$@\\\\\$@g;s@'@\\\\\'@g;s@\"@\\\\\"@g;s@(@\\\(@g;s@)@\\\)@"
+  done
 }
 
 # delete enter
 function de
 {
-    while read data; do
-        tmp=$(echo -n "${data}" | sed "s@\\\$@\\\\\$@g;s@\"@\\\\\"@g")
-        echo -n "\"${tmp}\"" | pbcopy
-    done
+  while read data; do
+    tmp=$(echo -n "${data}" | sed "s@\\\$@\\\\\$@g;s@\"@\\\\\"@g")
+    echo -n "\"${tmp}\"" | pbcopy
+  done
 }
 
 # sync
 function url-short 
 {
-    original_name="$1"
-    original_web="${original_name// /%20}"
-    content=$(_url-short "${original_web}")
-    echo "------ URL -------"
-    echo "${content}"
-    echo "------------------"
-    echo -n "${content}" | sed -n '$p' | awk -F ': ' '{print $2}' | tr -d '\n' | pbcopy
+  original_name="$1"
+  original_web="${original_name// /%20}"
+  content=$(_url-short "${original_web}")
+  echo "------ URL -------"
+  echo "${content}"
+  echo "------------------"
+  echo -n "${content}" | sed -n '$p' | awk -F ': ' '{print $2}' | tr -d '\n' | pbcopy
 }
 
 function websync
 {
-    #web="hanxiao.xin"
-    #ip="106.14.7.228"
+  #web="hanxiao.xin"
+  #ip="106.14.7.228"
 
-    web="178.62.75.92"
-    ip="178.62.75.92"
-    user="root"
-    root_dir="/root/01_Project/03_offline-download"
-    tool_dir="${root_dir}/02_tools"
-    file_dir="${root_dir}/01_files"
-    public="public"
+  web="178.62.75.92"
+  ip="178.62.75.92"
+  user="root"
+  root_dir="/root/01_Project/03_offline-download"
+  tool_dir="${root_dir}/02_tools"
+  file_dir="${root_dir}/01_files"
+  public="public"
 
-    if [ -z "$1" ]; then
-        echo -e "${green}[HELP MENU]${endcolor}:\n \
-            <file>:      upload file to server, if direction, then compress first\n \
-            [-a] <file>: add file to not delete list, thus will not be deleted by [-c]\n \
-            [-c]:        clean all the upload file\n \
-            [-d] <file>: upload the directions dircetly\n \
-            [-m] <file>: modify or regenerate the expire time for the file\n \
-            [ls]:        show all files in web\n \
-            [-expire]:   show all expire files, and their expire time"
-    # cp dir directly
-    elif [ "$1" = "-d" ]; then
-        if [ ! -e "$2" ]; then
-            echo "file not exists!" 1>&2
-        else
-            realname=$(basename "$2")
-            url-short "${web}/${public}/${realname}"
-            read -rp "Set Valid Time: " valid_time
-            scp -r "${realname}" ${user}@${ip}:${file_dir}
-            ssh ${user}@${ip} "${tool_dir}/websync.sh \"${realname}\" \"${valid_time}\""
-        fi
-
-    elif [ "$1" = "-c" ]; then
-        ssh ${user}@${ip} "${tool_dir}/websync.sh -c1"
-        read -rp "Are you sure to delete? [y/n] " answer
-        if [[ ${answer} = "y" ]] || [[ ${answer} = "Y" ]]; then
-            ssh ${user}@${ip} "${tool_dir}/websync.sh -c2"
-        else
-            :;
-        fi
-
-    elif [ "$1" = "-a" ]; then
-        for ((i = 2; i <= $#; i++)); do
-            parse_add=$(eval echo \$$i)
-            file_name=$(basename "${parse_add}")
-            echo "add ${green}${file_name}${endcolor}"
-            ssh ${user}@${ip} "${tool_dir}/websync.sh -a \"${file_name}\"" 
-        done
-
-    elif [ "$1" = "ls" ]; then
-        ssh ${user}@${ip} "${tool_dir}/websync.sh -ls" 
-
-    elif [ "$1" = "-expire" ]; then
-        ssh ${user}@${ip} "${tool_dir}/websync.sh -expire" 
-
-    elif [ "$1" = "-m" ]; then
-        realname=$(basename "$2")
-        read -rp "Set Valid Time: " valid_time
-        ssh ${user}@${ip} "${tool_dir}/websync.sh -m \"${realname}\" \"${valid_time}\""
-        url-short "${web}/${public}/${realname}"
-
+  if [ -z "$1" ]; then
+    echo -e "${green}[HELP MENU]${endcolor}:\n \
+      <file>:      upload file to server, if direction, then compress first\n \
+      [-a] <file>: add file to not delete list, thus will not be deleted by [-c]\n \
+      [-c]:        clean all the upload file\n \
+      [-d] <file>: upload the directions dircetly\n \
+      [-m] <file>: modify or regenerate the expire time for the file\n \
+      [ls]:        show all files in web\n \
+      [-expire]:   show all expire files, and their expire time"
+  # cp dir directly
+  elif [ "$1" = "-d" ]; then
+    if [ ! -e "$2" ]; then
+      echo "file not exists!" 1>&2
     else
-        if [ ! -e "$1" ]; then
-            echo "file not exists!" 1>&2
-        elif [ -f "$1" ]; then
-            realname=$(basename "$1")
-            url-short "${web}/${public}/${realname}"
-            read -rp "Set Valid Time: " valid_time
-            scp -r "${realname}" ${user}@${ip}:${file_dir}
-            ssh ${user}@${ip} "${tool_dir}/websync.sh \"${realname}\" \"${valid_time}\""
-        elif [ -d "$1" ]; then
-            realname=$(basename "$1")
-            url-short "${web}/${public}/${realname}.zip" 
-            file_name=$(realpath "$1")
-            pushd "$(dirname "${file_name}")" > /dev/null
-            if [ ! -d ~/.tmp_zip ]; then
-                mkdir -p ~/.tmp_zip
-            fi
-            if [ -e ~/.tmp_zip/"${realname}".zip ]; then
-                rm ~/.tmp_zip/"${realname}".zip
-            fi
-            zip -r ~/.tmp_zip/"${realname}".zip "${realname}"
-            popd > /dev/null
-            read -rp "Set Valid Time: " valid_time
-            scp -r ~/.tmp_zip/"${realname}".zip ${user}@${ip}:${file_dir}
-            ssh ${user}@${ip} "${tool_dir}/websync.sh \"${realname}.zip\" \"${valid_time}\""
-            rm -r ~/.tmp_zip
-        fi
-    fi    
+      realname=$(basename "$2")
+      url-short "${web}/${public}/${realname}"
+      read -rp "Set Valid Time: " valid_time
+      scp -r "${realname}" ${user}@${ip}:${file_dir}
+      ssh ${user}@${ip} "${tool_dir}/websync.sh \"${realname}\" \"${valid_time}\""
+    fi
+
+  elif [ "$1" = "-c" ]; then
+    ssh ${user}@${ip} "${tool_dir}/websync.sh -c1"
+    read -rp "Are you sure to delete? [y/n] " answer
+    if [[ ${answer} = "y" ]] || [[ ${answer} = "Y" ]]; then
+      ssh ${user}@${ip} "${tool_dir}/websync.sh -c2"
+    else
+      :;
+    fi
+
+  elif [ "$1" = "-a" ]; then
+    for ((i = 2; i <= $#; i++)); do
+      parse_add=$(eval echo \$$i)
+      file_name=$(basename "${parse_add}")
+      echo "add ${green}${file_name}${endcolor}"
+      ssh ${user}@${ip} "${tool_dir}/websync.sh -a \"${file_name}\"" 
+    done
+
+  elif [ "$1" = "ls" ]; then
+    ssh ${user}@${ip} "${tool_dir}/websync.sh -ls" 
+
+  elif [ "$1" = "-expire" ]; then
+    ssh ${user}@${ip} "${tool_dir}/websync.sh -expire" 
+
+  elif [ "$1" = "-m" ]; then
+    realname=$(basename "$2")
+    read -rp "Set Valid Time: " valid_time
+    ssh ${user}@${ip} "${tool_dir}/websync.sh -m \"${realname}\" \"${valid_time}\""
+    url-short "${web}/${public}/${realname}"
+
+  else
+    if [ ! -e "$1" ]; then
+      echo "file not exists!" 1>&2
+    elif [ -f "$1" ]; then
+      realname=$(basename "$1")
+      url-short "${web}/${public}/${realname}"
+      read -rp "Set Valid Time: " valid_time
+      scp -r "${realname}" ${user}@${ip}:${file_dir}
+      ssh ${user}@${ip} "${tool_dir}/websync.sh \"${realname}\" \"${valid_time}\""
+    elif [ -d "$1" ]; then
+      realname=$(basename "$1")
+      url-short "${web}/${public}/${realname}.zip" 
+      file_name=$(realpath "$1")
+      pushd "$(dirname "${file_name}")" > /dev/null
+      if [ ! -d ~/.tmp_zip ]; then
+        mkdir -p ~/.tmp_zip
+      fi
+      if [ -e ~/.tmp_zip/"${realname}".zip ]; then
+        rm ~/.tmp_zip/"${realname}".zip
+      fi
+      zip -r ~/.tmp_zip/"${realname}".zip "${realname}"
+      popd > /dev/null
+      read -rp "Set Valid Time: " valid_time
+      scp -r ~/.tmp_zip/"${realname}".zip ${user}@${ip}:${file_dir}
+      ssh ${user}@${ip} "${tool_dir}/websync.sh \"${realname}.zip\" \"${valid_time}\""
+      rm -r ~/.tmp_zip
+    fi
+  fi
 }
 
 # offline download
 function offline-download
 {
-    ip="178.62.75.92"
-    base_dir="/root/01_Project/03_offline-download"
-    user="root"
+  ip="178.62.75.92"
+  base_dir="/root/01_Project/03_offline-download"
+  user="root"
 
-    torrent_dir="${base_dir}/00_torrent/"
-    tool_dir="${base_dir}/02_tools/"
-    
-    if [ -z "$1" ]; then
-        echo -e "${green}[HELP MENU]${endcolor}:\n \
-            <file> download torrent file\n \
-            <link> download link\n \
-            [-s] states of downloading torrents\n \
-            [-c] clear logs\n \
-            [-d] delete current task"
-    elif [ "$1" = "-s" ]; then
-        ssh ${user}@${ip} "${tool_dir}/show_status.sh"
-    elif [ "$1" = "-c" ]; then
-        ssh ${user}@${ip} "${tool_dir}/clean.sh -a"
-        read -rp "Continue? [y/n]" answer
-        if [[ ${answer} = "y" ]]  || [[ ${answer} = "Y" ]]; then
-            ssh ${user}@${ip} "${tool_dir}/clean.sh -c"
-        fi
-    elif [ "$1" = "-d" ]; then
-        ssh ${user}@${ip} "${tool_dir}/stop_current_task.sh"
-    else
-        download_torrent="$1"
-        download_torrent_name=$(basename "${download_torrent}")
-        simplified_torrent_name=$(echo "${download_torrent_name}" | strings | tr -d "\n" | tr -d " " | tr -d "\t")
-        p1=$(sed -n "1p" "${HOME}"/.ssh/offline-code)
-        if [ -f "${download_torrent}" ]; then
-            p2=$(sed -n "2p" "${HOME}"/.ssh/offline-code)
-            encry_name=$(echo "${simplified_torrent_name}" | base64 | tr "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" "${p1}")
-            gbase64 "${download_torrent}" | tr "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" "${p2}" > "${HOME}/${encry_name}"
-            scp -r "${HOME}/${encry_name}" ${user}@${ip}:"${torrent_dir}/${encry_name}"
-            ssh -f -n ${user}@${ip} "${tool_dir}/start_download_torrent.sh ${torrent_dir}${encry_name} &"
-            rm "${download_torrent}"
-            rm "${HOME}/${encry_name}"
-        else
-            encry_link=$(echo "${download_torrent}" | base64 | tr "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" "${p1}")
-            ssh -f -n ${user}@${ip} "${tool_dir}/start_download_link.sh ${encry_link} &"
-        fi
+  torrent_dir="${base_dir}/00_torrent/"
+  tool_dir="${base_dir}/02_tools/"
+
+  if [ -z "$1" ]; then
+    echo -e "${green}[HELP MENU]${endcolor}:\n \
+      <file> download torrent file\n \
+      <link> download link\n \
+      [-s] states of downloading torrents\n \
+      [-c] clear logs\n \
+      [-d] delete current task"
+  elif [ "$1" = "-s" ]; then
+    ssh ${user}@${ip} "${tool_dir}/show_status.sh"
+  elif [ "$1" = "-c" ]; then
+    ssh ${user}@${ip} "${tool_dir}/clean.sh -a"
+    read -rp "Continue? [y/n]" answer
+    if [[ ${answer} = "y" ]]  || [[ ${answer} = "Y" ]]; then
+      ssh ${user}@${ip} "${tool_dir}/clean.sh -c"
     fi
+  elif [ "$1" = "-d" ]; then
+    ssh ${user}@${ip} "${tool_dir}/stop_current_task.sh"
+  else
+    download_torrent="$1"
+    download_torrent_name=$(basename "${download_torrent}")
+    simplified_torrent_name=$(echo "${download_torrent_name}" | strings | tr -d "\n" | tr -d " " | tr -d "\t")
+    p1=$(sed -n "1p" "${HOME}"/.ssh/offline-code)
+    if [ -f "${download_torrent}" ]; then
+      p2=$(sed -n "2p" "${HOME}"/.ssh/offline-code)
+      encry_name=$(echo "${simplified_torrent_name}" | base64 | tr "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" "${p1}")
+      gbase64 "${download_torrent}" | tr "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" "${p2}" > "${HOME}/${encry_name}"
+      scp -r "${HOME}/${encry_name}" ${user}@${ip}:"${torrent_dir}/${encry_name}"
+      ssh -f -n ${user}@${ip} "${tool_dir}/start_download_torrent.sh ${torrent_dir}${encry_name} &"
+      rm "${download_torrent}"
+      rm "${HOME}/${encry_name}"
+    else
+      encry_link=$(echo "${download_torrent}" | base64 | tr "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" "${p1}")
+      ssh -f -n ${user}@${ip} "${tool_dir}/start_download_link.sh ${encry_link} &"
+    fi
+  fi
 }
 
 # Decrypt
 function root13
 {
-    p1=$(sed -n "$1p" "${HOME}"/.ssh/offline-code)
-    echo "$2" | tr "${p1}" "A-Za-z1234567890+" | gbase64 -d
+  p1=$(sed -n "$1p" "${HOME}"/.ssh/offline-code)
+  echo "$2" | tr "${p1}" "A-Za-z1234567890+" | gbase64 -d
 }
 
 function decrypt
 {
-    p1=$(sed -n "3p" "${HOME}"/.ssh/offline-code)
-    decrypt_file="$1"
-    decrypt_file_name=$(basename "${decrypt_file}" | sed "s@.gpg@@")
-    decrypt_file_path=$(dirname "${decrypt_file}")
-    decrypt_encry_name=$(echo "${decrypt_file_name}" | tr "${p1}" "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" | gbase64 -d)
-    mv "${decrypt_file}" "${decrypt_file_path}/${decrypt_encry_name}"
+  p1=$(sed -n "3p" "${HOME}"/.ssh/offline-code)
+  decrypt_file="$1"
+  decrypt_file_name=$(basename "${decrypt_file}" | sed "s@.gpg@@")
+  decrypt_file_path=$(dirname "${decrypt_file}")
+  decrypt_encry_name=$(echo "${decrypt_file_name}" | tr "${p1}" "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+" | gbase64 -d)
+  mv "${decrypt_file}" "${decrypt_file_path}/${decrypt_encry_name}"
 
-    decrypt_file="${decrypt_file_path}/${decrypt_encry_name}"
-    decrypt_file_name=$(basename "${decrypt_file}")
-    extension="${decrypt_file_name##*.}"
-    decrypt_file_name_without_extension="${decrypt_file_name%.*}"
-    decrypt_real_name="${decrypt_file_name_without_extension%.*}"
+  decrypt_file="${decrypt_file_path}/${decrypt_encry_name}"
+  decrypt_file_name=$(basename "${decrypt_file}")
+  extension="${decrypt_file_name##*.}"
+  decrypt_file_name_without_extension="${decrypt_file_name%.*}"
+  decrypt_real_name="${decrypt_file_name_without_extension%.*}"
 
-    if [[ ! ${extension} = "gpg" ]]; then
-        echo "not exact file!"
-    else
-        gpg "${decrypt_file}"
-        pushd "${decrypt_file_path}" > /dev/null
-        unzip "${decrypt_file_name_without_extension}"
-        popd >/dev/null
-        rm "${decrypt_file_name_without_extension}"
-        read -rp "delete download gpg file? [y/n] " answer
-        if [[ ${answer} = "y" ]] || [[ ${answer} = "Y" ]]; then
-            rm "${decrypt_file}"
-        fi
-        echo -e "\n${decrypt_file_path}/${decrypt_real_name}"
+  if [[ ! ${extension} = "gpg" ]]; then
+    echo "not exact file!"
+  else
+    gpg "${decrypt_file}"
+    pushd "${decrypt_file_path}" > /dev/null
+    unzip "${decrypt_file_name_without_extension}"
+    popd >/dev/null
+    rm "${decrypt_file_name_without_extension}"
+    read -rp "delete download gpg file? [y/n] " answer
+    if [[ ${answer} = "y" ]] || [[ ${answer} = "Y" ]]; then
+      rm "${decrypt_file}"
     fi
+    echo -e "\n${decrypt_file_path}/${decrypt_real_name}"
+  fi
 }
 
 function _google_get_current_cl_name()
 {
-    p4 -F %Change% change -o -c default
+  p4 -F %Change% change -o -c default
 }
 function _google_get_default_client_name()
 {
-    if [[ -f ~/.default_client ]]; then
-        cat ~/.default_client | head -1
-    else
-        echo "NO_DEFAULT"
-    fi
+  common_get_bash_global_state GOOGLE_DEFAULT_CLIENT
 }
 function _google_get_client_name()
 {
-    p4 -F "%Client%" client -o | awk -F ':' '{print $2}'
+  p4 -F "%Client%" client -o | awk -F ':' '{print $2}'
+}
+function _google_build_workspace_to_tmp_dir() {
+  local build_tmp_dir="/usr/local/google/_blaze_$(common_get_bash_global_state GOOGLE_LDAP)/"
+  local workspace="$1"
+  for readme in $(find "${build_tmp_dir}" -name "README" 2> /dev/null); do
+    local current_workspace="$(head -1 ${readme} | awk -F '/' '{print $(NF-1)}')"
+    if [[ ${current_workspace} = ${workspace} ]]; then
+      echo ${readme} | awk -F '/' '{print $(NF-1)}'
+      return
+    fi
+  done
+  echo "${red}[Error]${endcolor} Can't find tmp dir for workspace: ${workspace}"
 }
 
 function _google_choose_client_name()
 {
-    local google_absolute_path="$1"
-    local google_current_workspace="$2"
-    local file_list_tmp=(${_google_base_dir}*)
-    local file_list=()
-    local print_log
+  local google_absolute_path="$1"
+  local google_current_workspace="$2"
+  local file_list_tmp=(${_google_base_dir}*)
+  local file_list=()
+  local print_log
 
-    for i in ${file_list_tmp[@]}; do file_list+=($(basename $i)); done
-    local _file_count=0
-    for item in ${file_list[@]}; do
-        if [[ -e ${_google_base_dir}/${item}/${google_absolute_path} ]]; then
-            print_log="${_file_count}: ${green}${item}${endcolor}"
-        else
-            print_log="${_file_count}: ${item}"
-        fi
-
-        if [[ "${item}" == "${google_current_workspace}" ]]; then
-            print_log="${print_log} ${white}<==${endcolor}"
-        fi
-        echo "${print_log}"
-      ((_file_count++))
-    done
-    pushd ${_google_base_dir} > /dev/null
-    read -erp "Choose client: " _global_google_client_chosed
-    popd > /dev/null
-    _global_google_client_chosed="$(echo "${_global_google_client_chosed}" | tr -d '/')"
-
-    local re='^[0-9]+$'
-    if [[ ${_global_google_client_chosed} =~ $re ]] ; then
-        _global_google_client_chosed=${file_list[${_global_google_client_chosed}]}
+  for i in ${file_list_tmp[@]}; do file_list+=($(basename $i)); done
+  local _file_count=0
+  for item in ${file_list[@]}; do
+    if [[ -e ${_google_base_dir}/${item}/${google_absolute_path} ]]; then
+      print_log="${_file_count}: ${green}${item}${endcolor}"
+    else
+      print_log="${_file_count}: ${item}"
     fi
 
-    if [[ ! ${file_list[*]} =~ ${_global_google_client_chosed} ]]; then
-        _global_google_client_chosed=""
+    if [[ "${item}" == "${google_current_workspace}" ]]; then
+      print_log="${print_log} ${white}<==${endcolor}"
     fi
+    echo "${print_log}"
+    ((_file_count++))
+  done
+  pushd ${_google_base_dir} > /dev/null
+  read -erp "Choose client: " _global_google_client_chosed
+  popd > /dev/null
+  _global_google_client_chosed="$(echo "${_global_google_client_chosed}" | tr -d '/')"
+
+  local re='^[0-9]+$'
+  if [[ ${_global_google_client_chosed} =~ $re ]] ; then
+    _global_google_client_chosed=${file_list[${_global_google_client_chosed}]}
+  fi
+
+  if [[ ! ${file_list[*]} =~ ${_global_google_client_chosed} ]]; then
+    _global_google_client_chosed=""
+  fi
 }
 
 function _google_choose_client_name_auto_complete_1()
 {
-    local HOST cur
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-    file_list=(${_google_base_dir}*)
-    HOST=""
-    for item in ${file_list[@]}; do
-        HOST="${HOST} $(basename ${item})"
-    done
-    COMPREPLY=( $( compgen -W "${HOST}" -- "$cur" ) )
+  local HOST cur
+  COMPREPLY=()
+  _get_comp_words_by_ref cur
+  file_list=(${_google_base_dir}*)
+  HOST=""
+  for item in ${file_list[@]}; do
+    HOST="${HOST} $(basename ${item})"
+  done
+  COMPREPLY=( $( compgen -W "${HOST}" -- "$cur" ) )
 }
 
 function _google_choose_client_name_auto_complete()
 {
-    local HOST cur
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-    file_list=(${_google_base_dir}*)
-    HOST=""
-    for item in ${file_list[@]}; do
-        new_client_name=$(basename ${item})
-        current_client_name=$(_google_get_client_name)
-        new_real_dir=$(echo ${PWD} | sed "s@${_google_base_dir}${current_client_name}@${_google_base_dir}${new_client_name}@")
-        if [[ -e ${new_real_dir} && ${new_client_name} != ${current_client_name} ]]; then
-            HOST="${HOST} $(basename ${item})"
-        fi
-    done
-    COMPREPLY=( $( compgen -W "${HOST}" -- "$cur" ) )
+  local HOST cur
+  COMPREPLY=()
+  _get_comp_words_by_ref cur
+  file_list=(${_google_base_dir}*)
+  HOST=""
+  for item in ${file_list[@]}; do
+    new_client_name=$(basename ${item})
+    current_client_name=$(_google_get_client_name)
+    new_real_dir=$(echo ${PWD} | sed "s@${_google_base_dir}${current_client_name}@${_google_base_dir}${new_client_name}@")
+    if [[ -e ${new_real_dir} && ${new_client_name} != ${current_client_name} ]]; then
+      HOST="${HOST} $(basename ${item})"
+    fi
+  done
+  COMPREPLY=( $( compgen -W "${HOST}" -- "$cur" ) )
 }
 function _google_switch_client()
 {
-    local current_client_name=$(_google_get_client_name)
-    local new_real_dir=$(echo ${PWD} | sed "s@${_google_base_dir}${current_client_name}@${_google_base_dir}$1@")
-    _cd_google_final_dir "${new_real_dir}" "${current_client_name}"
+  local current_client_name=$(_google_get_client_name)
+  local new_real_dir=$(echo ${PWD} | sed "s@${_google_base_dir}${current_client_name}@${_google_base_dir}$1@")
+  _cd_google_final_dir "${new_real_dir}" "${current_client_name}"
 }
 function _google_dir_exists()
 {
-    local input_dir="$1"
-    local client_list=(${_google_base_dir}*)
-    local potential_regularized_dir=$(echo ${input_dir} | sed "s@^/google3/@@" | sed "s@^google3/@@" | sed "s@^//depot/google3/@@" | sed "s@/depot/google3/@@" | sed "s@depot/google3/@@" | awk -F '/google3/' '{print $NF}')
-    _global_google_dir_exist_flag=0
+  local input_dir="$1"
+  local client_list=(${_google_base_dir}*)
+  local potential_regularized_dir=$(echo ${input_dir} | sed "s@^/google3/@@" | sed "s@^google3/@@" | sed "s@^//depot/google3/@@" | sed "s@/depot/google3/@@" | sed "s@depot/google3/@@" | awk -F '/google3/' '{print $NF}')
+  _global_google_dir_exist_flag=0
 
-    for item in ${client_list[@]}; do
-        local google_absolute_path="${item}/google3/${potential_regularized_dir}"
-        if [[ -e ${google_absolute_path} ]]; then
-            _global_google_dir_exist_flag=1
-            _global_google_absolute_path="/google3/${potential_regularized_dir}"
-            break
-        fi
-    done
+  for item in ${client_list[@]}; do
+    local google_absolute_path="${item}/google3/${potential_regularized_dir}"
+    if [[ -e ${google_absolute_path} ]]; then
+      _global_google_dir_exist_flag=1
+      _global_google_absolute_path="/google3/${potential_regularized_dir}"
+      break
+    fi
+  done
 }
 function _google_workspace_change_print_log()
 {
-    local previous_workspace="$1"
-    local new_workspace="$2"
-    local extra_info="$3"
-    if [[ ! -z ${extra_info} ]]; then
-        extra_info="[${extra_info}]:"
-    fi
-    if [[ ${previous_workspace} == ${new_workspace} ]]; then
-        echo "${extra_info} (${white}Stays in${endcolor} ${green}${previous_workspace}${endcolor})"
-    else
-        echo "${extra_info} (${red}${previous_workspace}${endcolor} => ${green}${new_workspace}${endcolor})"
-    fi
+  local previous_workspace="$1"
+  local new_workspace="$2"
+  local extra_info="$3"
+  if [[ ! -z ${extra_info} ]]; then
+    extra_info="[${extra_info}]:"
+  fi
+  if [[ ${previous_workspace} == ${new_workspace} ]]; then
+    echo "${extra_info} (${white}Stays in${endcolor} ${green}${previous_workspace}${endcolor})"
+  else
+    echo "${extra_info} (${red}${previous_workspace}${endcolor} => ${green}${new_workspace}${endcolor})"
+  fi
 }
 function cd-set-default-client()
 {
-    if [[ $1 == "-d" ]]; then
-        rm -rf ~/.default_client
-        echo "${green}[SUC]${endcolor} Default client disabled."
+  if [[ $1 == "-d" ]]; then
+    common_set_bash_global_state GOOGLE_DEFAULT_CLIENT NO_DEFAULT
+    echo "${green}[SUC]${endcolor} Default client disabled."
+  else
+    local old_default_client_name=$(_google_get_default_client_name)
+    local default_client_name
+    if [[ -z $1 ]]; then
+      default_client_name=$(_google_get_client_name)
     else
-        local old_default_client_name=$(_google_get_default_client_name)
-        local default_client_name
-        if [[ -z $1 ]]; then
-            default_client_name=$(_google_get_client_name)
-        else
-            default_client_name=$1
-        fi
-        echo ${default_client_name} > ~/.default_client
-        _google_workspace_change_print_log ${old_default_client_name} ${default_client_name} "Set Default Client"
+      default_client_name=$1
     fi
+    common_set_bash_global_state GOOGLE_DEFAULT_CLIENT ${default_client_name}
+    _google_workspace_change_print_log ${old_default_client_name} ${default_client_name} "Set Default Client"
+  fi
 }
 
 # Use autojump as a part of cd command
 function relpath()
 { 
-    python3 -c "import os.path; print(os.path.relpath('$1','${2:-$PWD}'), end = '')"
+  python3 -c "import os.path; print(os.path.relpath('$1','${2:-$PWD}'), end = '')"
 }
 
 function _google_get_exists_parent_dir_recursively()
 {
-    local input_dir="$1"
-    if [[ -z ${input_dir} ]]; then
-        return
-    fi
+  local input_dir="$1"
+  if [[ -z ${input_dir} ]]; then
+    return
+  fi
 
-    if [[ -e ${input_dir} ]]; then
-        _global_google_exists_parent_dir=${input_dir}
-        return
-    else
-        _google_get_exists_parent_dir_recursively "$(dirname "${input_dir}")"
-    fi
+  if [[ -e ${input_dir} ]]; then
+    _global_google_exists_parent_dir=${input_dir}
+    return
+  else
+    _google_get_exists_parent_dir_recursively "$(dirname "${input_dir}")"
+  fi
 }
 
 if [[ $(command -v j) ]]; then
-    function _cd_google_final_dir
-    {
-        local _google_final_dir="$1"
-        local current_client_name="$2"
-        local new_client_name _google_file_name open_option _google_user_input_final_dir
-        if [[ -f ${_google_final_dir} ]]; then
-            pushd $(dirname ${_google_final_dir}) > /dev/null
-            new_client_name=$(_google_get_client_name)
-            _google_file_name=$(basename ${_google_final_dir})
+  function _cd_google_final_dir
+  {
+    local _google_final_dir="$1"
+    local current_client_name="$2"
+    local new_client_name _google_file_name open_option _google_user_input_final_dir
+    if [[ -f ${_google_final_dir} ]]; then
+      pushd $(dirname ${_google_final_dir}) > /dev/null
+      new_client_name=$(_google_get_client_name)
+      _google_file_name=$(basename ${_google_final_dir})
 
-            echo -n "${red}[google3 dir]${endcolor} $(dirname ${_google_final_dir})"
-            _google_workspace_change_print_log "${current_client_name}" "${new_client_name}"
-            read -rp "Open file <${_google_file_name}> ? [y/n] " open_option
-            if [[ ${open_option} == 'y' || ${open_option} == 'Y' ]]; then
-                vim ${_google_file_name}
-            fi
-        elif [[ -d ${_google_final_dir} ]]; then
-            pushd ${_google_final_dir} > /dev/null
-            new_client_name=$(_google_get_client_name)
+      echo -n "${red}[google3 dir]${endcolor} $(dirname ${_google_final_dir})"
+      _google_workspace_change_print_log "${current_client_name}" "${new_client_name}"
+      read -rp "Open file <${_google_file_name}> ? [y/n] " open_option
+      if [[ ${open_option} == 'y' || ${open_option} == 'Y' ]]; then
+        vim ${_google_file_name}
+      fi
+    elif [[ -d ${_google_final_dir} ]]; then
+      pushd ${_google_final_dir} > /dev/null
+      new_client_name=$(_google_get_client_name)
 
-            echo -n "${red}[google3 dir]${endcolor} ${_google_final_dir}"
-            _google_workspace_change_print_log "${current_client_name}" "${new_client_name}"
+      echo -n "${red}[google3 dir]${endcolor} ${_google_final_dir}"
+      _google_workspace_change_print_log "${current_client_name}" "${new_client_name}"
+    else
+      _google_user_input_final_dir="${_google_final_dir}"
+      _google_get_exists_parent_dir_recursively "${_google_final_dir}"
+      _google_final_dir="${_global_google_exists_parent_dir}"
+      unset _global_google_exists_parent_dir
+
+      pushd ${_google_final_dir} > /dev/null
+      new_client_name=$(_google_get_client_name)
+
+      _google_user_input_final_dir="$(echo "${_google_user_input_final_dir}" \
+        | awk -F "${_google_final_dir}" '{print $2}')"
+      local _delete_color=$'\e[31;03m'
+      echo -n "${red}[google3 dir]${endcolor} ${_google_final_dir}"
+      echo -n "${_delete_color}${_google_user_input_final_dir}${endcolor}"
+      _google_workspace_change_print_log "${current_client_name}" "${new_client_name}"
+    fi
+  }
+  function cd
+  {
+    local current_client_name=$(_google_get_client_name)
+    local _google_default_client _google_final_dir
+
+    _google_dir_exists "$1"
+    if [[ ${#} -gt 1 || -d "$1" || "$1" == "-" ]]; then
+      #command cd "$@"
+      pushd "$@" > /dev/null
+    elif [[ "$1" == "=" ]]; then
+      popd > /dev/null
+    elif [[ ${_global_google_dir_exist_flag} -eq 1 ]]; then
+      unset _global_google_dir_exist_flag
+      echo "${red}[google3]${endcolor} ${_global_google_absolute_path}"
+
+      if [[ -f ~/.default_client ]]; then
+        _google_default_client=$(_google_get_default_client_name)
+        if [[ -e "${_google_base_dir}/${_google_default_client}/${_global_google_absolute_path}" ]]; then
+          _google_final_dir="${_google_base_dir}/${_google_default_client}/${_global_google_absolute_path}"
         else
-            _google_user_input_final_dir="${_google_final_dir}"
-            _google_get_exists_parent_dir_recursively "${_google_final_dir}"
-            _google_final_dir="${_global_google_exists_parent_dir}"
-            unset _global_google_exists_parent_dir
-
-            pushd ${_google_final_dir} > /dev/null
-            new_client_name=$(_google_get_client_name)
-
-            _google_user_input_final_dir="$(echo "${_google_user_input_final_dir}" \
-              | awk -F "${_google_final_dir}" '{print $2}')"
-            local _delete_color=$'\e[31;03m'
-            echo -n "${red}[google3 dir]${endcolor} ${_google_final_dir}"
-            echo -n "${_delete_color}${_google_user_input_final_dir}${endcolor}"
-            _google_workspace_change_print_log "${current_client_name}" "${new_client_name}"
+          _google_choose_client_name "${_global_google_absolute_path}" "${current_client_name}"
+          _google_final_dir="${_google_base_dir}/${_global_google_client_chosed}/${_global_google_absolute_path}"
         fi
-    }
-    function cd
-    {
-        local current_client_name=$(_google_get_client_name)
-        local _google_default_client _google_final_dir
-
-        _google_dir_exists "$1"
-        if [[ ${#} -gt 1 || -d "$1" || "$1" == "-" ]]; then
-            #command cd "$@"
-            pushd "$@" > /dev/null
-        elif [[ "$1" == "=" ]]; then
-            popd > /dev/null
-        elif [[ ${_global_google_dir_exist_flag} -eq 1 ]]; then
-            unset _global_google_dir_exist_flag
-            echo "${red}[google3]${endcolor} ${_global_google_absolute_path}"
-
-            if [[ -f ~/.default_client ]]; then
-                _google_default_client=$(_google_get_default_client_name)
-                if [[ -e "${_google_base_dir}/${_google_default_client}/${_global_google_absolute_path}" ]]; then
-                    _google_final_dir="${_google_base_dir}/${_google_default_client}/${_global_google_absolute_path}"
-                else
-                    _google_choose_client_name "${_global_google_absolute_path}" "${current_client_name}"
-                    _google_final_dir="${_google_base_dir}/${_global_google_client_chosed}/${_global_google_absolute_path}"
-                fi
-            else
-                if [[ -e "${_google_base_dir}/${current_client_name}/${_global_google_absolute_path}" ]]; then
-                    _google_final_dir="${_google_base_dir}/${current_client_name}/${_global_google_absolute_path}"
-                else
-                    _google_choose_client_name "${_global_google_absolute_path}" "${current_client_name}"
-                    _google_final_dir="${_google_base_dir}/${_global_google_client_chosed}/${_global_google_absolute_path}"
-                fi
-            fi
-            unset _global_google_client_chosed _global_google_absolute_path
-
-            _google_final_dir="$(echo "${_google_final_dir}" | tr -s '/')"
-            _cd_google_final_dir "${_google_final_dir}" "${current_client_name}"
+      else
+        if [[ -e "${_google_base_dir}/${current_client_name}/${_global_google_absolute_path}" ]]; then
+          _google_final_dir="${_google_base_dir}/${current_client_name}/${_global_google_absolute_path}"
         else
-            local old_path="${PWD}"
-            echo -n "${red}[Auto Jump] ${endcolor}"
-            j "$@" > /dev/null
-            if [[ ! -z ${current_client_name} ]]; then
-                cds "${current_client_name}"
-            fi
+          _google_choose_client_name "${_global_google_absolute_path}" "${current_client_name}"
+          _google_final_dir="${_google_base_dir}/${_global_google_client_chosed}/${_global_google_absolute_path}"
+        fi
+      fi
+      unset _global_google_client_chosed _global_google_absolute_path
 
-            echo -n "${red}[Relative Path] ${endcolor}"
-            relpath "${PWD}" "${old_path}"
-            local new_client_name=$(_google_get_client_name)
-            _google_workspace_change_print_log ${current_client_name} ${new_client_name}
-        fi
-    }
-    function cds
-    {
-        if [[ -z $1 && -f ~/.default_client ]]; then
-            local _google_default_client=$(_google_get_default_client_name)
-            _google_switch_client ${_google_default_client}
-        else
-            _google_switch_client "$1"
-        fi
-    }
-    function cd-with-select-client
-    {
-        _google_dir_exists "$1"
-        local current_client_name=$(_google_get_client_name)
-        _google_choose_client_name "${_global_google_absolute_path}" "${current_client_name}"
-        local _google_final_dir="$(echo "${_google_base_dir}/${_global_google_client_chosed}/${_global_google_absolute_path}" | tr -s '/')"
-        unset _global_google_client_chosed _global_google_absolute_path
-        _cd_google_final_dir "${_google_final_dir}" "${current_client_name}"
-    }
-    complete -F _google_choose_client_name_auto_complete_1 cds 
-    complete -F _google_choose_client_name_auto_complete_1 cd-set-default-client
-    function cdj
-    {
-        local current_path="$(realpath $PWD)"
-        local current_java_path=$(echo "${current_path}" | grep -c "/google3/java/")
-        local current_javatests_path=$(echo "${current_path}" | grep -c "/google3/javatests/")
-        if [ ${current_java_path} -eq 1 ]; then
-            pushd $(echo $current_path | sed "s@/google3/java/@/google3/javatests/@") > /dev/null
-        elif [ ${current_javatests_path} -eq 1 ]; then
-            pushd $(echo $current_path | sed "s@/google3/javatests/@/google3/java/@") > /dev/null
-        fi
-    }
-    function cdc
-    {
-        if [[ ${#} -gt 1 || -e "$1" || "$1" == "-" ]]; then
-            command cd "$@"
-        else
-            jc "$@"
-        fi
-    }
-    function cdo
-    {
-        if [[ ${#} -gt 1 || -e "$1" || "$1" == "-" ]]; then
-            pushd "$@" > /dev/null
-            _default_open .
-            popd >/dev/null
-        else
-            jo "$@"
-        fi
-    }
+      _google_final_dir="$(echo "${_google_final_dir}" | tr -s '/')"
+      _cd_google_final_dir "${_google_final_dir}" "${current_client_name}"
+    else
+      local old_path="${PWD}"
+      echo -n "${red}[Auto Jump] ${endcolor}"
+      j "$@" > /dev/null
+      if [[ ! -z ${current_client_name} ]]; then
+        cds "${current_client_name}"
+      fi
+
+      echo -n "${red}[Relative Path] ${endcolor}"
+      relpath "${PWD}" "${old_path}"
+      local new_client_name=$(_google_get_client_name)
+      _google_workspace_change_print_log ${current_client_name} ${new_client_name}
+    fi
+  }
+  function cds
+  {
+    if [[ -z $1 && $(common_get_bash_global_state GOOGLE_DEFAULT_CLIENT) != "NO_DEFAULT" ]]; then
+      local _google_default_client=$(_google_get_default_client_name)
+      _google_switch_client ${_google_default_client}
+    else
+      _google_switch_client "$1"
+    fi
+  }
+  function cd-with-select-client
+  {
+    _google_dir_exists "$1"
+    local current_client_name=$(_google_get_client_name)
+    _google_choose_client_name "${_global_google_absolute_path}" "${current_client_name}"
+    local _google_final_dir="$(echo "${_google_base_dir}/${_global_google_client_chosed}/${_global_google_absolute_path}" | tr -s '/')"
+    unset _global_google_client_chosed _global_google_absolute_path
+    _cd_google_final_dir "${_google_final_dir}" "${current_client_name}"
+  }
+  complete -F _google_choose_client_name_auto_complete_1 cds
+  complete -F _google_choose_client_name_auto_complete_1 client
+  complete -F _google_choose_client_name_auto_complete_1 client-delete
+  complete -F _google_choose_client_name_auto_complete_1 cd-set-default-client
+  function cdj
+  {
+    local current_path="$(realpath $PWD)"
+    local current_java_path=$(echo "${current_path}" | grep -c "/google3/java/")
+    local current_javatests_path=$(echo "${current_path}" | grep -c "/google3/javatests/")
+    if [ ${current_java_path} -eq 1 ]; then
+      pushd $(echo $current_path | sed "s@/google3/java/@/google3/javatests/@") > /dev/null
+    elif [ ${current_javatests_path} -eq 1 ]; then
+      pushd $(echo $current_path | sed "s@/google3/javatests/@/google3/java/@") > /dev/null
+    fi
+  }
+  function cdc
+  {
+    if [[ ${#} -gt 1 || -e "$1" || "$1" == "-" ]]; then
+      command cd "$@"
+    else
+      jc "$@"
+    fi
+  }
+  function cdo
+  {
+    if [[ ${#} -gt 1 || -e "$1" || "$1" == "-" ]]; then
+      pushd "$@" > /dev/null
+      _default_open .
+      popd >/dev/null
+    else
+      jo "$@"
+    fi
+  }
 fi
 
 # du better use
 function du-auto
 {
-    local width=${1:-34}
-    du -sb -- * | sort -n | python3 -c "
+  local width=${1:-34}
+  du -sb -- * | sort -n | python3 -c "
 import sys, os
 width = int(sys.argv[-1])
 width = width if width < 120 else 120
@@ -976,7 +943,7 @@ sys.stdout.write('+' + '-' * width + '-' * 19 + '+' + '\n')
 
 function convert-name
 {
-    python3 -c "
+  python3 -c "
 import sys, os
 def change_one_word(word):
     content = []
@@ -1004,150 +971,220 @@ change_one_word(sys.argv[-1])
 " $1
 }
 
+function _snip_add_input
+{
+  python -c "
+from os.path import expanduser
+import sys
+
+def write(f, content):
+  for line in content:
+    f.write(line)
+
+def process(line):
+  if line[-1] != ';':
+    line = line + ';'
+  return line + '\n'
+
+def process2(line):
+  name = line.strip().split('.')[-1][:-1]
+  res = 'snippet ' + name + '\n' + line + 'endsnippet\n\n'
+  return res
+
+snip_file = expanduser('~') + '/.vim_runtime/sources_forked/vim-snippets/UltiSnips/java.snippets'
+mid = map(lambda x: process(x), sys.argv[1:])
+with open(snip_file, 'r') as f:
+  state = 'head'
+  head = []
+  tail = []
+  for line in f.readlines():
+    content = line.split()
+    if len(content) > 1 and content[1] == 'importcommon':
+      state = 'mid'
+      head.append(line)
+      continue
+    if len(content) > 0 and content[0] != 'import' and state == 'mid':
+      state = 'tail'
+    if 'kasldfhjo' in line:
+      state = 'jump'
+      tail.append(line)
+      continue
+
+    if state == 'head':
+      head.append(line)
+    elif state == 'mid':
+      mid.append(line)
+    elif state == 'tail':
+      tail.append(line)
+
+with open(snip_file, 'w') as f:
+  mid = list(set(mid))
+  mid.sort()
+  other = map(lambda x: process2(x), mid)
+  write(f, head)
+  write(f, mid)
+  write(f, tail)
+  write(f, other)
+" "$@"
+}
+
 # use function to open web
 function _web_complete
 {
-    local HOST cur
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-    HOST="$(grep -v ^\# "${INIT_FILE_ROOT_DIR}/.web_list" | awk -F '|' '{print $1}')"
-    COMPREPLY=( $( compgen -W "$HOST" -- "$cur" ) )
+  local HOST cur
+  COMPREPLY=()
+  _get_comp_words_by_ref cur
+  HOST="$(grep -v ^\# "$(common_get_bash_global_state INIT_FILE_ROOT_DIR)/.web_list" | awk -F '|' '{print $1}')"
+  COMPREPLY=( $( compgen -W "$HOST" -- "$cur" ) )
 }
 function _web_google_search
 {
-    _web_google_search_url="https://www.google.com/search?q="
-    for word in "$@"; do
-        word=${word//+/%2B}
-        _web_google_search_url="${_web_google_search_url}+${word}"
-    done
-    echo -n "[SUC] ${green}Google Search${endcolor}: $*"
+  _web_google_search_url="https://www.google.com/search?q="
+  for word in "$@"; do
+    word=${word//+/%2B}
+    _web_google_search_url="${_web_google_search_url}+${word}"
+  done
+  echo -n "[SUC] ${green}Google Search${endcolor}: $*"
 }
 function _web_yd_search
 {
-    _web_yd_search_url="https://dict.youdao.com/w/eng/"
-    for word in "$@"; do
-        _web_yd_search_url="${_web_yd_search_url}${word}%20"
-    done
-    _web_yd_search_url=${_web_yd_search_url/%\%20/}
-    echo -n "[SUC] ${green}Youdao Search${endcolor}: $*"
+  _web_yd_search_url="https://dict.youdao.com/w/eng/"
+  for word in "$@"; do
+    _web_yd_search_url="${_web_yd_search_url}${word}%20"
+  done
+  _web_yd_search_url=${_web_yd_search_url/%\%20/}
+  echo -n "[SUC] ${green}Youdao Search${endcolor}: $*"
 }
 function _web_cs_search
 {
-    _web_cs_search_url="https://cs.corp.google.com/search/?q="
-    for word in "$@"; do
-        word=${word//+/%2B}
-        if [[ "${word}" == *":"* ]]; then
-            _web_cs_search_url="${_web_cs_search_url}+${word}"
-        else
-            _web_cs_search_url="${_web_cs_search_url}+\"${word}\""
-        fi
-    done
-    _web_cs_search_url=$(echo "${_web_cs_search_url}" | sed "s@+@@")
-    echo -n "[SUC] ${green}Code Search${endcolor}: $*"
+  _web_cs_search_url="https://cs.corp.google.com/search/?q="
+  for word in "$@"; do
+    word=${word//+/%2B}
+    if [[ "${word}" == *":"* ]]; then
+      _web_cs_search_url="${_web_cs_search_url}+${word}"
+    else
+      _web_cs_search_url="${_web_cs_search_url}+\"${word}\""
+    fi
+  done
+  _web_cs_search_url=$(echo "${_web_cs_search_url}" | sed "s@+@@")
+  echo -n "[SUC] ${green}Code Search${endcolor}: $*"
 }
 function _web_moma_search
 {
-    _web_moma_search_url="https://moma.corp.google.com/search?q="
-    for word in "$@"; do
-        word=${word//+/%2B}
-        _web_moma_search_url="${_web_moma_search_url}+${word}"
-    done
-    echo -n "[SUC] ${green}Moma Search${endcolor}: $*"
+  _web_moma_search_url="https://moma.corp.google.com/search?q="
+  for word in "$@"; do
+    word=${word//+/%2B}
+    _web_moma_search_url="${_web_moma_search_url}+${word}"
+  done
+  echo -n "[SUC] ${green}Moma Search${endcolor}: $*"
+}
+function _web_sponge_search
+{
+  _web_sponge_search_url="https://sponge.corp.google.com/invocation?id=|id|&searchFor=user%3Ame"
+  local current_client_name=$(_google_get_client_name)
+  local log_dir="/usr/local/google/_blaze_$(common_get_bash_global_state GOOGLE_LDAP)/$(_google_build_workspace_to_tmp_dir ${current_client_name})/blaze_build_log"
+  local real_id="$(command grep "build_id" "${log_dir}" | head -1 | awk '{print $2}')"
+  _web_sponge_search_url="$(echo ${_web_sponge_search_url} | sed "s@|id|@${real_id}@")"
+
+  echo -n "[SUC] ${green}Sponge Search${endcolor}: ${current_client_name}"
 }
 function web
 {
-    item="$1"
-    website_addr="$(command grep -v ^\# "${INIT_FILE_ROOT_DIR}/.web_list" | \
-      command grep "^${item}|" | \
-      awk -F '|' '{print $2}')"
-    open="False"
-    if [[ -z "$1" ]]; then
-        echo "web list dir: ${INIT_FILE_ROOT_DIR}/.web_list" 1>&2
-    elif [[ ! -z "${website_addr}" ]]; then
-        open="True"
-        if [[ "${item}" == "cr" && ! -z "$(_google_get_current_cl_name)" && -z "$2" ]]; then
-            website_addr="https://critique.corp.google.com/#review/$(_google_get_current_cl_name)"
-        elif [[ "${item}" == "cr" && ! -z "$(_google_get_current_cl_name)" && ! -z "$2" ]]; then
-            path="$(realpath $2)"
-            relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}')
-            website_addr="https://critique.corp.google.com/#review/$(_google_get_current_cl_name)/depot/google3/${relative_path}"
-        elif [[ "${item}" == "google" ]]; then
-            shift
-            _web_google_search "$@"
-            website_addr="${_web_google_search_url}"
-        elif [[ "${item}" == "yd" ]]; then
-            shift
-            _web_yd_search "$@"
-            website_addr="${_web_yd_search_url}"
-        elif [[ "${item}" == "cs" ]]; then
-            shift
-            _web_cs_search "$@"
-            website_addr="${_web_cs_search_url}"
-        elif [[ "${item}" == "moma" ]]; then
-            shift
-            _web_moma_search "$@"
-            website_addr="${_web_moma_search_url}"
-        else
-            :;
-        fi
-    elif [[ -z ${website_addr} ]]; then
-        open="True"
-        # _web_google_search "$@"
-        # website_addr="${_web_google_search_url}"
-        _web_yd_search "$@"
-        website_addr="${_web_yd_search_url}"
+  item="$1"
+  website_addr="$(command grep -v ^\# "$(common_get_bash_global_state INIT_FILE_ROOT_DIR)/.web_list" | \
+    command grep "^${item}|" | awk -F '|' '{print $2}')"
+  open="False"
+  if [[ -z "$1" ]]; then
+    echo "web list dir: $(common_get_bash_global_state INIT_FILE_ROOT_DIR)/.web_list" 1>&2
+  elif [[ ! -z "${website_addr}" ]]; then
+    open="True"
+    if [[ "${item}" == "cr" && ! -z "$(_google_get_current_cl_name)" && -z "$2" ]]; then
+      website_addr="https://critique.corp.google.com/#review/$(_google_get_current_cl_name)"
+    elif [[ "${item}" == "cr" && ! -z "$(_google_get_current_cl_name)" && ! -z "$2" ]]; then
+      path="$(realpath $2)"
+      relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}')
+      website_addr="https://critique.corp.google.com/#review/$(_google_get_current_cl_name)/depot/google3/${relative_path}"
+    elif [[ "${item}" == "google" ]]; then
+      shift
+      _web_google_search "$@"
+      website_addr="${_web_google_search_url}"
+    elif [[ "${item}" == "yd" ]]; then
+      shift
+      _web_yd_search "$@"
+      website_addr="${_web_yd_search_url}"
+    elif [[ "${item}" == "cs" ]]; then
+      shift
+      _web_cs_search "$@"
+      website_addr="${_web_cs_search_url}"
+    elif [[ "${item}" == "moma" ]]; then
+      shift
+      _web_moma_search "$@"
+      website_addr="${_web_moma_search_url}"
+    elif [[ "${item}" == "sponge" ]]; then
+      shift
+      _web_sponge_search "$@"
+      website_addr="${_web_sponge_search_url}"
+    else
+      :;
     fi
+  elif [[ -z ${website_addr} ]]; then
+    open="True"
+    # _web_google_search "$@"
+    # website_addr="${_web_google_search_url}"
+    _web_yd_search "$@"
+    website_addr="${_web_yd_search_url}"
+  fi
 
-    # open by default
-    if [[ ${open} == "True" ]]; then
-        echo " (${website_addr})"
-        _default_open "${website_addr}"
-    fi
+  # open by default
+  if [[ ${open} == "True" ]]; then
+    echo " (${website_addr})"
+    _default_open "${website_addr}"
+  fi
 }
 complete -F _web_complete web 
 
 # automatically unzip
 function q-extract
 {
-    file_name="$1"
-    if [[ -f ${file_name} ]] ; then
-        case ${file_name} in
-            *.tar.bz2)   tar -xvjf "${file_name}"    ;;
-            *.tar.gz)    tar -xvzf "${file_name}"    ;;
-            *.tar.xz)    tar -xvJf "${file_name}"    ;;
-            *.bz2)       bunzip2 "${file_name}"     ;;
-            *.rar)       rar x "${file_name}"       ;;
-            *.gz)        gunzip "${file_name}"      ;;
-            *.tar)       tar -xvf "${file_name}"     ;;
-            *.tbz2)      tar -xvjf "${file_name}"    ;;
-            *.tgz)       tar -xvzf "${file_name}"    ;;
-            *.zip)       unzip "${file_name}"       ;;
-            *.Z)         uncompress "${file_name}"  ;;
-            *.7z)        7z x "${file_name}"        ;;
-            *)           echo "don't know how to extract ${file_name}..." ;;
-        esac
-    else
-        echo "${file_name} is not a valid file!"
-    fi
+  file_name="$1"
+  if [[ -f ${file_name} ]] ; then
+    case ${file_name} in
+      *.tar.bz2)   tar -xvjf "${file_name}"    ;;
+      *.tar.gz)    tar -xvzf "${file_name}"    ;;
+      *.tar.xz)    tar -xvJf "${file_name}"    ;;
+      *.bz2)       bunzip2 "${file_name}"     ;;
+      *.rar)       rar x "${file_name}"       ;;
+      *.gz)        gunzip "${file_name}"      ;;
+      *.tar)       tar -xvf "${file_name}"     ;;
+      *.tbz2)      tar -xvjf "${file_name}"    ;;
+      *.tgz)       tar -xvzf "${file_name}"    ;;
+      *.zip)       unzip "${file_name}"       ;;
+      *.Z)         uncompress "${file_name}"  ;;
+      *.7z)        7z x "${file_name}"        ;;
+      *)           echo "don't know how to extract ${file_name}..." ;;
+    esac
+  else
+    echo "${file_name} is not a valid file!"
+  fi
 }
 
 # automatically zip
 function q-compress
 {
-    if [[ -n "$1" ]] ; then
-        FILE=$1
-        case $FILE in
-            *.tar) shift && tar -cf "$FILE" "$*" ;;
-            *.tar.bz2) shift && tar -cjf "$FILE" "$*" ;;
-            *.tar.xz) shift && tar -cJf "$FILE" "$*" ;;
-            *.tar.gz) shift && tar -czf "$FILE" "$*" ;;
-            *.tgz) shift && tar -czf "$FILE" "$*" ;;
-            *.zip) shift && zip -r "$FILE" "$*" ;;
-            *.rar) shift && rar "$FILE" "$*" ;;
-        esac
-    else
-        echo "usage: q-compress <foo.tar.gz> ./foo ./bar"
-    fi
+  if [[ -n "$1" ]] ; then
+    FILE=$1
+    case $FILE in
+      *.tar) shift && tar -cf "$FILE" "$*" ;;
+      *.tar.bz2) shift && tar -cjf "$FILE" "$*" ;;
+      *.tar.xz) shift && tar -cJf "$FILE" "$*" ;;
+      *.tar.gz) shift && tar -czf "$FILE" "$*" ;;
+      *.tgz) shift && tar -czf "$FILE" "$*" ;;
+      *.zip) shift && zip -r "$FILE" "$*" ;;
+      *.rar) shift && rar "$FILE" "$*" ;;
+    esac
+  else
+    echo "usage: q-compress <foo.tar.gz> ./foo ./bar"
+  fi
 }
 
 # Calculate sum, average, max, min for files
@@ -1312,79 +1349,86 @@ function cal-min
 
 function c
 {
-    if [[ ! -z "$1" ]]; then
-      path="$(realpath $1)"
-    else
-      path="${PWD}"
-    fi
-    relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}')
-    code_path="https://cs.corp.google.com/piper///depot/google3/${relative_path}&l=$2"
-    code_path=${code_path/\ /}
-    echo ${code_path}
-    _default_open "${code_path}"
+  if [[ ! -z "$1" ]]; then
+    path="$(realpath $1)"
+  else
+    path="${PWD}"
+  fi
+  relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}')
+  code_path="https://cs.corp.google.com/piper///depot/google3/${relative_path}&l=$2"
+  code_path=${code_path/\ /}
+  echo ${code_path}
+  _default_open "${code_path}"
 }
 
 function cr
 {
-    if [[ ! -z "$(_google_get_current_cl_name)" ]]; then
-        cl="$(_google_get_current_cl_name)"
-        if [[ ! -z "$1" ]]; then
-            path="$(realpath $1)"
-            echo ${path}
-            relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}')
-            website_addr="https://critique.corp.google.com/#review/$(_google_get_current_cl_name)/depot/google3/${relative_path}"
-            website_addr=${website_addr/\ /}
-            echo ${website_addr}
-            _default_open "${website_addr}"
-        else
-            web cr
-        fi
+  if [[ ! -z "$(_google_get_current_cl_name)" ]]; then
+    cl="$(_google_get_current_cl_name)"
+    if [[ ! -z "$1" ]]; then
+      path="$(realpath $1)"
+      echo ${path}
+      relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}')
+      website_addr="https://critique.corp.google.com/#review/$(_google_get_current_cl_name)/depot/google3/${relative_path}"
+      website_addr=${website_addr/\ /}
+      echo ${website_addr}
+      _default_open "${website_addr}"
+    else
+      web cr
     fi
+  fi
 }
 
 function d
 {
-    if [[ ! -z "$1" ]]; then
-      path="$(realpath $1)"
-    else
-      path="${PWD}"
-    fi
-    relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}')
-    echo "//${relative_path}"
-    echo -n "//${relative_path}" | pbcopy
+  local path="${PWD}"
+  local suffix
+  if [[ ! -z "$1" ]]; then
+    suffix="$1"
+  else
+    suffix=""
+  fi
+  local relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}')
+  echo "//${relative_path}${suffix}"
+  echo -n "\"//${relative_path}${suffix}\"," | xsel -bi
 }
+complete -o nospace -F _blaze::complete_build_target_wrapper d
 
-function recd
+function di
 {
-  cd ${PWD}
+  local path="${PWD}"
+  local relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}' | sed "s@/@.@g")
+  echo "import ${relative_path}"
+  echo -n "import ${relative_path};" | xsel -bi
 }
+complete -o nospace -F _blaze::complete_build_target_wrapper d
 
 # Quick copy and bookmark current dir
 function f()
 {
-    _s_path=${PWD}
-    if [ "$(uname)" == "Darwin" ]; then
-        echo -n "${_s_path}" | pbcopy
-    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-        echo -n "${_s_path}" | xsel -bi
-    fi
+  _s_path=${PWD}
+  if [ "$(uname)" == "Darwin" ]; then
+    echo -n "${_s_path}" | pbcopy
+  elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    echo -n "${_s_path}" | xsel -bi
+  fi
 }
 function ff()
 {
-    if [[ ! -z "${_s_path}" ]]; then
-        pushd "${_s_path}" > /dev/null
-    fi
+  if [[ ! -z "${_s_path}" ]]; then
+    pushd "${_s_path}" > /dev/null
+  fi
 }
 
 # Url shorten
 function _url-short
 {
-    if [ -z "$1" ]; then
-        echo "[ERROR] Not entered URL"
-        return
-    fi
+  if [ -z "$1" ]; then
+    echo "[ERROR] Not entered URL"
+    return
+  fi
 
-    python3 -c "
+  python3 -c "
 import requests
 import json
 import sys
@@ -1502,39 +1546,44 @@ function g4_merge() {
 }
 
 function vimt() {
-    tmp_note_dir="${INIT_FILE_ROOT_DIR}/.tempNodes/"
-    current_date="$(date +%Y%m%d)"
-    current_time="$(date +%T)"
+  tmp_note_dir="$(common_get_bash_global_state INIT_FILE_ROOT_DIR)/.tempNodes/"
+  current_date="$(date +%Y%m%d)"
+  current_time="$(date +%T)"
 
 
-    if [[ -z $1 ]]; then
-        mkdir -p ${tmp_note_dir}
-        vim "${tmp_note_dir}/notes_${current_date}_${current_time}"
-    elif [[ $1 == "last" ]]; then
-        du -a ${tmp_note_dir} | command grep "^0[^0-9]" | awk '{print $2}' | xargs -i rm {}
-        if [[ -d ${tmp_note_dir} ]]; then
-            last_note_file="$(ls ${tmp_note_dir} | sort -r | head -1)"
-            if [[ -f "${tmp_note_dir}/${last_note_file}" ]]; then
-                vim "${tmp_note_dir}/${last_note_file}"
-            fi
-        fi
-    elif [[ $1 == "today" ]]; then
-        du -a ${tmp_note_dir} | command grep "^0[^0-9]" | awk '{print $2}' | xargs -i rm {}
-        if [[ -d ${tmp_note_dir} ]]; then
-            last_note_file="$(ls ${tmp_note_dir}| xargs -i echo ${tmp_note_dir}/{} | command grep ${current_date})"
-            vim -O ${last_note_file}
-        fi
+  if [[ -z $1 ]]; then
+    mkdir -p ${tmp_note_dir}
+    vim "${tmp_note_dir}/notes_${current_date}_${current_time}"
+  elif [[ $1 == "last" ]]; then
+    du -a ${tmp_note_dir} | command grep "^0[^0-9]" | awk '{print $2}' | xargs -i rm {}
+    if [[ -d ${tmp_note_dir} ]]; then
+      last_note_file="$(ls ${tmp_note_dir} | sort -r | head -1)"
+      if [[ -f "${tmp_note_dir}/${last_note_file}" ]]; then
+        vim "${tmp_note_dir}/${last_note_file}"
+      fi
     fi
+  elif [[ $1 == "today" ]]; then
+    du -a ${tmp_note_dir} | command grep "^0[^0-9]" | awk '{print $2}' | xargs -i rm {}
+    if [[ -d ${tmp_note_dir} ]]; then
+      last_note_file="$(ls ${tmp_note_dir}| xargs -i echo ${tmp_note_dir}/{} | command grep ${current_date})"
+      vim -O ${last_note_file}
+    fi
+  fi
 }
 
 function vimt-cd() {
-    tmp_note_dir="${INIT_FILE_ROOT_DIR}/.tempNodes/"
-    pushd ${tmp_note_dir} >> /dev/null
+  tmp_note_dir="$(common_get_bash_global_state INIT_FILE_ROOT_DIR)/.tempNodes/"
+  pushd ${tmp_note_dir} >> /dev/null
 }
 
 function client-delete() {
+  if [[ ! -z $1 ]]; then
+    cds "$1"
+  fi
   current_client_name=$(_google_get_client_name)
   current_cl=$(_google_get_current_cl_name)
+  echo "Delete Client [${red}${current_client_name}${endcolor}]"
+
   while true; do
     read -rp "Are you sure to delete (cl/${current_cl})? [y/n/show] " answer
     if [[ ${answer} = "y" ]] || [[ ${answer} = "Y" ]]; then
@@ -1568,7 +1617,94 @@ function client() {
   fi
   tmux new-window "/bin/sh -c 'p4 g4d -f ${new_client_name}; \
     cd ${entered_dir}; \
-    echo wait for 5 seconds...; \
-    sleep 5; \
+    echo wait for 1 seconds...; \
+    sleep 1; \
     exec bash'"
+}
+
+function b() {
+  local current_client_name=$(_google_get_client_name)
+  local log_dir="/usr/local/google/_blaze_$(common_get_bash_global_state GOOGLE_LDAP)/$(_google_build_workspace_to_tmp_dir ${current_client_name})/command.log"
+  local clean_command="$(command grep "^ \? \?build_cleaner" ${log_dir})"
+  local add_dep_command="$(command grep "^  add_dep" ${log_dir})"
+  local fix_proto="$(command grep -o "To fix, run.*" ${log_dir} | awk -F "'" '{print $2}')"
+  local delete_option add_dep_option fix_proto_option
+
+  if [[ ! -z ${clean_command} ]]; then
+    echo "${clean_command}"
+    read -rp "execute? (enter to execute): " delete_option
+    if [[ -z ${delete_option} ]]; then
+      eval "${clean_command}"
+    fi
+  fi
+
+  if [[ ! -z ${add_dep_command} ]]; then
+    echo "${add_dep_command}"
+    read -rp "execute? (enter to execute): " add_dep_option 
+    if [[ -z ${add_dep_option} ]]; then
+      eval "${add_dep_command}"
+    fi
+  fi
+
+  if [[ ! -z ${fix_proto} ]]; then
+    echo "${fix_proto}"
+    read -rp "execute? (enter to execute): " fix_proto_option
+    if [[ -z ${fix_proto_option} ]]; then
+      eval "${fix_proto}"
+    fi
+  fi
+}
+
+function snip() 
+{
+  if [[ -z $1 ]]; then
+    vim ~/.vim_runtime/sources_forked/vim-snippets/UltiSnips/java.snippets
+  else
+    _snip_add_input "$@"
+  fi
+}
+
+function exp() {
+  /google/data/ro/projects/risk/mpm/experiments/live/new_experiment.par \
+    --name="$1" \
+    --baseGcl="$2" \
+    --docs="$3" \
+    --generateCL
+}
+
+function name() {
+  echo -e "
+  sholzer
+  kedarhindupur
+  vikramj
+  krtek
+  sarveswara
+  shwetakarwa
+  yagrawal
+  sholzer,kedarhindupur,vikramj" | sort
+}
+
+function riskspan() {
+  python -c '
+import datetime, sys;
+time = str(sys.argv[1])
+base = datetime.datetime(1970, 1, 1, 0, 0)
+if (len(time) == 8):
+  print (datetime.datetime(int(time[0:4]), int(time[4:6]), int(time[6:8])) - base).days
+else:
+  print base + datetime.timedelta(int(time))' "$1"
+}
+
+function screenshot() {
+  local server="${SNIPIT_SERVER:-https://screenshot.googleplex.com/upload}"
+  local file="${TEMP:-/tmp}/snipit_temp_$$.png"
+
+  gnome-screenshot -a --file="${file}"
+  xclip -selection clipboard -t image/png -i "${file}"
+
+  # Send
+  echo "Sending image to server..."
+  uri=$(curl -sF "imagedata=@$file" $server )
+  echo "Local copy: ${file}"
+  echo "Web url: ${uri}"
 }
