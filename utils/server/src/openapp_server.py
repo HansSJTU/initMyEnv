@@ -42,11 +42,12 @@ class Opener(openappwrapper_pb2_grpc.OpenerServicer):
             os.system(command)
             message = '[Done]: ' + command
         elif request.mode == 'copy':
-            command = "pbcopy " + request.command
+            command = "echo \"" + request.command + "\" | tr -d '\n' | pbcopy "
             os.system(command)
             message = '[Done]: ' + command
         else:
             message = '[Failed]: ' + request.mode + ' ' + request.command
+        message = message.replace('\n', '\ n')
         logging.warning(message)
         return openappwrapper_pb2.DebugReply(message=message)
 
