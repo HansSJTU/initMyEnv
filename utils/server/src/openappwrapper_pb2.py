@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='openappwrapper',
   syntax='proto3',
   serialized_options=_b('\242\002\003HLW'),
-  serialized_pb=_b('\n\x14openappwrapper.proto\x12\x0eopenappwrapper\"!\n\x0e\x43ommandRequest\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\"\x1d\n\nDebugReply\x12\x0f\n\x07message\x18\x01 \x01(\t2N\n\x06Opener\x12\x44\n\x04Open\x12\x1e.openappwrapper.CommandRequest\x1a\x1a.openappwrapper.DebugReply\"\x00\x42\x06\xa2\x02\x03HLWb\x06proto3')
+  serialized_pb=_b('\n\x14openappwrapper.proto\x12\x0eopenappwrapper\"/\n\x0e\x43ommandRequest\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\x12\x0c\n\x04mode\x18\x02 \x01(\t\"\x1d\n\nDebugReply\x12\x0f\n\x07message\x18\x01 \x01(\t2N\n\x06Opener\x12\x44\n\x04Open\x12\x1e.openappwrapper.CommandRequest\x1a\x1a.openappwrapper.DebugReply\"\x00\x42\x06\xa2\x02\x03HLWb\x06proto3')
 )
 
 
@@ -40,6 +40,13 @@ _COMMANDREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='mode', full_name='openappwrapper.CommandRequest.mode', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -53,7 +60,7 @@ _COMMANDREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=40,
-  serialized_end=73,
+  serialized_end=87,
 )
 
 
@@ -83,8 +90,8 @@ _DEBUGREPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=75,
-  serialized_end=104,
+  serialized_start=89,
+  serialized_end=118,
 )
 
 DESCRIPTOR.message_types_by_name['CommandRequest'] = _COMMANDREQUEST
@@ -114,8 +121,8 @@ _OPENER = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=106,
-  serialized_end=184,
+  serialized_start=120,
+  serialized_end=198,
   methods=[
   _descriptor.MethodDescriptor(
     name='Open',

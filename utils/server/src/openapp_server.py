@@ -1,3 +1,7 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+# vim:fenc=utf-8
+#
 # Copyright 2015 gRPC authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,8 +37,16 @@ channel = REAL_CHANNEL
 class Opener(openappwrapper_pb2_grpc.OpenerServicer):
 
     def Open(self, request, context):
-        os.system("open " + request.command)
-        message = '[Done]: ' + request.command
+        if request.mode == 'open':
+            command = "open " + request.command
+            os.system(command)
+            message = '[Done]: ' + command
+        elif request.mode == 'copy':
+            command = "pbcopy " + request.command
+            os.system(command)
+            message = '[Done]: ' + command
+        else:
+            message = '[Failed]: ' + request.mode + ' ' + request.command
         logging.warning(message)
         return openappwrapper_pb2.DebugReply(message=message)
 
