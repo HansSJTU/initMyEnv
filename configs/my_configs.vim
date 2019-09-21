@@ -15,11 +15,11 @@ exec 'set shiftwidth=' .s:tabwidth
 exec 'set softtabstop='.s:tabwidth
 
 " copy and paste
-vmap<leader>y mby:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }" <cr>:redraw!<cr>`b
-nmap<leader>y mbyiw:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>`b
-nmap<leader>yy yy:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>pggdd:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>
-nmap<leader>yya mbvG$y:silent exec "!rm ~/.vbuf"<cr>:redraw!<cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>`b
-nmap<leader>yyaa mbggvG$y:silent exec "!rm -f ~/.vbuf"<cr>:redraw!<cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>`b
+vmap<leader>y mby:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:silent exec "!sed -z '$ s@\\n$@@' ~/.vbuf" <cr>:silent exec "!{ source ~/.bashrc; source ~/.bash_func; _default_copy \"$(cat ~/.vbuf)\"; }"<cr>:redraw!<cr>`b
+nmap<leader>y mbyiw:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:silent exec "!sed -z '$ s@\\n$@@' ~/.vbuf"<cr>:silent exec "!{ source ~/.bashrc; source ~/.bash_func; _default_copy \"$(cat ~/.vbuf)\"; }"<cr>:redraw!<cr>`b
+nmap<leader>yy yy:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>pggdd:w<cr>:bdelete!<cr>:silent exec "!sed -z '$ s@\\n$@@' ~/.vbuf"<cr>:silent exec "!{ source ~/.bashrc; source ~/.bash_func; _default_copy \"$(cat ~/.vbuf)\"; }"<cr>:redraw!<cr>
+nmap<leader>yya mbvG$y:silent exec "!rm ~/.vbuf"<cr>:redraw!<cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:silent exec "!sed -z '$ s@\\n$@@' ~/.vbuf"<cr>:silent exec "!{ source ~/.bashrc; source ~/.bash_func; _default_copy \"$(cat ~/.vbuf)\"; }"<cr>:redraw!<cr>`b
+nmap<leader>yyaa mbggvG$y:silent exec "!rm -f ~/.vbuf"<cr>:redraw!<cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:silent exec "!sed -z '$ s@\\n$@@' ~/.vbuf"<cr>:silent exec "!{ source ~/.bashrc; source ~/.bash_func; _default_copy \"$(cat ~/.vbuf)\"; }"<cr>:redraw!<cr>`b
 nmap<leader>p :r! sed -z '$ s@\\n$@@' ~/.vbuf<cr>
 
 " auxiliary
@@ -257,7 +257,7 @@ map <leader>o :call HandleURL()<cr>
 function! GoToCodeSearchUnerCursor()
     let s:current_line = line('.')
     let s:file_path = expand('%:p')
-    silent exec "!source ~/.bashrc; source ~/.bash_func c '".s:file_path."' '"s:current_line"'"
+    silent exec "!source ~/.bashrc; source ~/.bash_func; c '".s:file_path."' '"s:current_line"'"
 endfunction
 map <silent><leader>cc :call GoToCodeSearchUnerCursor()<cr>:redraw!<cr>
 

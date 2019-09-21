@@ -290,6 +290,6 @@ elif [[ $(common_get_bash_global_state COMMON_SESSION) = "LOCAL" ]]; then
   export DISPLAY=:0
 fi
 
-export P4MERGE='vimdiff -f -O'
+export P4MERGE='vimdiff -f -d -M -c "wincmd W" -c "wincmd J" -c "set modifiable" -c "set write"'
 
 clear

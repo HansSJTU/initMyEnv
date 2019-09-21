@@ -56,7 +56,7 @@ fi
 # default method to open without log
 function _default_open {
   if [[ $(common_get_bash_global_state COMMON_SESSION) = "REMOTE" ]]; then
-    python ~/grpc/src/openapp_client.py "$1"
+    python ~/grpc/src/openapp_client.py "open" "$1"
   elif [[ $(common_get_bash_global_state COMMON_SESSION) = "LOCAL" ]]; then
     if [ "$(uname)" == "Darwin" ]; then
       open "${1}"
@@ -68,6 +68,19 @@ function _default_open {
   fi
 }
 
+function _default_copy {
+  if [[ $(common_get_bash_global_state COMMON_SESSION) = "REMOTE" ]]; then
+    python ~/grpc/src/openapp_client.py "copy" "$1"
+  elif [[ $(common_get_bash_global_state COMMON_SESSION) = "LOCAL" ]]; then
+    if [ "$(uname)" == "Darwin" ]; then
+      echo -n "$@" | pbcopy
+    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+      echo -n "$@" | xsel -bi
+    fi
+  else
+    echo "wrong.."
+  fi
+}
 # change name for shell tab
 function nn {
   if [ -z "$1" ]; then
@@ -381,7 +394,7 @@ function de
 {
   while read data; do
     tmp=$(echo -n "${data}" | sed "s@\\\$@\\\\\$@g;s@\"@\\\\\"@g")
-    echo -n "\"${tmp}\"" | pbcopy
+    _default_copy "$(echo -n "\"${tmp}\"")"
   done
 }
 
@@ -394,7 +407,7 @@ function url-short
   echo "------ URL -------"
   echo "${content}"
   echo "------------------"
-  echo -n "${content}" | sed -n '$p' | awk -F ': ' '{print $2}' | tr -d '\n' | pbcopy
+  _default_copy "$(echo -n "${content}" | sed -n '$p' | awk -F ': ' '{print $2}' | tr -d '\n')"
 }
 
 function websync
@@ -798,8 +811,8 @@ if [[ $(command -v j) ]]; then
       unset _global_google_dir_exist_flag
       echo "${red}[google3]${endcolor} ${_global_google_absolute_path}"
 
-      if [[ -f ~/.default_client ]]; then
-        _google_default_client=$(_google_get_default_client_name)
+      if [[ $(common_get_bash_global_state GOOGLE_DEFAULT_CLIENT) != "NO_DEFAULT" ]]; then
+        _google_default_client=$(common_get_bash_global_state GOOGLE_DEFAULT_CLIENT)
         if [[ -e "${_google_base_dir}/${_google_default_client}/${_global_google_absolute_path}" ]]; then
           _google_final_dir="${_google_base_dir}/${_google_default_client}/${_global_google_absolute_path}"
         else
@@ -1390,7 +1403,7 @@ function d
   fi
   local relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}')
   echo "//${relative_path}${suffix}"
-  echo -n "\"//${relative_path}${suffix}\"," | xsel -bi
+  _default_copy "$(echo -n "\"//${relative_path}${suffix}\",")"
 }
 complete -o nospace -F _blaze::complete_build_target_wrapper d
 
@@ -1399,7 +1412,7 @@ function di
   local path="${PWD}"
   local relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}' | sed "s@/@.@g")
   echo "import ${relative_path}"
-  echo -n "import ${relative_path};" | xsel -bi
+  _default_copy "$(echo -n "import ${relative_path};")"
 }
 complete -o nospace -F _blaze::complete_build_target_wrapper d
 
@@ -1408,9 +1421,9 @@ function f()
 {
   _s_path=${PWD}
   if [ "$(uname)" == "Darwin" ]; then
-    echo -n "${_s_path}" | pbcopy
+    _default_copy "$(echo -n "${_s_path}")"
   elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    echo -n "${_s_path}" | xsel -bi
+    _default_copy "$(echo -n "${_s_path}")"
   fi
 }
 function ff()
@@ -1640,7 +1653,7 @@ function b() {
 
   if [[ ! -z ${add_dep_command} ]]; then
     echo "${add_dep_command}"
-    read -rp "execute? (enter to execute): " add_dep_option 
+    read -rp "execute? (enter to execute): " add_dep_option
     if [[ -z ${add_dep_option} ]]; then
       eval "${add_dep_command}"
     fi
@@ -1655,7 +1668,7 @@ function b() {
   fi
 }
 
-function snip() 
+function snip()
 {
   if [[ -z $1 ]]; then
     vim ~/.vim_runtime/sources_forked/vim-snippets/UltiSnips/java.snippets
@@ -1707,4 +1720,8 @@ function screenshot() {
   uri=$(curl -sF "imagedata=@$file" $server )
   echo "Local copy: ${file}"
   echo "Web url: ${uri}"
+}
+
+function f-train() {
+  fileutil --gfs_user=payments-riskengine-auto-trainer $@
 }
