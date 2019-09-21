@@ -1,3 +1,7 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+# vim:fenc=utf-8
+#
 # Copyright 2015 gRPC authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,17 +31,18 @@ REAL_CHANNEL = '73.231.57.242:9050'
 
 channel = REAL_CHANNEL
 
-def run(command):
+def run(mode, command):
     # NOTE(gRPC Python Team): .close() is possible on a channel and should be
     # used in circumstances in which the with statement does not fit the needs
     # of the code.
     with grpc.insecure_channel(REAL_CHANNEL) as channel:
         stub = openappwrapper_pb2_grpc.OpenerStub(channel)
-        response = stub.Open(openappwrapper_pb2.CommandRequest(command=command))
+        response = stub.Open(openappwrapper_pb2.CommandRequest(command=command, mode=mode))
     print(response.message)
 
 
 if __name__ == '__main__':
     logging.basicConfig()
-    command = sys.argv[1]
-    run(command)
+    mode = sys.argv[1]
+    command = sys.argv[2]
+    run(mode, command)

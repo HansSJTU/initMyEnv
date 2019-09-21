@@ -27,6 +27,7 @@ service Opener {
 // The request message containing the user's name.
 message CommandRequest {
   string command = 1;
+  string mode = 2;
 }
 
 // The response message containing the greetings

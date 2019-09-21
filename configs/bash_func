@@ -56,7 +56,7 @@ fi
 # default method to open without log
 function _default_open {
   if [[ $(common_get_bash_global_state COMMON_SESSION) = "REMOTE" ]]; then
-    python ~/grpc/src/openapp_client.py "$1"
+    python ~/grpc/src/openapp_client.py "open" "$1"
   elif [[ $(common_get_bash_global_state COMMON_SESSION) = "LOCAL" ]]; then
     if [ "$(uname)" == "Darwin" ]; then
       open "${1}"
@@ -65,7 +65,21 @@ function _default_open {
     fi
   else
     echo "wrong.."
+  fi
+}
+
+function _default_copy {
+  if [[ $(common_get_bash_global_state COMMON_SESSION) = "REMOTE" ]]; then
+    python ~/grpc/src/openapp_client.py "copy" "$1"
+  elif [[ $(common_get_bash_global_state COMMON_SESSION) = "LOCAL" ]]; then
+    if [ "$(uname)" == "Darwin" ]; then
+      echo -n "$@" | pbcopy
+    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+      echo -n "$@" | xsel -bi
     fi
+  else
+    echo "wrong.."
+  fi
 }
 
 # change name for shell tab
@@ -135,7 +149,7 @@ function _backup_delete_current_dir
     else
       echo "[ERROR] User quit, exiting..." 1>&2
     fi
-    fi
+  fi
 }
 function _backup_op
 {
@@ -381,7 +395,7 @@ function de
 {
   while read data; do
     tmp=$(echo -n "${data}" | sed "s@\\\$@\\\\\$@g;s@\"@\\\\\"@g")
-    echo -n "\"${tmp}\"" | pbcopy
+    _default_copy "$(echo -n "\"${tmp}\"")"
   done
 }
 
@@ -394,7 +408,7 @@ function url-short
   echo "------ URL -------"
   echo "${content}"
   echo "------------------"
-  echo -n "${content}" | sed -n '$p' | awk -F ': ' '{print $2}' | tr -d '\n' | pbcopy
+  _default_copy "$(echo -n "${content}" | sed -n '$p' | awk -F ': ' '{print $2}' | tr -d '\n')"
 }
 
 function websync
@@ -820,11 +834,11 @@ function _web_sponge_search
 function web
 {
   item="$1"
-  website_addr="$(command grep -v ^\# "${INIT_FILE_ROOT_DIR}/.web_list" | \
+  website_addr="$(command grep -v ^\# "$(common_get_bash_global_state INIT_FILE_ROOT_DIR)/.web_list" | \
     command grep "^${item}|" | awk -F '|' '{print $2}')"
   open="False"
   if [[ -z "$1" ]]; then
-    echo "web list dir: ${INIT_FILE_ROOT_DIR}/.web_list" 1>&2
+    echo "web list dir: $(common_get_bash_global_state INIT_FILE_ROOT_DIR)/.web_list" 1>&2
   elif [[ ! -z "${website_addr}" ]]; then
     open="True"
     if [[ "${item}" == "cr" && ! -z "$(_google_get_current_cl_name)" && -z "$2" ]]; then
@@ -1081,9 +1095,9 @@ function f()
 {
   _s_path=${PWD}
   if [ "$(uname)" == "Darwin" ]; then
-    echo -n "${_s_path}" | pbcopy
+    _default_copy "$(echo -n "${_s_path}")"
   elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    echo -n "${_s_path}" | xsel -bi
+    _default_copy "$(echo -n "${_s_path}")"
   fi
 }
 function ff()
