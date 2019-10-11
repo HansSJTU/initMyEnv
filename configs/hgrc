@@ -1,0 +1,14 @@
+[ui]
+merge = vimdiff
+
+[merge-tools]
+vimdiff.executable = vimdiff
+vimdiff.args = -f -d -M $local $base $other $output -c "wincmd W" -c "wincmd J" -c "set modifiable" -c "set write"
+vimdiff.premerge = keep
+vimdiff.check=changed,conflicts
+
+[alias]
+push = uploadchain
+dcl = drop --prune
+cm = resolve --re-merge --all
+

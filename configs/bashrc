@@ -228,7 +228,7 @@ esac
 if [ -f ~/.bash_alias ]; then
   source ~/.bash_alias
 fi
-if [ -f "/google/src/head/depot/google3/paymentfraud/scripts/alias" ]; then 
+if [ -f "/google/src/head/depot/google3/paymentfraud/scripts/alias" ]; then
   source "/google/src/head/depot/google3/paymentfraud/scripts/alias"
 fi
 

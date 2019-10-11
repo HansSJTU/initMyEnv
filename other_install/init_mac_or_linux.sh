@@ -107,10 +107,11 @@ backup_and_copy ~/.vimrc
 backup_and_copy ~/.gitconfig
 backup_and_copy ~/.bash_profile
 backup_and_copy ~/.inputrc
-backup_and_copy ~/.bash_global_state
 backup_and_copy ~/Library/Preferences/com.apple.Terminal.plist #terminal theme binary config
 backup_and_copy ~/google_start.sh
 backup_and_copy ~/.modmap.file
+backup_and_copy ~/.bash_global_state
+backup_and_copy ~/.hgrc
 
 ${base_dir}/other_install/install_vim.sh ${user_name} ${user_mail}
 ${base_dir}/other_install/install_tpm.sh
@@ -133,6 +134,7 @@ cp ${base_dir}/configs/bash_profile ~/.bash_profile
 cp ${bash_dir}/other_install/google_start.sh ~/google_start.sh
 cp ${bash_dir}/configs/modmap.file ~/.modmap.file
 cp ${bash_dir}/configs/bash_global_state ~/.bash_global_state
+cp ${bash_dir}/configs/hgrc ~/.hgrc
 
 
 if [ ! -e ~/.web_list ]; then
