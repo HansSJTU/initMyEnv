@@ -42,6 +42,7 @@ EOF
 fi
 
 ${base_dir}/other_install/install_vim.sh ${user_name} ${user_mail}
+${base_dir}/other_install/install_tpm.sh
 
 cp ${base_dir}/configs/bash_alias ~/.bash_alias
 cp ${base_dir}/configs/bashrc ~/.bashrc

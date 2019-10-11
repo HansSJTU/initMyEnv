@@ -111,6 +111,7 @@ backup_and_copy ~/.bash_global_state
 backup_and_copy ~/Library/Preferences/com.apple.Terminal.plist #terminal theme binary config
 
 ${base_dir}/other_install/install_vim.sh ${user_name} ${user_mail}
+${base_dir}/other_install/install_tpm.sh
 
 # config for sed
 if [ "$(uname)" == "Darwin" ]; then
