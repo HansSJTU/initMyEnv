@@ -34,6 +34,7 @@ nmap<leader><leader>wq :wq<cr>
 nmap<leader>d :Dash<cr>
 nmap<leader><leader>d diwdiwdiwdiw
 nmap<C-a> 0
+nnoremap<leader>P "*P
 nmap<C-e> $
 vmap<C-a> 0
 vmap<C-e> $

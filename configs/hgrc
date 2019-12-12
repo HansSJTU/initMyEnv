@@ -1,5 +1,6 @@
 [ui]
 merge = vimdiff
+editor=vim
 
 [merge-tools]
 vimdiff.executable = vimdiff
@@ -9,6 +10,9 @@ vimdiff.check=changed,conflicts
 
 [alias]
 push = uploadchain
+pushall = uploadall
 dcl = drop --prune
 cm = resolve --re-merge --all
-
+cd = !${HG} update "$1"; ${HG} xl
+s = !${HG} status; echo '--------'; ${HG} xl
+mv = !${HG} rebase -s "$1" -d "$2"

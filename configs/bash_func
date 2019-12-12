@@ -697,7 +697,7 @@ function _google_dir_exists()
 {
   local input_dir="$1"
   local client_list=($(_google_get_base_dir)*)
-  local potential_regularized_dir=$(echo ${input_dir} | sed "s@^/google3/@@" | sed "s@^google3/@@" | sed "s@^//depot/google3/@@" | sed "s@/depot/google3/@@" | sed "s@depot/google3/@@" | awk -F '/google3/' '{print $NF}')
+  local potential_regularized_dir=$(echo ${input_dir} | sed "s@^/google3/@@" | sed "s@^google3/@@" | sed "s@^//depot/google3/@@" | sed "s@^/depot/google3/@@" | sed "s@^depot/google3/@@" | awk -F '/google3/' '{print $NF}')
   _global_google_dir_exist_flag=0
 
   if [[ ${input_dir} == "exp" ]]; then
@@ -825,13 +825,17 @@ if [[ $(command -v j) ]]; then
     local current_client_name=$(_google_get_client_name)
     local _google_default_client _google_final_dir
 
-    _google_dir_exists "$1"
     if [[ ${#} -gt 1 || -d "$1" || "$1" == "-" ]]; then
       #command cd "$@"
       pushd "$@" > /dev/null
+      return 
     elif [[ "$1" == "=" ]]; then
       popd > /dev/null
-    elif [[ ${_global_google_dir_exist_flag} -eq 1 ]]; then
+      return 
+    fi
+
+    _google_dir_exists "$1"
+    if [[ ${_global_google_dir_exist_flag} -eq 1 ]]; then
       unset _global_google_dir_exist_flag
       echo "${red}[google3]${endcolor} ${_global_google_absolute_path}"
 
@@ -1729,18 +1733,6 @@ function exp() {
     --generateCL
 }
 
-function name() {
-  echo -e "
-  sholzer
-  kedarhindupur
-  vikramj
-  krtek
-  sarveswara
-  shwetakarwa
-  yagrawal
-  sholzer,kedarhindupur,vikramj" | sort
-}
-
 function riskspan() {
   python -c '
 import datetime, sys;
@@ -1768,4 +1760,86 @@ function screenshot() {
 
 function f-train() {
   fileutil --gfs_user=payments-riskengine-auto-trainer $@
+}
+
+function show() {
+  python3 -c "
+import sys, os
+content_map = {}
+with open(sys.argv[1], 'r') as f:
+  lines = f.readlines()
+  lines += ['* ']
+  content = ''
+  name = ''
+  options = set()
+  for line in lines:
+    if line[:2] == '* ':
+      if name:
+        content_map[name] = (content, options)
+      name = line.strip()[2:]
+      content = ''
+      options = set()
+    elif line[:3] == '-- ':
+      options = set(line.strip()[3:].split())
+    else:
+      content += line
+
+print_result = content_map[sys.argv[2]][0]
+print_options = content_map[sys.argv[2]][1]
+print_result = print_result if print_result[-1] != '\n' else print_result[:-1]
+for option in print_options:
+  if option == 'sort':
+    print_result_split = print_result.split('\n')
+    print_result_split.sort()
+    print_result = '\n'.join(print_result_split)
+  if option == 'copy':
+    os.system(\"echo '%s' | xsel -bi\" % print_result)
+
+print(print_result)
+" "${HOME}/.print_info" "$1"
+}
+
+function _show_complete
+{
+  local HOST cur
+  COMPREPLY=()
+  _get_comp_words_by_ref cur
+  HOST="$(command grep "^* .*" "$(common_get_bash_global_state INIT_FILE_ROOT_DIR)/.print_info" | awk '{print $2}')"
+  COMPREPLY=( $( compgen -W "$HOST" -- "$cur" ) )
+}
+
+complete -F _show_complete show
+
+function vim {
+  if [[ "${1}" == /cns/* ]]; then
+    local directory="/prodfs/hanxiaoh/${1}"
+    echo "------- ls -al --------"
+    ls -al "${directory}"
+    echo "-----------------------"
+    cp ${directory} "/tmp/$(basename ${directory})"
+    echo "Local dir: /tmp/$(basename ${directory})"
+    echo "Remote dir: $1"
+    command vim "/tmp/$(basename ${directory})"
+  else
+    command vim $@
+  fi
+}
+
+function stash {
+  for item in "$@"; do
+    if [[ ! -e ${item} ]]; then
+      echo "[Fail] ${item} doesn't exist."
+      continue
+    fi
+
+    local current_date="$(date +%Y%m%d)"
+    local current_time="$(date +%T | sed "s@:@_@g")"
+    local directory="${HOME}/Desktop/Stash/${current_date}/"
+    if [[ ! -d ${directory} ]]; then
+      mkdir -p ${directory}
+    fi
+    local stash_path="${directory}$(basename ${item})_${current_time}"
+    mv $item ${stash_path}
+    echo "[Succ] ${item} stashed to ${stash_path}"
+  done
 }
