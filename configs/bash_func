@@ -1174,5 +1174,70 @@ function vimt-cd() {
   pushd ${tmp_note_dir} >> /dev/null
 }
 
+function show() {
+  python3 -c "
+import sys, os
+content_map = {}
+with open(sys.argv[1], 'r') as f:
+  lines = f.readlines()
+  lines += ['* ']
+  content = ''
+  name = ''
+  options = set()
+  for line in lines:
+    if line[:2] == '* ':
+      if name:
+        content_map[name] = (content, options)
+      name = line.strip()[2:]
+      content = ''
+      options = set()
+    elif line[:3] == '-- ':
+      options = set(line.strip()[3:].split())
+    else:
+      content += line
+
+print_result = content_map[sys.argv[2]][0]
+print_options = content_map[sys.argv[2]][1]
+print_result = print_result if print_result[-1] != '\n' else print_result[:-1]
+for option in print_options:
+  if option == 'sort':
+    print_result_split = print_result.split('\n')
+    print_result_split.sort()
+    print_result = '\n'.join(print_result_split)
+  if option == 'copy':
+    os.system(\"echo '%s' | xsel -bi\" % print_result)
+
+print(print_result)
+" "${HOME}/.print_info" "$1"
+}
+
+function _show_complete
+{
+  local HOST cur
+  COMPREPLY=()
+  _get_comp_words_by_ref cur
+  HOST="$(command grep "^* .*" "$(common_get_bash_global_state INIT_FILE_ROOT_DIR)/.print_info" | awk '{print $2}')"
+  COMPREPLY=( $( compgen -W "$HOST" -- "$cur" ) )
+}
+
+complete -F _show_complete show
 
 
+function stash {
+  for item in "$@"; do
+    if [[ ! -e ${item} ]]; then
+      echo "[Fail] ${item} doesn't exist."
+      continue
+    fi
+
+    local current_date="$(date +%Y%m%d)"
+    local current_time="$(date +%T | sed "s@:@_@g")"
+    local directory="${HOME}/Desktop/Stash/${current_date}/"
+    if [[ ! -d ${directory} ]]; then
+      mkdir -p ${directory}
+    fi
+    local stash_path="${directory}$(basename ${item})_${current_time}"
+    mv $item ${stash_path}
+    echo "[Succ] ${item} stashed to ${stash_path}"
+  done
+}

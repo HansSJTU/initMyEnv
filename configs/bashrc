@@ -1,6 +1,9 @@
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 
+echo "START INITIALIZATION..."
+START=$(date +%s.%N)
+
 ###################################
 ####### START UP FUNCTIONS ########
 ###################################
@@ -203,9 +206,11 @@ if [ -f ~/.bash_alias ]; then
 fi
 
 # For each defined alias, extract the necessary elements and use them
-# to call wrap_alias.
-eval "$(alias -p | sed -e 's/alias \([^=][^=]*\)='\''\([^ ][^ ]*\) *\(.*\)'\''/wrap_alias \1 \2 '\''\3'\'' /')"
-
+# to call wrap_alias. Enable this will vastly increase the initialization
+# time (~0.5s), so prefer to manually bind it by yourself
+eval "$(alias -p | \
+  command grep blaze | \
+  sed -e 's/alias \([^=][^=]*\)='\''\([^ ][^ ]*\) *\(.*\)'\''/wrap_alias \1 \2 '\''\3'\'' /')"
 unset wrap_alias
 
 # auto jump config
@@ -245,7 +250,7 @@ fi
 bind -x '"\C-f": source ~/.bashrc'
 
 # set display
-if grep -q "tmux" < <(pstree -ps $$); then
+if [[ -n "$TMUX" ]]; then
   :; # in tmux session, do noting
 elif grep -q "sshd" < <(pstree -ps $$); then
   common_set_bash_global_state COMMON_SESSION REMOTE
@@ -260,3 +265,7 @@ elif [[ $(common_get_bash_global_state COMMON_SESSION) = "LOCAL" ]]; then
 fi
 
 clear
+
+END=$(date +%s.%N)
+DIFF=$(echo "$END - $START" | bc)
+echo "Initialization finished in: ${DIFF}s"
