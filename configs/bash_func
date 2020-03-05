@@ -1617,23 +1617,6 @@ function client-delete-piper() {
   local current_cl=$(_google_get_current_cl_name)
   echo "Delete ${green}P4${end_color} Client [${red}${current_client_name}${endcolor}]"
 
-  while true; do
-    read -rp "Are you sure to delete (cl/${current_cl})? [y/n/show] " answer
-    if [[ ${answer} = "y" ]] || [[ ${answer} = "Y" ]]; then
-      p4 revert -c ${current_cl}
-      break
-    elif [[ ${answer} = "show" ]]; then
-      cr
-    else
-      return
-    fi
-  done
-
-  read -rp "Are you sure to delete client(${current_client_name})? [y/n] " answer
-  if [[ ${answer} = "y" ]] || [[ ${answer} = "Y" ]]; then
-    g4 citc -d ${current_client_name}
-  fi
-}
 
 function client-delete-fig() {
   local current_client_name=$(_google_get_client_name)
