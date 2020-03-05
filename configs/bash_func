@@ -591,7 +591,12 @@ function decrypt
 
 function _google_get_current_cl_name()
 {
-  p4 -F %Change% change -o -c default
+  local current_client_name=$(_google_get_client_name)
+  if [[ ${current_client_name} == fig-main-* ]]; then
+    hg exportedcl 
+  else
+    p4 -F %Change% change -o -c default
+  fi
 }
 function _google_get_default_client_name()
 {
@@ -599,7 +604,10 @@ function _google_get_default_client_name()
 }
 function _google_get_client_name()
 {
-  p4 -F "%Client%" client -o | awk -F ':' '{print $2}'
+  # Since now we have fig client, we can't use p4 command anymore
+  # p4 -F "%Client%" client -o | awk -F ':' '{print $2}'
+
+  echo ${PWD} | awk -F '/google3/' '{print $1}' | awk -F '/hanxiaoh/' '{print $2}'
 }
 function _google_build_workspace_to_tmp_dir() {
   local build_tmp_dir="/usr/local/google/_blaze_$(common_get_bash_global_state GOOGLE_LDAP)/"
@@ -618,14 +626,12 @@ function _google_choose_client_name()
 {
   local google_absolute_path="$1"
   local google_current_workspace="$2"
-  local file_list_tmp=(${_google_base_dir}*)
-  local file_list=()
   local print_log
+  _google_get_all_client_name 0
 
-  for i in ${file_list_tmp[@]}; do file_list+=($(basename $i)); done
   local _file_count=0
-  for item in ${file_list[@]}; do
-    if [[ -e ${_google_base_dir}/${item}/${google_absolute_path} ]]; then
+  for item in ${_global_google_all_clients[@]}; do
+    if [[ -e $(_google_get_base_dir)/${item}/${google_absolute_path} ]]; then
       print_log="${_file_count}: ${green}${item}${endcolor}"
     else
       print_log="${_file_count}: ${item}"
@@ -637,19 +643,34 @@ function _google_choose_client_name()
     echo "${print_log}"
     ((_file_count++))
   done
-  pushd ${_google_base_dir} > /dev/null
+  pushd $(_google_get_base_dir) > /dev/null
   read -erp "Choose client: " _global_google_client_chosed
   popd > /dev/null
   _global_google_client_chosed="$(echo "${_global_google_client_chosed}" | tr -d '/')"
 
   local re='^[0-9]+$'
   if [[ ${_global_google_client_chosed} =~ $re ]] ; then
-    _global_google_client_chosed=${file_list[${_global_google_client_chosed}]}
+    _global_google_client_chosed=${_global_google_all_clients[${_global_google_client_chosed}]}
   fi
 
-  if [[ ! ${file_list[*]} =~ ${_global_google_client_chosed} ]]; then
+  if [[ ! ${_global_google_all_clients[*]} =~ ${_global_google_client_chosed} ]]; then
     _global_google_client_chosed=""
   fi
+}
+
+function _google_get_all_client_name()
+{
+  local delete_fig_export=$1
+
+  local file_list=($(_google_get_base_dir)*)
+  _global_google_all_clients=()
+  for item in ${file_list[@]}; do
+    local client_base_name="$(basename ${item})"
+    if [[ ${delete_fig_export} -eq 1 && ${client_base_name} == fig-export-* ]]; then
+      continue
+    fi
+    _global_google_all_clients+=("${client_base_name}")
+  done
 }
 
 function _google_choose_client_name_auto_complete_1()
@@ -657,43 +678,45 @@ function _google_choose_client_name_auto_complete_1()
   local HOST cur
   COMPREPLY=()
   _get_comp_words_by_ref cur
-  file_list=(${_google_base_dir}*)
+  _google_get_all_client_name 1
   HOST=""
-  for item in ${file_list[@]}; do
+  for item in ${_global_google_all_clients[@]}; do
     HOST="${HOST} $(basename ${item})"
   done
   COMPREPLY=( $( compgen -W "${HOST}" -- "$cur" ) )
 }
 
-function _google_choose_client_name_auto_complete()
-{
-  local HOST cur
-  COMPREPLY=()
-  _get_comp_words_by_ref cur
-  file_list=(${_google_base_dir}*)
-  HOST=""
-  for item in ${file_list[@]}; do
-    new_client_name=$(basename ${item})
-    current_client_name=$(_google_get_client_name)
-    new_real_dir=$(echo ${PWD} | sed "s@${_google_base_dir}${current_client_name}@${_google_base_dir}${new_client_name}@")
-    if [[ -e ${new_real_dir} && ${new_client_name} != ${current_client_name} ]]; then
-      HOST="${HOST} $(basename ${item})"
-    fi
-  done
-  COMPREPLY=( $( compgen -W "${HOST}" -- "$cur" ) )
-}
 function _google_switch_client()
 {
   local current_client_name=$(_google_get_client_name)
+  local _google_base_dir=$(_google_get_base_dir)
   local new_real_dir=$(echo ${PWD} | sed "s@${_google_base_dir}${current_client_name}@${_google_base_dir}$1@")
   _cd_google_final_dir "${new_real_dir}" "${current_client_name}"
 }
 function _google_dir_exists()
 {
   local input_dir="$1"
-  local client_list=(${_google_base_dir}*)
-  local potential_regularized_dir=$(echo ${input_dir} | sed "s@^/google3/@@" | sed "s@^google3/@@" | sed "s@^//depot/google3/@@" | sed "s@/depot/google3/@@" | sed "s@depot/google3/@@" | awk -F '/google3/' '{print $NF}')
+  local client_list=($(_google_get_base_dir)*)
+  local potential_regularized_dir=$(echo ${input_dir} | sed "s@^/google3/@@" | sed "s@^google3/@@" | sed "s@^//depot/google3/@@" | sed "s@^/depot/google3/@@" | sed "s@^depot/google3/@@" | awk -F '/google3/' '{print $NF}')
   _global_google_dir_exist_flag=0
+
+  if [[ ${input_dir} == "exp" ]]; then
+    _global_google_dir_exist_flag=1
+    _global_google_absolute_path="/google3/experimental/users/$(common_get_bash_global_state GOOGLE_LDAP)"
+    return
+  fi
+
+  if [[ ${input_dir} == "eval" ]]; then
+    _global_google_dir_exist_flag=1
+    _global_google_absolute_path="/google3/java/com/google/paymentfraud/v2/riskengine/evaluation"
+    return
+  fi
+
+  if [[ ${input_dir} == "util" ]]; then
+    _global_google_dir_exist_flag=1
+    _global_google_absolute_path="/google3/java/com/google/paymentfraud/v2/util"
+    return
+  fi
 
   for item in ${client_list[@]}; do
     local google_absolute_path="${item}/google3/${potential_regularized_dir}"
@@ -802,18 +825,23 @@ if [[ $(command -v j) ]]; then
     local current_client_name=$(_google_get_client_name)
     local _google_default_client _google_final_dir
 
-    _google_dir_exists "$1"
     if [[ ${#} -gt 1 || -d "$1" || "$1" == "-" ]]; then
       #command cd "$@"
       pushd "$@" > /dev/null
+      return 
     elif [[ "$1" == "=" ]]; then
       popd > /dev/null
-    elif [[ ${_global_google_dir_exist_flag} -eq 1 ]]; then
+      return 
+    fi
+
+    _google_dir_exists "$1"
+    if [[ ${_global_google_dir_exist_flag} -eq 1 ]]; then
       unset _global_google_dir_exist_flag
       echo "${red}[google3]${endcolor} ${_global_google_absolute_path}"
 
-      if [[ -f ~/.default_client ]]; then
-        _google_default_client=$(_google_get_default_client_name)
+      _google_base_dir=$(_google_get_base_dir)
+      if [[ $(common_get_bash_global_state GOOGLE_DEFAULT_CLIENT) != "NO_DEFAULT" ]]; then
+        _google_default_client=$(common_get_bash_global_state GOOGLE_DEFAULT_CLIENT)
         if [[ -e "${_google_base_dir}/${_google_default_client}/${_global_google_absolute_path}" ]]; then
           _google_final_dir="${_google_base_dir}/${_google_default_client}/${_global_google_absolute_path}"
         else
@@ -860,7 +888,7 @@ if [[ $(command -v j) ]]; then
     _google_dir_exists "$1"
     local current_client_name=$(_google_get_client_name)
     _google_choose_client_name "${_global_google_absolute_path}" "${current_client_name}"
-    local _google_final_dir="$(echo "${_google_base_dir}/${_global_google_client_chosed}/${_global_google_absolute_path}" | tr -s '/')"
+    local _google_final_dir="$(echo "$(_google_get_base_dir)/${_global_google_client_chosed}/${_global_google_absolute_path}" | tr -s '/')"
     unset _global_google_client_chosed _global_google_absolute_path
     _cd_google_final_dir "${_google_final_dir}" "${current_client_name}"
   }
@@ -1404,7 +1432,7 @@ function d
   fi
   local relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}')
   echo "//${relative_path}${suffix}"
-  echo -n "\"//${relative_path}${suffix}\"," | xsel -bi
+  _default_copy "$(echo -n "\"//${relative_path}${suffix}\",")"
 }
 complete -o nospace -F _blaze::complete_build_target_wrapper d
 
@@ -1413,7 +1441,7 @@ function di
   local path="${PWD}"
   local relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}' | sed "s@/@.@g")
   echo "import ${relative_path}"
-  echo -n "import ${relative_path};" | xsel -bi
+  _default_copy "$(echo -n "import ${relative_path};")"
 }
 complete -o nospace -F _blaze::complete_build_target_wrapper d
 
@@ -1540,25 +1568,6 @@ function p4-cheat
   echo -e "------------------------------------------------"
 }
 
-function g4_merge() {
-  tmp_problem_files=$(mktemp)
-
-  g4 sync | grep "is opened for add and can't be replaced" \
-    | cut -d\# -f1 > ${tmp_problem_files}
-  g4 -x ${tmp_problem_files} revert
-  g4 -x ${tmp_problem_files} flush
-  g4 -x ${tmp_problem_files} edit
-
-  # Workaround for http://b/7642604
-  g4 sync | grep "is opened for delete and can't be deleted" \
-    | cut -d\# -f1 > ${tmp_problem_files}
-  g4 -x ${tmp_problem_files} revert
-
-  g4 revert -a
-  g4 sync
-  rm ${tmp_problem_files}
-}
-
 function vimt() {
   tmp_note_dir="$(common_get_bash_global_state INIT_FILE_ROOT_DIR)/.tempNodes/"
   current_date="$(date +%Y%m%d)"
@@ -1590,36 +1599,47 @@ function vimt-cd() {
   pushd ${tmp_note_dir} >> /dev/null
 }
 
+function client-delete-piper() {
+  local current_client_name=$(_google_get_client_name)
+  local current_cl=$(_google_get_current_cl_name)
+  echo "Delete ${green}P4${end_color} Client [${red}${current_client_name}${endcolor}]"
+
+
+function client-delete-fig() {
+  local current_client_name=$(_google_get_client_name)
+  echo "Delete ${green}Fig${end_color} Client [${red}${current_client_name}${endcolor}]"
+  hg l
+  yes n | hg cls-drop $(hg l | command grep -o "<.* http://cl/.*>" | awk -F '//cl/' '{print $NF}' | tr -d '>' | sort -u)
+  read -rp "Are you sure to delete all cls? [y/n] " answer
+  if [[ ${answer} = "y" ]] || [[ ${answer} = "Y" ]]; then
+    hg cls-drop --skip-confirmation $(hg l | command grep -o "<.* http://cl/.*>" | awk -F '//cl/' '{print $NF}' | tr -d '>' | sort -u)
+    hg citc -d ${current_client_name}
+  fi
+}
+
 function client-delete() {
   if [[ ! -z $1 ]]; then
     cds "$1"
   fi
-  current_client_name=$(_google_get_client_name)
-  current_cl=$(_google_get_current_cl_name)
-  echo "Delete Client [${red}${current_client_name}${endcolor}]"
-
-  while true; do
-    read -rp "Are you sure to delete (cl/${current_cl})? [y/n/show] " answer
-    if [[ ${answer} = "y" ]] || [[ ${answer} = "Y" ]]; then
-      p4 revert -c ${current_cl}
-      break
-    elif [[ ${answer} = "show" ]]; then
-      cr
-    else
-      return
-    fi
-  done
-
-  read -rp "Are you sure to delete client(${current_client_name})? [y/n] " answer
-  if [[ ${answer} = "y" ]] || [[ ${answer} = "Y" ]]; then
-    g4 citc -d ${current_client_name}
+  local current_client_name=$(_google_get_client_name)
+  if [[ ${current_client_name} == fig-main* ]]; then
+    client-delete-fig
+  else
+    client-delete-piper
   fi
 }
 
 function client() {
-  current_client_name=$(_google_get_client_name)
-  current_default_client_name=$(_google_get_default_client_name)
-  new_client_name="$1"
+  local current_client_name=$(_google_get_client_name)
+  local current_default_client_name=$(_google_get_default_client_name)
+  local is_fig=0
+  if [[ "$1" = "-f" ]]; then
+    new_client_name="fig-main-$2"
+    is_fig=1
+  else
+    new_client_name="$1"
+  fi
+
   if [[ ! -z $2 && $2 == "eval" ]]; then
     entered_dir="/google/src/cloud/hanxiaoh/${new_client_name}/google3/java/com/google/paymentfraud/v2/riskengine/evaluation"
   elif [[ ! -z $2 && $2 == "exp" ]]; then
@@ -1629,11 +1649,21 @@ function client() {
   else
     entered_dir="/google/src/cloud/hanxiaoh/${new_client_name}/google3/java/com/google/paymentfraud/v2/"
   fi
-  tmux new-window "/bin/sh -c 'p4 g4d -f ${new_client_name}; \
-    cd ${entered_dir}; \
-    echo wait for 1 seconds...; \
-    sleep 1; \
-    exec bash'"
+
+  if [[ ${is_fig} -eq 0 ]]; then
+    tmux new-window "/bin/sh -c 'p4 g4d -f ${new_client_name}; \
+      cd ${entered_dir}; \
+      echo wait for 1 seconds...; \
+      sleep 1; \
+      exec bash'"
+  else
+    tmux new-window "/bin/sh -c 'hg citc ${new_client_name}; \
+      g4d ${new_client_name}; \
+      cd ${entered_dir}; \
+      echo wait for 1 seconds...; \
+      sleep 1; \
+      exec bash'"
+  fi
 }
 
 function b() {
@@ -1654,7 +1684,7 @@ function b() {
 
   if [[ ! -z ${add_dep_command} ]]; then
     echo "${add_dep_command}"
-    read -rp "execute? (enter to execute): " add_dep_option 
+    read -rp "execute? (enter to execute): " add_dep_option
     if [[ -z ${add_dep_option} ]]; then
       eval "${add_dep_command}"
     fi
@@ -1669,7 +1699,7 @@ function b() {
   fi
 }
 
-function snip() 
+function snip()
 {
   if [[ -z $1 ]]; then
     vim ~/.vim_runtime/sources_forked/vim-snippets/UltiSnips/java.snippets
@@ -1709,6 +1739,10 @@ function screenshot() {
   uri=$(curl -sF "imagedata=@$file" $server )
   echo "Local copy: ${file}"
   echo "Web url: ${uri}"
+}
+
+function f-train() {
+  fileutil --gfs_user=payments-riskengine-auto-trainer $@
 }
 
 function show() {
@@ -1758,6 +1792,21 @@ function _show_complete
 }
 
 complete -F _show_complete show
+
+function vim {
+  if [[ "${1}" == /cns/* ]]; then
+    local directory="/prodfs/hanxiaoh/${1}"
+    echo "------- ls -al --------"
+    ls -al "${directory}"
+    echo "-----------------------"
+    cp ${directory} "/tmp/$(basename ${directory})"
+    echo "Local dir: /tmp/$(basename ${directory})"
+    echo "Remote dir: $1"
+    command vim "/tmp/$(basename ${directory})"
+  else
+    command vim $@
+  fi
+}
 
 function stash {
   for item in "$@"; do

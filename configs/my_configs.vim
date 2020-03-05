@@ -258,7 +258,7 @@ map <leader>o :call HandleURL()<cr>
 function! GoToCodeSearchUnerCursor()
     let s:current_line = line('.')
     let s:file_path = expand('%:p')
-    silent exec "!source ~/.bashrc; source ~/.bash_func c '".s:file_path."' '"s:current_line"'"
+    silent exec "!source ~/.bashrc; source ~/.bash_func; c '".s:file_path."' '"s:current_line"'"
 endfunction
 map <silent><leader>cc :call GoToCodeSearchUnerCursor()<cr>:redraw!<cr>
 
