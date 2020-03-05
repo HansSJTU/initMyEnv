@@ -607,7 +607,8 @@ function _google_get_client_name()
   # Since now we have fig client, we can't use p4 command anymore
   # p4 -F "%Client%" client -o | awk -F ':' '{print $2}'
 
-  echo ${PWD} | awk -F '/google3/' '{print $1}' | awk -F '/hanxiaoh/' '{print $2}'
+  local google_user="$(common_get_bash_global_state GOOGLE_LDAP)"
+  echo ${PWD} | awk -F '/google3' '{print $1}' | awk -F "/${google_user}/" '{print $2}'
 }
 function _google_build_workspace_to_tmp_dir() {
   local build_tmp_dir="/usr/local/google/_blaze_$(common_get_bash_global_state GOOGLE_LDAP)/"
@@ -715,6 +716,12 @@ function _google_dir_exists()
   if [[ ${input_dir} == "util" ]]; then
     _global_google_dir_exist_flag=1
     _global_google_absolute_path="/google3/java/com/google/paymentfraud/v2/util"
+    return
+  fi
+
+  if [[ ${input_dir} == "apt" ]]; then
+    _global_google_dir_exist_flag=1
+    _global_google_absolute_path="/google3/paymentfraud/v2/tools/automated_training/worker_handlers"
     return
   fi
 
@@ -860,6 +867,12 @@ if [[ $(command -v j) ]]; then
 
       _google_final_dir="$(echo "${_google_final_dir}" | tr -s '/')"
       _cd_google_final_dir "${_google_final_dir}" "${current_client_name}"
+    elif [[ -f "$1" ]]; then
+      pushd "$(dirname $1)" > /dev/null
+      read -rp "Open file <$(basename $1)> ? [y/n] " open_option
+      if [[ ${open_option} == 'y' || ${open_option} == 'Y' ]]; then
+        vim "$(basename $1)"
+      fi
     else
       local old_path="${PWD}"
       echo -n "${red}[Auto Jump] ${endcolor}"
@@ -1397,7 +1410,7 @@ function c
     path="${PWD}"
   fi
   relative_path=$(echo "${path}" | awk -F '/google3/' '{print $2}')
-  code_path="https://cs.corp.google.com/piper///depot/google3/${relative_path}&l=$2"
+  code_path="https://cs.corp.google.com/piper///depot/google3/${relative_path};l=$2"
   code_path=${code_path/\ /}
   echo ${code_path}
   _default_open "${code_path}"
