@@ -113,6 +113,7 @@ backup_and_copy ~/google_start.sh
 backup_and_copy ~/.modmap.file
 
 ${base_dir}/other_install/install_vim.sh ${user_name} ${user_mail}
+${base_dir}/other_install/install_tpm.sh
 
 # config for sed
 if [ "$(uname)" == "Darwin" ]; then

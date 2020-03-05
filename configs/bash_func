@@ -56,12 +56,26 @@ fi
 # default method to open without log
 function _default_open {
   if [[ $(common_get_bash_global_state COMMON_SESSION) = "REMOTE" ]]; then
-    python ~/grpc/src/openapp_client.py "$1"
+    python ~/grpc/src/openapp_client.py "open" "$1"
   elif [[ $(common_get_bash_global_state COMMON_SESSION) = "LOCAL" ]]; then
     if [ "$(uname)" == "Darwin" ]; then
       open "${1}"
     elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
       xdg-open "${1}" 2>/dev/null 1>/dev/null
+    fi
+  else
+    echo "wrong.."
+  fi
+}
+
+function _default_copy {
+  if [[ $(common_get_bash_global_state COMMON_SESSION) = "REMOTE" ]]; then
+    python ~/grpc/src/openapp_client.py "copy" "$1"
+  elif [[ $(common_get_bash_global_state COMMON_SESSION) = "LOCAL" ]]; then
+    if [ "$(uname)" == "Darwin" ]; then
+      echo -n "$@" | pbcopy
+    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+      echo -n "$@" | xsel -bi
     fi
   else
     echo "wrong.."
@@ -381,7 +395,7 @@ function de
 {
   while read data; do
     tmp=$(echo -n "${data}" | sed "s@\\\$@\\\\\$@g;s@\"@\\\\\"@g")
-    echo -n "\"${tmp}\"" | pbcopy
+    _default_copy "$(echo -n "\"${tmp}\"")"
   done
 }
 
@@ -394,7 +408,7 @@ function url-short
   echo "------ URL -------"
   echo "${content}"
   echo "------------------"
-  echo -n "${content}" | sed -n '$p' | awk -F ': ' '{print $2}' | tr -d '\n' | pbcopy
+  _default_copy "$(echo -n "${content}" | sed -n '$p' | awk -F ': ' '{print $2}' | tr -d '\n')"
 }
 
 function websync
@@ -1408,9 +1422,9 @@ function f()
 {
   _s_path=${PWD}
   if [ "$(uname)" == "Darwin" ]; then
-    echo -n "${_s_path}" | pbcopy
+    _default_copy "$(echo -n "${_s_path}")"
   elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    echo -n "${_s_path}" | xsel -bi
+    _default_copy "$(echo -n "${_s_path}")"
   fi
 }
 function ff()
@@ -1672,18 +1686,6 @@ function exp() {
     --generateCL
 }
 
-function name() {
-  echo -e "
-  sholzer
-  kedarhindupur
-  vikramj
-  krtek
-  sarveswara
-  shwetakarwa
-  yagrawal
-  sholzer,kedarhindupur,vikramj" | sort
-}
-
 function riskspan() {
   python -c '
 import datetime, sys;
@@ -1707,4 +1709,71 @@ function screenshot() {
   uri=$(curl -sF "imagedata=@$file" $server )
   echo "Local copy: ${file}"
   echo "Web url: ${uri}"
+}
+
+function show() {
+  python3 -c "
+import sys, os
+content_map = {}
+with open(sys.argv[1], 'r') as f:
+  lines = f.readlines()
+  lines += ['* ']
+  content = ''
+  name = ''
+  options = set()
+  for line in lines:
+    if line[:2] == '* ':
+      if name:
+        content_map[name] = (content, options)
+      name = line.strip()[2:]
+      content = ''
+      options = set()
+    elif line[:3] == '-- ':
+      options = set(line.strip()[3:].split())
+    else:
+      content += line
+
+print_result = content_map[sys.argv[2]][0]
+print_options = content_map[sys.argv[2]][1]
+print_result = print_result if print_result[-1] != '\n' else print_result[:-1]
+for option in print_options:
+  if option == 'sort':
+    print_result_split = print_result.split('\n')
+    print_result_split.sort()
+    print_result = '\n'.join(print_result_split)
+  if option == 'copy':
+    os.system(\"echo '%s' | xsel -bi\" % print_result)
+
+print(print_result)
+" "${HOME}/.print_info" "$1"
+}
+
+function _show_complete
+{
+  local HOST cur
+  COMPREPLY=()
+  _get_comp_words_by_ref cur
+  HOST="$(command grep "^* .*" "$(common_get_bash_global_state INIT_FILE_ROOT_DIR)/.print_info" | awk '{print $2}')"
+  COMPREPLY=( $( compgen -W "$HOST" -- "$cur" ) )
+}
+
+complete -F _show_complete show
+
+function stash {
+  for item in "$@"; do
+    if [[ ! -e ${item} ]]; then
+      echo "[Fail] ${item} doesn't exist."
+      continue
+    fi
+
+    local current_date="$(date +%Y%m%d)"
+    local current_time="$(date +%T | sed "s@:@_@g")"
+    local directory="${HOME}/Desktop/Stash/${current_date}/"
+    if [[ ! -d ${directory} ]]; then
+      mkdir -p ${directory}
+    fi
+    local stash_path="${directory}$(basename ${item})_${current_time}"
+    mv $item ${stash_path}
+    echo "[Succ] ${item} stashed to ${stash_path}"
+  done
 }
