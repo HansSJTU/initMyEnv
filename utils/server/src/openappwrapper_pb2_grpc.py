@@ -19,6 +19,11 @@ class OpenerStub(object):
         request_serializer=openappwrapper__pb2.CommandRequest.SerializeToString,
         response_deserializer=openappwrapper__pb2.DebugReply.FromString,
         )
+    self.ListenForContent = channel.unary_stream(
+        '/openappwrapper.Opener/ListenForContent',
+        request_serializer=openappwrapper__pb2.Id.SerializeToString,
+        response_deserializer=openappwrapper__pb2.CommandRequest.FromString,
+        )
 
 
 class OpenerServicer(object):
@@ -32,6 +37,13 @@ class OpenerServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def ListenForContent(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_OpenerServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -39,6 +51,11 @@ def add_OpenerServicer_to_server(servicer, server):
           servicer.Open,
           request_deserializer=openappwrapper__pb2.CommandRequest.FromString,
           response_serializer=openappwrapper__pb2.DebugReply.SerializeToString,
+      ),
+      'ListenForContent': grpc.unary_stream_rpc_method_handler(
+          servicer.ListenForContent,
+          request_deserializer=openappwrapper__pb2.Id.FromString,
+          response_serializer=openappwrapper__pb2.CommandRequest.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

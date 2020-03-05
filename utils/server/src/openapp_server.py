@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 # vim:fenc=utf-8
 #
@@ -32,10 +32,14 @@ _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 DEBUG_CHANNEL = '[::]:50051'
 REAL_CHANNEL = '[::]:9100'
 
-channel = REAL_CHANNEL
+channel = DEBUG_CHANNEL
 
 class Opener(openappwrapper_pb2_grpc.OpenerServicer):
+    def __init__(self):
+        self.command_queue = []
 
+    """
+    # Direct Connect Mode.
     def Open(self, request, context):
         if request.mode == 'open':
             command = "open " + request.command
@@ -50,10 +54,31 @@ class Opener(openappwrapper_pb2_grpc.OpenerServicer):
         message = message.replace('\n', '\ n')
         logging.warning(message)
         return openappwrapper_pb2.DebugReply(message=message)
+    """
 
+    def Open(self, request, context):
+        print('Command Received: {com}'.format(com=str(request)))
+        self.command_queue.append(request)
+        return openappwrapper_pb2.DebugReply(message='RPC SUC')
+
+    def ListenForContent(self, request, context):
+        print('Start Listening for Machine: ' + request.machine_name)
+        # Flush current pool
+        print('--------- FLUSHING ---------')
+        print(self.command_queue)
+        self.command_queue = []
+        print('--------- DONE ---------')
+
+        lastindex = 0
+        while True:
+            time.sleep(1)
+            while len(self.command_queue) > lastindex:
+                content = self.command_queue[lastindex]
+                lastindex += 1
+                yield content
 
 def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=2))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
     openappwrapper_pb2_grpc.add_OpenerServicer_to_server(Opener(), server)
     server.add_insecure_port(channel)
     server.start()
