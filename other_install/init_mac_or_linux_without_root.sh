@@ -42,6 +42,7 @@ EOF
 fi
 
 ${base_dir}/other_install/install_vim.sh ${user_name} ${user_mail}
+${base_dir}/other_install/install_tpm.sh
 
 cp ${base_dir}/configs/bash_alias ~/.bash_alias
 cp ${base_dir}/configs/bashrc ~/.bashrc
@@ -50,6 +51,7 @@ cp ${base_dir}/configs/tmux.conf ~/.tmux.conf
 cp ${base_dir}/configs/my_configs.vim ~/.vim_runtime/
 cp ${base_dir}/configs/gitconfig ~/.gitconfig; sed -i "s?#NAME#?${git_name}?g;s?#MAIL#?${git_email}?g" ~/.gitconfig
 cp ${base_dir}/configs/git-completion.bash ~/.git-completion.bash
+cp ${base_dir}/configs/bash_global_state ~/.bash_global_state
 if [ ! -e ~/.web_list ]; then
     cp ${base_dir}/configs/web_list ~/.web_list
 fi

@@ -22,14 +22,20 @@ package openappwrapper;
 service Opener {
   // Sends a greeting
   rpc Open (CommandRequest) returns (DebugReply) {}
+  rpc ListenForContent (Id) returns (stream CommandRequest) {}
 }
 
 // The request message containing the user's name.
 message CommandRequest {
   string command = 1;
+  string mode = 2;
 }
 
 // The response message containing the greetings
 message DebugReply {
   string message = 1;
+}
+
+message Id {
+  string machine_name = 1;
 }

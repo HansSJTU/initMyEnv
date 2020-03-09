@@ -9,17 +9,17 @@ set swapfile
 set shortmess=a
 set autoread
 
-let s:tabwidth=4
+let s:tabwidth=2
 exec 'set tabstop='    .s:tabwidth
 exec 'set shiftwidth=' .s:tabwidth
 exec 'set softtabstop='.s:tabwidth
 
 " copy and paste
-vmap<leader>y mby:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }" <cr>:redraw!<cr>`b
-nmap<leader>y mbyiw:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>`b
-nmap<leader>yy yy:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>pggdd:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>
-nmap<leader>yya mbvG$y:silent exec "!rm ~/.vbuf"<cr>:redraw!<cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>`b
-nmap<leader>yyaa mbggvG$y:silent exec "!rm -f ~/.vbuf"<cr>:redraw!<cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:silent exec "!{ sed -z '$ s@\\n$@@' ~/.vbuf \| pbcopy; }"<cr>:redraw!<cr>`b
+vmap<leader>y mby:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:silent exec "!sed -z '$ s@\\n$@@' ~/.vbuf" <cr>:silent exec "!{ source ~/.bashrc; source ~/.bash_func; _default_copy \"$(cat ~/.vbuf)\"; }"<cr>:redraw!<cr>`b
+nmap<leader>y mbyiw:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>p:w<cr>:bdelete!<cr>:silent exec "!sed -z '$ s@\\n$@@' ~/.vbuf"<cr>:silent exec "!{ source ~/.bashrc; source ~/.bash_func; _default_copy \"$(cat ~/.vbuf)\"; }"<cr>:redraw!<cr>`b
+nmap<leader>yy yy:silent exec "!rm ~/.vbuf"<cr>:tabnew ~/.vbuf<cr>pggdd:w<cr>:bdelete!<cr>:silent exec "!sed -z '$ s@\\n$@@' ~/.vbuf"<cr>:silent exec "!{ source ~/.bashrc; source ~/.bash_func; _default_copy \"$(cat ~/.vbuf)\"; }"<cr>:redraw!<cr>
+nmap<leader>yya mbvG$y:silent exec "!rm ~/.vbuf"<cr>:redraw!<cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:silent exec "!sed -z '$ s@\\n$@@' ~/.vbuf"<cr>:silent exec "!{ source ~/.bashrc; source ~/.bash_func; _default_copy \"$(cat ~/.vbuf)\"; }"<cr>:redraw!<cr>`b
+nmap<leader>yyaa mbggvG$y:silent exec "!rm -f ~/.vbuf"<cr>:redraw!<cr>:tabnew ~/.vbuf<cr>pgg:w<cr>:bdelete!<cr>:silent exec "!sed -z '$ s@\\n$@@' ~/.vbuf"<cr>:silent exec "!{ source ~/.bashrc; source ~/.bash_func; _default_copy \"$(cat ~/.vbuf)\"; }"<cr>:redraw!<cr>`b
 nmap<leader>p :r! sed -z '$ s@\\n$@@' ~/.vbuf<cr>
 
 " auxiliary
@@ -34,6 +34,7 @@ nmap<leader><leader>wq :wq<cr>
 nmap<leader>d :Dash<cr>
 nmap<leader><leader>d diwdiwdiwdiw
 nmap<C-a> 0
+nnoremap<leader>P "*P
 nmap<C-e> $
 vmap<C-a> 0
 vmap<C-e> $
@@ -256,4 +257,3 @@ map <leader>o :call HandleURL()<cr>
 
 let g:UltiSnipsExpandTrigger="ff"
 let g:UltiSnipsJumpForwardTrigger="<leader>a"
-
