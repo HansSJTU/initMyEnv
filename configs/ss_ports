@@ -5,7 +5,7 @@ Port|User|Type|Comments
 9003|Hans/Phone|Normal|
 9004|Hans/iPad|Normal|
 9005|Jalin/iPhone&iPad|Normal|
-9006|Jalin/Mac|Normal|
+9006|Jalin/Mac|Kcptun|port:29906
 9007|Not_Used_Yet||
 9008|Not_Used_Yet|Kcptun|port:29908
 9009|LuoChen|Normal|
