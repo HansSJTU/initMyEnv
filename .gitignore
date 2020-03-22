@@ -1,2 +1,4 @@
 Logs
-configs/ss_ports_table
+configs/ss_ports_table.jpg
+*.swp
+*.pyc
