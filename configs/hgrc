@@ -1,3 +1,6 @@
+[google]
+changes.autoresolve=true
+
 [ui]
 merge = vimdiff
 editor=vim
@@ -13,6 +16,8 @@ push = uploadchain
 pushall = uploadall
 dcl = drop --prune
 cm = resolve --re-merge --all
-cd = !${HG} update "$1"; ${HG} xl
-s = !${HG} status; echo '--------'; ${HG} xl
+cd = !{ if [[ "$1" == "prev" ]]; then ${HG} prev; elif [[ "$1" == "next" ]]; then ${HG} next; else ${HG} update "$1"; fi }; ${HG} xl;
+cd prev = !${HG} prev
+cd next = !${HG} next
+s = !echo -e '\e[33;01m---- Working Directory ----\e[m'; ${HG} status; echo -e '\e[33;01m---------------------------\e[m\n'; ${HG} xl; echo -e '\e[32;01m--------- Amended ---------\e[m'; ${HG} pstatus; echo -e '\e[32;01m---------------------------\e[m\n'
 mv = !${HG} rebase -s "$1" -d "$2"
