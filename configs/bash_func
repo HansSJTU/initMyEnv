@@ -17,36 +17,6 @@ if [ "$(uname)" == "Darwin" ]; then
       "${copy_path}"
   }
 
-  # open safari
-  function safari {
-    /usr/bin/env osascript <<-EOF
-      tell application "Safari"
-        reopen
-        activate
-      end tell
-EOF
-  }
-
-  # double click x11
-  function dcc {
-    /usr/bin/env osascript <<-EOF
-      tell application "XQuartz"
-        reopen
-        activate
-      end tell
-
-      tell application "System Events" to keystroke "," using {command down}
-      tell application "System Events" to keystroke "  "
-      tell application "System Events" to keystroke "w" using {command down}
-
-      delay 0.3
-      tell application "Terminal"
-        reopen
-        activate
-      end tell
-EOF
-  }
-
   # redifine use subl
   function subl {
     /Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl "$1"
